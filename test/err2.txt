@@ -1,0 +1,26 @@
+class Point(xc: Integer, yc: Integer) { x := xc; y := yc; } is {
+  var x: Integer;
+  var y: Integer;
+  var name: String := "?";
+  
+  def id() : Point := this
+  def setName(s: String) is {}
+  def setName2(s: String) is {}
+  def setName3(s: String) is {}
+  def setName4(s: String) is {}
+  def print() : Point is { result := this; name.println(); }
+
+}
+
+class Point2() extends Point(0) is { /* mauvais profil */
+  def id() : Point := this /* manque override */
+  override def id2() is {} /* override incorrect */
+  override def setName(s: Integer) is {} /* mauvais profil */
+  override def setName2(s: String) : Integer is
+      { result := "x" ; } /* mauvais profil et erreur de type */
+  override def setName3(s: String, i: Integer) is {} /* mauvais profil */
+  override def setName4() is {} /* mauvais profil */
+}
+
+{ 
+}

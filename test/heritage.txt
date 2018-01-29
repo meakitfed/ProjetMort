@@ -1,0 +1,28 @@
+class A() is {
+}
+class A1() extends A() is {
+}
+
+class A2() extends A() is {
+}
+
+class A11() extends A1() is {
+}
+
+class A21() extends A2() is {
+}
+
+class B() is {
+  def test(a: A, a1: A1, a2: A2) : Integer := 1
+}
+{
+  var b: B := new B();
+  var v: A ;
+  var v1: A1;
+  var v11: A11;
+  var v2 : A2;
+  var v21: A21;
+  is
+  (b.test(v, v1, v2)).toString().println();
+  b.test(v, v11, v21).toString().println();
+}

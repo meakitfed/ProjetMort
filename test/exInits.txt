@@ -1,0 +1,13 @@
+class A0(ic: Integer) { i := ic; } is {
+  var i: Integer;
+}
+class A(xc: Integer) extends A0(2*xc) { x := xc; } is {
+  var x: Integer;
+  var y: Integer := 12;
+  def f() : Integer := x + y + i
+}
+{
+ var a : A := new A(5);
+ is
+ a.f().toString().println();
+}

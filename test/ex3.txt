@@ -1,0 +1,39 @@
+class A() is {
+  def f() : Integer := 0
+}
+class A1() extends A() is {
+  override def f() : Integer := 1
+}
+class A2() extends A() is {
+  override def f() : Integer := 2
+  def g() : Integer := super.f()
+}
+class A11() extends A1() is {
+  override def f() : Integer := 11
+}
+
+class A21() extends A2() is {
+  override def f() : Integer := 21
+}
+class B() is {
+  def test(a: A, a1: A1, a2: A2) : Integer is {
+      var res : A;
+      var v : Integer;
+      is
+        if a.f() = 0 then res := a1; else res := a2; /* OK */
+        /* a2 := res; *	/* KO ! */
+        v := res.f();
+	result := v;
+  }
+}
+{
+  var b : B := new B(); var a2 : A2; var a : A;
+  is
+  a := new A();
+  a2 := new A2();
+  a.f().toString().println();
+  a2.f().toString().println();
+  a := a2;
+  a.f().toString().println();  
+  (new B()).test(new A(), new A11(), new A21()).toString().println();
+}

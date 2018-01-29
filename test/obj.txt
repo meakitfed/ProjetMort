@@ -1,0 +1,7 @@
+object Test is {
+var x: Integer := 57;
+def theX() : Integer := x
+}
+{
+Test.theX().toString().println();
+}

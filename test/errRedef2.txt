@@ -1,0 +1,12 @@
+class A() is {
+  def f(x: Integer) is {}
+}
+
+class B() extends A() is {
+
+}
+
+class C() extends B() is {
+  override def f(x: String) is {}
+}
+{}

@@ -1,0 +1,5 @@
+class A() is { var va: Integer := 1; }
+class B() extends Integer() is { var vb: Integer := 2; }
+class A() extends B() is { var w: Integer := 3; }
+{
+}

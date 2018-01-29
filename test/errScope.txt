@@ -1,0 +1,11 @@
+class Point(xc: Integer, yc: Integer)
+  /* correct, on est dans le constructeur, yc est visible;
+   * y est un champ de la classe donc est aussi visible.
+   */
+  { y := yc; }
+is {
+  var x: Integer := xc; /* incorrect: xc inconnu ici */
+  var y: Integer;
+}
+{
+}

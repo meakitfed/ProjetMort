@@ -1,0 +1,16 @@
+class A() is {
+
+ var x: Integer;
+ var y: Integer;
+
+ def f(s: String, x: String, z: String) is {
+   s & s;
+   y + y;
+   x & x /* y */;
+   /* x */ + y;
+ }
+
+ def g(k: String /* Integer */) is { this.f(k /* x*/, "coucou", k); }
+}
+{
+}

@@ -1,0 +1,36 @@
+class A() is {
+  var v: Integer := 1;
+  def f() : Integer := v
+}
+class A2() extends A() is {
+  var v: String := "coucou";
+  var w: Integer := 5;
+  def g() : String := v
+}
+class A3() extends A2() is {
+  var v: Integer := 5;
+  override def f() : Integer := v
+  def h() : Integer := (A this).v /* OK */
+  def h2(): String := (A2 this).v /* OK */
+  def k() : Integer := (A this).w /* Incorrect */
+}
+class A4() extends A3() is {
+}
+class B() extends A() /* une soeur de A2 ! */
+is { }
+{
+  var monA : A := new A();
+  var monA2 : A2 := new A2();
+  var monA3 : A3 := new A3();
+  var monA4 : A4 := new A4();
+  var monB : B:= new B();
+  is
+  (A monA3).h().toString.println(); /* KO: h indefinie dans A */
+  (A4 monA3); /* KO: pas de cast descendant */
+  (A3 monA4); /* OK */
+  (A3 monA);
+  (A2 monA4).k();
+  (Unknown monA4);
+  (B monA2);
+  (A2 monB);
+}

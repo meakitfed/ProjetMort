@@ -1,0 +1,25 @@
+class A() { result := unA; } is {
+   var unA : A := new A();
+   var result : Integer := 0;
+   def f(result: Integer) is { }
+   def g() is {
+      var result : Integer := 0;
+      is
+      result := 1;
+   }
+   def h() is {
+     result := 1;
+   }
+   def k() : Integer is {
+     result := 1;
+   }
+   def k2() : Integer is {
+     result := "coucou";
+   }
+}
+{
+  var result : Integer := 1;
+  is
+  1;
+  result.toString().println();
+}

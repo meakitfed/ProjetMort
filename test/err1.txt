@@ -1,0 +1,30 @@
+class Point(xc: Integer, yc: Integer) { x := xc; y := yc; } is {
+  var x: Integer;
+  var y: Integer;
+  var name: String := "?";
+  var super : Integer := 15; /* interdit */
+
+  def setName(s: String) : Point is {
+      name := s; 
+      super := s; /* interdit */
+  }
+
+  def print() is { 
+      name.println();
+      this = name;   /* interdit */
+      this.x := super.x; /* incorrect */
+      result := this;	 /* interdit car pas de type de retour. */
+  }
+
+}
+{ 
+  var p1: Point := new Point(1, 5);
+  var p2: Point := new Point(2, 3);
+  var x: Integer := new Integer(1);	/* interdit */
+  is
+  this := x;		/* interdit */
+  result := x;		/* interdit */
+  p2.setName("glop");
+  p1.print();
+  p2.print();
+}

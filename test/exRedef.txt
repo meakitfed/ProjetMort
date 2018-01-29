@@ -1,0 +1,26 @@
+class Point(xc: Integer, yc: Integer) is {
+  var name : String;
+
+  def g(p: Point) is { }
+  def f() is { "Point::f".println(); }
+  def h() is { "Point::h".println(); }
+  def biz(arg : Point) is {
+      this.h(); 
+      arg.h();  
+  }
+}
+
+class Point2() extends Point(0, 0) is {
+  override def f() is { "Point2::f".println(); }
+  override def h() is { "Point2::h".println(); }
+  def glop2() is { super.f(); }  /* OK */
+}
+
+{ var p : Point := new Point(0, 0);
+  var p2 : Point2 := new Point2();
+  is
+  p.h();
+  p2.h();
+  p2.biz(p2);
+  p2.glop2();
+}

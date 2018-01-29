@@ -1,0 +1,42 @@
+class Point(xc: Integer, yc: Integer) {
+     x:= xc; z := y; /* OK: valeur de y deja definie */
+     w2 := -25;
+  } is {
+  var x: Integer;
+  /* var y := yc; */         /* erreur contextuelle: yc inconnu */
+  /* var y: Integer := x; */ /* valeur de x encore indefinie */
+  var y : Integer := 5;
+  var z: Integer;
+  var w: Integer := y + 1;  /* OK : valeur de y deja definie */
+  var w2: Integer := w+1;   /* va etre ecrasee dans le constructeur */
+  var w3: Integer := w2+1;  /* mais a servi a initialiser w3  */
+  var name: String := "?";
+
+
+  def getx() : Integer := x
+  def gety() : Integer := this.y
+  def getz() : Integer is { result := z; }
+
+  def setName(s: String) is { name := s; }
+
+  def print() is { name.println(); }
+
+  def printAll() is {
+      this.getx().toString().print(); " ".print();
+      this.gety().toString().print(); " ".print();
+      this.getz().toString().print(); " ".print();
+      w.toString().print(); " ".print();
+      w2.toString().print(); " ".print();
+      w3.toString().print(); " ".print();
+      
+      this.print();
+  }
+}
+{ 
+  var p1: Point := new Point(1, 5);
+  var p2: Point := new Point(2, 3);
+  is
+  p2.setName("glop");
+  p1.printAll();
+  p2.printAll();
+}

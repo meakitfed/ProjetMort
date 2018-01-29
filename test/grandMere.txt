@@ -1,0 +1,27 @@
+class A() { "A::()".println();
+            va := -12;
+          } is
+   { var va: Integer := 1; /* va etre ecrasee */ 
+     def sValeur() : Integer := va
+   }
+class B() extends A() { "B::()".println(); vb := va + 2; } is 
+   { var vb: Integer; }
+class C(v : Integer) extends B() { "C::()".println(); } is 
+   { var vc: Integer := 3 + va + vb; }
+class D(v : Integer) extends C(12) { "D::()".println(); } is
+  {  var vd: Integer := vc + 4;
+     def valeur() : Integer is {
+        va.toString().println();
+        vb.toString().println();
+        vc.toString().println();
+        vd.toString().println();
+        result := va + vb + vc + vd;
+     }
+  }
+{
+  var monD : D := new D(5);
+  is
+  "\n/*\nresult: ".print();
+  monD.valeur().toString().println();
+  "\n*/\n".print();
+}

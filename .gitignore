@@ -1,0 +1,7 @@
+
+*.o
+tp
+tp_l.c
+tp_y.c
+tp_y.h
+tp_y.output
