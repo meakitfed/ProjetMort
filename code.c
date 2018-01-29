@@ -804,7 +804,17 @@ void codeLClasse(TreeP tree)
     fprintf(output, "--Generation de code d'une classe...\n");
 
 
-    /*Parcours l'environnement de classe*/
+    /*Parcours l'environnement de classe
+        
+    temp = getPremièreClasseDeLaListe ?
+
+    while(temp->next != NULL)
+    {
+        codeClasse(temp);
+        temp = temp->next;
+    }
+
+    */
 }
 
 void genCode(TreeP LClass, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/)
