@@ -6,7 +6,7 @@
 extern char *strdup(const char*);
 extern void setError(int code);
 
-/**
+
 METHODES UTILES POUR LES VERIFICATIONS CONTEXTUELLES : YASSINE AMRAOUI
 Yassine AMRAOUI : j'ai cree ces methodes qui servent à l'analyse contextuelle
 Et cf. les TODO apres les methodes qui sont des idees de verifications supplementaires
@@ -25,13 +25,15 @@ Recuperation de la classe (ClasseP) portant le nom passe en parametre
     }
     return NIL(Classe);
 }
-*
-Renvoie true si pas de probleme d'override
-*bool checkOverride(ClasseP lclasse){ 
+
+/*Renvoie true si pas de probleme d'override*/
+bool checkOverride(ClasseP lclasse){ 
     if(lclasse != NULL) {
-        bool booleen = checkOverride(lclasse->next); Appel recursif pour parcourir l'ensemble de la liste
+        bool booleen = checkOverride(lclasse->next); 
+        /*Appel recursif pour parcourir l'ensemble de la liste
         Maintenant, on check les override classe par classe (depuis la fin de lclasse par recursivite)
-        Si la classe n'a pas de classe mere, override interdit : on va checker
+        Si la classe n'a pas de classe mere, override interdit : on va checker*/
+
         if(lclasse->classe->mereOpt == NULL) {
             MethodeP lmethodestemp = lclasse->classe->lmethodes; 
             while(lmethodestemp != NULL) {
@@ -51,16 +53,16 @@ Renvoie true si pas de probleme d'override
     }
     return TRUE;   
 }
-Renvoie true si la methode passe en parametre est trouvee dans la classe mere
+/*Renvoie true si la methode passe en parametre est trouvee dans la classe mere*/
 bool checkSuper(ClasseP lclasse, MethodeP lmethode) { 
     if(lclasse != NULL) {
-        bool retour = checkSuper(lclasse->mereOpt, lmethode);  Appel recursif pour parcourir l'ensemble de la liste    
-        if(checkMethodeInClasse(lmethode, lclasse)) return TRUE;    
+        bool retour = checkSuper(lclasse->mereOpt, lmethode);  /*Appel recursif pour parcourir l'ensemble de la liste    
+        */if(checkMethodeInClasse(lmethode, lclasse)) return TRUE;    
         else return retour;
     }
     return FALSE;
 }
-Renvoie true si la méthode passée en paramètre est dans la classe
+/*Renvoie true si la méthode passée en paramètre est dans la classe*/
 bool checkMethodeInClasse(MethodeP lmethode, ClasseP lclasse) { 
     bool retour = FALSE;
     MethodeP methodebuffer = lclasse->lmethodes->methode;
@@ -78,8 +80,8 @@ bool checkMethodeInClasse(MethodeP lmethode, ClasseP lclasse) {
     }
     return retour;
 }
-    
-Renvoie true si même arguments
+    /*
+Renvoie true si même arguments*/
 bool checkArguments(LParamP larg1, LPAram larg2) {
     bool retour = TRUE;
     while(arg1 != NULL && arg2 != NULL) {
@@ -90,14 +92,16 @@ bool checkArguments(LParamP larg1, LPAram larg2) {
     if(arg1 != NULL || arg2 != NULL) retour = FALSE;
     return retour;
 }    
+/*
 TODO : methode permettant de savoir si le programme contient un circuit (ex : classes A et B, A contient attribut de type B, et B contient attribut de type A)
 TODO : methodes permettant d'update les listes : par exemple, completer l'attribut mereOpt, les types
 TODO : methode permettant de verifier s'il existe plusieurs classes avec le même nom
 TODO : methode permettant de voir si un Id est dans l'environnement
-*
-Yassine AMRAOUI : ce que j'ai ameliore et ajoute
+*/
+/*Yassine AMRAOUI : ce que j'ai ameliore et ajoute
 Verifier si une méthode est bien definie
-*bool checkMethodes(ClasseP classe, char* nom)
+*/
+bool checkMethodes(ClasseP classe, char* nom)
 {
     while(classe->lmethodes != NULL)
     {
@@ -119,7 +123,7 @@ Verifier si une méthode est bien definie
         return FALSE;
     }
 }
-Verifie l'heritage d'une classe
+/*Verifie l'heritage d'une classe*/
 bool checkHeritageClass(ClasseP classe, char* nom)
 {
     if(strcmp(classe->nom,nom)==0)
@@ -138,8 +142,11 @@ bool checkHeritageClass(ClasseP classe, char* nom)
         }
     }
 }
+/*
 *Verifie la portee d'une variable nom*
-*bool checkPortee(VarDeclP lvar, char* nom)
+*/
+
+bool checkPortee(VarDeclP lvar, char* nom)
 {
     if(nom != NULL)
     {
@@ -155,9 +162,10 @@ bool checkHeritageClass(ClasseP classe, char* nom)
     fprintf(stderr, "Erreur checkPortee pour la var : %s\n",nom);
     return FALSE;
 }
-*
+/*
 *
 Pour descendre environnement d'une hauteur  TODO : update environnement (ajouter des lvar)
+*/
 void transmettreEnv(TreeP tree)
 {
     int i;
@@ -166,9 +174,10 @@ void transmettreEnv(TreeP tree)
         getChild(tree,i)->u.lvar = tree->u.lvar;    
     }
 }
-*
+/*
 *Verifie si le nom est bien attribue a une classe defini*
-*bool checkClassDefine(LClasseP lenv_classe, char* nom)
+**/
+bool checkClassDefine(LClasseP lenv_classe, char* nom)
 {
     if(nom != NULL)
     {
@@ -186,9 +195,9 @@ void transmettreEnv(TreeP tree)
     fprintf(stderr, "Erreur checkClassDefine pour la classe : %s\n",nom);
     return FALSE;
 }
-*
+/*
 *Verifie qu'une expression**
-char* checkExpr(TreeP tree, ClasseP classes, VarDeclP env)
+*/char* checkExpr(TreeP tree, ClasseP classes, VarDeclP env)
 {
     if(tree != NIL(Tree))
     {
@@ -282,16 +291,32 @@ char* checkExpr(TreeP tree, ClasseP classes, VarDeclP env)
     }
     return NULL;
 }
+
 bool checkTypeAff(VarDeclP var, char* nom, ExpressionP expr)
 {
+
+
+
 }
+
+
 bool checkLArg(LAttributP larg)
 {
+
+
+
+
 }
+
+
 bool checkAff(char* id, TreeP expr, ClasseP lclasse, VarDeclP env)
 {
     return (strcmp(id,checkExpr(expr,lclasse,env))==0);
+
+
 }
+
+
 bool checkListeInstr(TreeP tree, ClasseP lclasse, VarDeclP env)
 {
     if(tree != NIL(Tree))
@@ -373,5 +398,3 @@ char* getId(TreeP tree, VarDeclP env)
     }
     return NULL;
 }
-*
-**/
