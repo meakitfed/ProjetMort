@@ -1,6 +1,17 @@
 --Generation de code d'une classe...
 --########Bloc de type LDeclChamp IS LInstr--
-IL Y AURA UN ENVOI vers "Debut du programme"
+BIENVENUE DANS LE DeclChamp.
+--Var true : BIENVENUE DANS LE DeclChamp.
+--Var false : BIENVENUE DANS LE DeclChamp.
+--Var p1 : BIENVENUE DANS LE DeclChamp.
+--Var p2 : BIENVENUE DANS LE DeclChamp.
+--Var p3 : BIENVENUE DANS LE DeclChamp.
+--Var fv : BIENVENUE DANS LE DeclChamp.
+--Var o : BIENVENUE DANS LE DeclChamp.
+--Var pn : BIENVENUE DANS LE DeclChamp.
+--Var dp : BIENVENUE DANS LE DeclChamp.
+--Var clone1 : BIENVENUE DANS LE DeclChamp.
+--Var clone2 : IL Y AURA UN ENVOI vers "Debut du programme"
 --println affiche la chaine suivante :
 PUSHS "Debut du programme"
 WRITES
@@ -21,7 +32,7 @@ PUSHS "On va essayer le clonage:"
 WRITES
 PUSHS "\n"
 WRITES
-Affectation : ident 0†j
+Affectation : ident ∞°@"ç
 IL Y AURA UN ENVOI vers p1
 STOREG clone1.adresse()
 IL Y AURA UN ENVOI vers clone1
@@ -45,10 +56,10 @@ WRITES
 PUSHS "\n"
 WRITES
 endif2 : NOP
-Affectation : ident 0©j
+Affectation : ident @¶@"ç
 IL Y AURA UN ENVOI vers clone1
 STOREG clone2.adresse()
-IL Y AURA UN ENVOI vers ∞™j
+IL Y AURA UN ENVOI vers 
 IL Y AURA UN ENVOI vers "Impression de tous les clones de p1:"
 --println affiche la chaine suivante :
 PUSHS "Impression de tous les clones de p1:"
@@ -68,12 +79,12 @@ PUSHS "Valeur du compteur de nombre de points: "
 WRITES
 PUSHS "\n"
 WRITES
-IL Y AURA UN ENVOI vers 
-Affectation : ident @∏j
-IL Y AURA UN ENVOI vers †∑j
+IL Y AURA UN ENVOI vers `¨@"ç
+Affectation : ident 
+IL Y AURA UN ENVOI vers ∞≠@"ç
 STOREG p1.adresse()
 IL Y AURA UN ENVOI vers p1
-IL Y AURA UN ENVOI vers ‡ºj
+IL Y AURA UN ENVOI vers P∞@"ç
 IL Y AURA UN ENVOI vers "test(Point, PointColore, PointNoir)"
 --println affiche la chaine suivante :
 PUSHS "test(Point, PointColore, PointNoir)"
