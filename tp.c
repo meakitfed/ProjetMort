@@ -33,7 +33,7 @@ FILE *out; /* fichier de sortie pour le code engendre */
 /* VARIABLE GLOBALE */
 LClasseP lclasse = NIL(LClasse);
 ObjetP lobjet = NIL(Objet); 
-VarDeclP env = NIL(VarDecl);
+ScopeP env = NIL(Scope);
 
 int main(int argc, char **argv) {
   int fi;
@@ -202,7 +202,7 @@ TreeP makeLeafLVar(short op, VarDeclP lvar) {
 
 /* Creer une variable à partir des elements de la grammaire
 *  Cette fonction est appele dans la grammaire pour creer une feuille LVar */
-VarDeclP makeVarDecl(char *nom, TreeP type, TreeP exprOpt)
+VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt)
 {
     VarDeclP newVar = NEW(1, VarDecl);
 
@@ -210,23 +210,14 @@ VarDeclP makeVarDecl(char *nom, TreeP type, TreeP exprOpt)
     newVar->exprOpt = exprOpt;
     newVar->next = NIL(VarDecl);
 
-    if(type != NIL(Tree))
+    ClasseP classeType = getClassePointer(type);
+    if(classeType != NIL(Classe))
     {
-        ClasseP classeType = getClassePointer(type->u.str);
-        if(classeType != NIL(Classe))
-        {
-            newVar->type = classeType;
-        }
-        else
-        {
-            classeType = makeClasse(type->u.str);
-            newVar->type = classeType;
-        }
+        newVar->type = classeType;
     }
     else
     {
-        fprintf(stderr, "Probleme de generation d'arbre\n");
-        ClasseP classeType = makeClasse("NIL");
+        classeType = makeClasse(type);
         newVar->type = classeType;
     }
 
@@ -249,8 +240,7 @@ ClasseP makeClasse(char *nom)
 
   classe->superClasse = NIL(Classe);
 
-  /* classe->constructeur = NIL(Methode); */
-  classe->constructeur = NIL(VarDecl);
+  classe->constructeur = NIL(Methode);
 
   classe->lchamps = NEW(1, VarDecl);
   classe->lchamps->nom = "NIL";
@@ -292,11 +282,13 @@ ObjetP makeObjet(char *nom)
 /* Creer une methode a partir d'un arbre' */
 MethodeP makeMethode(TreeP declMethode)
 {
+    int *i = NEW(1, int);
+    *i = 0;
     MethodeP newMethode = NEW(1, Methode);
 
     /* liste de parametres */
     TreeP arbreParamMeth = getChild(declMethode, 2);
-    ParamP lparametres = makeLParam(arbreParamMeth);
+    ParamP lparametres = makeLParam(arbreParamMeth, i);
     newMethode->lparametres = lparametres;
 
     /* pointeur vers le type de retour */
@@ -332,29 +324,36 @@ MethodeP makeMethode(TreeP declMethode)
     /* expression optionnelle */
     newMethode->bloc = getChild(declMethode, 4);
 
+    /* classe d'appartenance */
+    /*
+    newMethode->classeAppartenance = classe;
+    */
+
     return newMethode;
 }
 
 
 /* Creer une liste de parametres a partir d'un arbre */
-VarDeclP makeLParam(TreeP arbreLParam)
+VarDeclP makeLParam(TreeP arbreLParam, int *i)
 {
   ParamP lparam = NIL(VarDecl);
 
   if(arbreLParam != NIL(Tree))
   {
-      lparam = NEW(1, VarDecl);
+      /* lparam = NEW(1, VarDecl); */ 
 
       while(arbreLParam->op == YLPARAM || arbreLParam->op == LDECLC)
       {
+          *i = *i + 1; 
           ParamP tmp = getChild(arbreLParam, 0)->u.lvar;
-          addVarDecl(tmp, lparam);
+          lparam = addVarDecl(tmp, lparam);
 
           arbreLParam = getChild(arbreLParam, 1);
       }
-            
+
+      *i = *i + 1;           
       ParamP tmp = arbreLParam->u.lvar;
-      addVarDecl(tmp, lparam);
+      lparam = addVarDecl(tmp, lparam);
   }
 
   return lparam;
@@ -368,7 +367,7 @@ ChampP makeChampsBlocObj(TreeP blocObj)
 
     if(blocObj != NIL(Tree))
     {
-        lChamps = NEW(1, VarDecl);
+        /* lChamps = NEW(1, VarDecl); */
 
         TreeP arbreChampMethode = blocObj;
 
@@ -379,7 +378,7 @@ ChampP makeChampsBlocObj(TreeP blocObj)
             if(declChampMethode->op == YDECLC)
             {
                 VarDeclP tmp = declChampMethode->u.lvar;
-                addVarDecl(tmp, lChamps);
+                lChamps = addVarDecl(tmp, lChamps);
             }
 
             arbreChampMethode = getChild(arbreChampMethode, 0);
@@ -388,7 +387,7 @@ ChampP makeChampsBlocObj(TreeP blocObj)
         if(arbreChampMethode->op == YDECLC)
         {
             VarDeclP tmp = arbreChampMethode->u.lvar;
-            addVarDecl(tmp, lChamps);
+            lChamps = addVarDecl(tmp, lChamps);
         }
     }
 
@@ -431,28 +430,46 @@ LMethodeP makeMethodeBlocObj(TreeP blocObj)
 
 
 /* Creer une liste des variables d'un bloc */
-VarDeclP makeVarBloc(TreeP bloc)
+VarDeclP makeVarBloc(TreeP bloc, int *i)
 {
-    VarDeclP var = NEW(1, VarDecl);
+    VarDeclP var = NIL(VarDecl);
 
     if(bloc != NIL(Tree))
     {
-        if(bloc->op == YCONT)
+        /* var = NEW(1, VarDecl); */
+        VarDeclP tmp = NIL(VarDecl);
+
+        switch(bloc->op)
         {
-            VarDeclP tmp = makeLParam(getChild(bloc, 0));
-            addVarDecl(tmp, var);
-            addVarDecl(makeVarBloc(getChild(bloc, 1)), var);
-        }
-        else /* arbreConstructeur->op == LINSTR */
-        {
-            /* TODO
-            * stocker les variables declare dans une liste d'instructions
-            * on depile quand les variables en fin de bloc ???
-            */
+            case YCONT :
+              tmp = makeLParam(getChild(bloc, 0), i);
+              if(tmp != NIL(VarDecl))
+                var = addVarDecl(tmp, var);
+              var = addVarDecl(makeVarBloc(getChild(bloc, 1), i), var);
+              break;
+            
+            case LINSTR :
+              makeVarBloc(getChild(bloc, 0), i);
+              makeVarBloc(getChild(bloc, 1), i);
+              break;
+
+            case YITE :
+              makeVarBloc(getChild(bloc, 1), i);
+              makeVarBloc(getChild(bloc, 2), i);
+              break;
+
+            default :
+             /*removeEnv(5);*/
+              break;
         }
     }
+    else
+    {
+        /* TODO : return/sortie de bloc */
+        removeEnv(*i);
+    }
 
-    return var;
+  return var;
 }
 
 
@@ -550,17 +567,33 @@ void addObjet(ObjetP objet)
 /* ajoute dans env une variable var */
 void addEnv(VarDeclP var)
 {
-    if(env == NIL(VarDecl))
+    int i = 0;
+    if(var != NIL(VarDecl))
     {
-        env = var;      
+        VarDeclP current = var;
+        while (TRUE) { 
+            i++;
+            if(current->next == NULL)
+            {
+                break; 
+            }
+            current = current->next;
+        }
+    }
+
+    if(env->env == NIL(VarDecl))
+    {
+        env->env = var;
+        env->taille = env->taille + i;     
     }
     else
     {
-        VarDeclP current = env;
+        VarDeclP current = env->env;
         while (TRUE) { 
             if(current->next == NULL)
             {
                 current->next = var;
+                env->taille = env->taille + i;
                 break; 
             }
             current = current->next;
@@ -569,25 +602,52 @@ void addEnv(VarDeclP var)
 }
 
 
-
-/* ajoute dans une liste une variable var */
-void addVarDecl(VarDeclP var, VarDeclP liste)
+/* retire n variables de l'env */
+void removeEnv(int n)
 {
-    if(liste != NIL(VarDecl))
+    if(env->taille < n)
     {
-        VarDeclP tmp = liste;
+        fprintf(stderr, "Erreur removeEnv\n");
+        return;
+    }
 
-        while(tmp->next != NIL(VarDecl))
+    if(n > 0)
+    {
+        int i;
+        VarDeclP tmp = env->env;
+        for(i = 0; i < (env->taille)-n; i++)
         {
             tmp = tmp->next;
         }
 
-        tmp->next = var;
+        tmp->next = NIL(VarDecl);
+        env->taille = env->taille - n;
     }
-    else
-    {
-      liste = var;
+}
+
+
+/* ajoute dans une liste une variable var */
+VarDeclP addVarDecl(VarDeclP var, VarDeclP liste)
+{
+    if(var != NIL(VarDecl)){
+        if(liste != NIL(VarDecl))
+        {
+            VarDeclP tmp = liste;
+
+            while(tmp->next != NIL(VarDecl))
+            {
+                tmp = tmp->next;
+            }
+
+            tmp->next = var;
+        }
+        else
+        {
+            liste = var;
+        }
     }
+
+    return liste;
 }
 
 
@@ -601,6 +661,23 @@ LMethodeP addMethode(MethodeP methode, LMethodeP liste)
     return newListe;
 }
 
+
+/* ajoute un constructeur à la classe */
+void addConstructeur(TreeP blocOpt, ClasseP classe)
+{
+  if(classe != NIL(Classe))
+  {
+      MethodeP constr = NEW(1, Methode);
+      constr->override = FALSE;
+      constr->nom = classe->nom;
+      constr->lparametres = classe->lparametres;    /* TODO : OK OU KO */
+      constr->typeDeRetour = classe;
+      constr->bloc = blocOpt;
+      /* constr->classeAppartenance = classe; */
+      
+      classe->constructeur = constr;
+  }
+}
 
 
 /*--------------------------STOCKAGE DES CLASSES ET DES OBJETS---------------------------*/
@@ -616,24 +693,13 @@ void makeClassesPrimitives()
   /* printLClasse(); */
 
   TreeP exprOpt = NIL(Tree);
-  TreeP type = NEW(1, Tree);
 
   /*Initialisation d'Integer*/
-
-  type->u.str = "Integer";
-  ParamP paramInt = makeVarDecl("val", type, exprOpt);
+  ParamP paramInt = makeVarDecl("val", "Integer", exprOpt);
+  integer->lparametres = paramInt;
 
   /*Constructeur du type Integer*/
-  /*
-  MethodeP constrInt = NEW(1, Methode);
-  constrInt->override = FALSE;
-  constrInt->nom = "Integer";
-  constrInt->lparametres = NIL(VarDecl);
-  constrInt->typeDeRetour = integer;
-  constrInt->bloc = NIL(Tree);
-
-  integer->constructeur = constrInt;
-  */
+  addConstructeur(exprOpt, integer);
 
   /*methode toString*/
   MethodeP toString = NEW(1, Methode);
@@ -641,39 +707,29 @@ void makeClassesPrimitives()
   toString->nom = "toString";
   toString->typeDeRetour = string;
   toString->bloc = NIL(Tree);
+  /* toString->classeAppartenance = integer; */
 
-  integer->lparametres = paramInt;
+  integer->lmethodes = addMethode(toString, integer->lmethodes);
   integer->superClasse = NIL(Classe);
-  integer->lchamps = paramInt;
-  integer->lmethodes->methode = toString;
-  integer->lmethodes->next = NIL(LMethode);
+  integer->lchamps = NIL(VarDecl);
+  
   
   /*Initialisation de String*/
-
-  type->u.str = "String";
-  ParamP paramStr = makeVarDecl("str", type, exprOpt);
+  ParamP paramStr = makeVarDecl("str", "String", exprOpt);
+  string->lparametres = paramStr;
 
   /*Constructeur du type String*/
-  /*
-  MethodeP constrStr = NEW(1, Methode);
-  constrStr->override = FALSE;
-  constrStr->nom = "String";
-  constrStr->lparametres = NIL(VarDecl);
-  constrStr->typeDeRetour = string;
-  constrStr->bloc = NIL(Tree);
+  addConstructeur(exprOpt, string);
 
-  string->constructeur = constrStr;
-  */
-
-  string->lparametres = paramStr;
   string->superClasse = NIL(Classe);
-  string->lchamps = paramStr;
-  string->lmethodes = NIL(LMethode);
+  string->lchamps = NIL(VarDecl);
 
   /* TODO
   * methode print
   * methode println
   */
+
+  string->lmethodes = NIL(LMethode);
 
   addClasse(integer);
   addClasse(string);
@@ -687,6 +743,8 @@ void initClasse(TreeP arbreLClasse)
     ClasseP bufferClasse = NIL(Classe);
     ObjetP bufferObj = NIL(Objet);
     TreeP arbreCourant = arbreLClasse;
+    int *i = NEW(1, int);
+    *i = 0;
 
     while(arbreCourant != NIL(Tree))
     {
@@ -701,52 +759,34 @@ void initClasse(TreeP arbreLClasse)
         
 
             TreeP arbreLParam = getChild(arbreClasse, 1);
-            ParamP lparam = makeLParam(arbreLParam);
+            ParamP lparam = makeLParam(arbreLParam, i);
 
             bufferClasse->lparametres = lparam;
             
 
-            TreeP arbreBloc = getChild(arbreClasse, 4); 
+            TreeP arbreBlocObj = getChild(arbreClasse, 4); 
 
-            ChampP lchamps = makeChampsBlocObj(arbreBloc);
-            LMethodeP lmethodes = makeMethodeBlocObj(arbreBloc);
+            ChampP lchamps = makeChampsBlocObj(arbreBlocObj);
+            LMethodeP lmethodes = makeMethodeBlocObj(arbreBlocObj);
 
             bufferClasse->lchamps = lchamps;
             bufferClasse->lmethodes = lmethodes;
-
-            TreeP arbreConstructeur = getChild(arbreClasse, 3);
 
             /* TODO 
             * Verifier cette partie pour le constructeur
             */
 
-            if(arbreConstructeur != NIL(Tree))
-            {
-                if(arbreConstructeur->op == YCONT)
-                {
-                    ChampP constructeur = makeLParam(getChild(arbreConstructeur, 0));
-                    bufferClasse->constructeur = constructeur;
-
-                    /* TODO 
-                    * stocker les variables declare dans une liste d'instructions ??
-                    */
-                }
-                else
-                {
-                    /* TODO 
-                    * stocker les variables declare dans une liste d'instructions ??
-                    */
-                }
-            }
+            TreeP arbreBlocOpt = getChild(arbreClasse, 3);
+            addConstructeur(arbreBlocOpt, bufferClasse);
         }
         else
         {
             bufferObj = getObjetPointer(getChild(arbreClasse, 0)->u.str);
 
-            TreeP arbreBloc = getChild(arbreClasse, 1); 
+            TreeP arbreBlocObj = getChild(arbreClasse, 1); 
 
-            ChampP lchamps = makeChampsBlocObj(arbreBloc);
-            LMethodeP lmethodes = makeMethodeBlocObj(arbreBloc);
+            ChampP lchamps = makeChampsBlocObj(arbreBlocObj);
+            LMethodeP lmethodes = makeMethodeBlocObj(arbreBlocObj);
 
             bufferObj->lchamps = lchamps;
             bufferObj->lmethodes = lmethodes;
@@ -795,18 +835,32 @@ void stockerClasse(TreeP arbreLClasse, bool verbose)
 
 
 /* Permet de mettre a jour l'env */
-void stockerEnv(TreeP arbreMain, bool verbose)
+void stockerEnv(TreeP arbre, bool verbose)
 {
-    VarDeclP tmp = makeVarBloc(arbreMain);
+    int *i = NEW(1, int); 
+    *i = 0;
+    VarDeclP tmp = makeVarBloc(arbre, i);
     addEnv(tmp);
+
+    removeEnv(5);
+
+    /* TODO modifier makeVarBloc pour faire le stockage d'env en direct */
 
     if(verbose)
     {
         printf("----------------------------ENVIRONNEMENT----------------------------\n");
-        printf("Variables :\n");
-        printVarDecl(env); 
+        printScope(env); 
         printf("\n");
     }
+}
+
+
+/* initialise l'environnement */
+void initEnv()
+{
+    env = NEW(1, Scope);
+    env->env = NIL(VarDecl);
+    env->taille = 0;
 }
 
 
@@ -816,6 +870,8 @@ void stockerEnv(TreeP arbreMain, bool verbose)
 /* fonction principale pour le stockage de donnees */
 void compile(TreeP arbreLClasse, TreeP main)
 {
+    initEnv();
+
     if(arbreLClasse != NIL(Tree))
     {
         stockerClasse(arbreLClasse, TRUE);
@@ -860,7 +916,7 @@ void printClasse(ClasseP classe)
     printVarDecl(classe->lparametres); 
     printf("\n");
     printf("Constructeur :\n");
-    printVarDecl(classe->constructeur); 
+    printMethode(classe->constructeur); 
     printf("\n");
     printf("Champs :\n");
     printVarDecl(classe->lchamps);
@@ -918,7 +974,7 @@ void printMethode(MethodeP methode)
         if(methode->typeDeRetour != NIL(Classe))
             printf("Type de retour : %s\n", methode->typeDeRetour->nom);
         else
-            printf("Type de retour : indefini (void ?)\n");                 /* TODO */
+            fprintf(stderr, "Type de retour : indefini\n");                 
         printf("\n");
     }
 }
@@ -935,6 +991,30 @@ void printLMethode(LMethodeP lmethode)
           printf("\n");
           tmp = tmp->next;
     }
+}
+
+
+/* affiche l'environnement */
+void printScope()
+{
+    printf("taille : %d\n", env->taille);
+    printf("Variable accessible :\n");
+    printVarDecl(env->env);
+
+    /* printf("------------\n");
+    if(env->env != NIL(VarDecl))
+    {
+        int i = 0;
+        VarDeclP tmp = env->env;
+         while(tmp->next != NIL(VarDecl))
+         {
+            i++;
+            printf("i : %d\n", i);
+            tmp = tmp->next;
+         }
+         i++;
+         printf("i : %d", i);
+    } */
 }
 
 

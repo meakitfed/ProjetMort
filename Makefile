@@ -1,7 +1,7 @@
 OBJ=tp.o tp_l.o tp_y.o verif.o code.o
 CC=gcc
 CFLAGS=-Wall -ansi -I./ -g 
-LDFLAGS= -g -ll
+LDFLAGS= -g -lfl
 tp : $(OBJ)
 	$(CC) -o tp $(OBJ) $(LDFLAGS)
 
