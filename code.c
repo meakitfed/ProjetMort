@@ -90,22 +90,6 @@ void NEWLABEL(char* c) {
 
 
 
-
-/**
- * GESTION DE LA TABLE DES SYMBOLES
- */
-
-void dispEnvironnementDeVariables() 
-{
-    /*prendre toutes les variables de l'environnement*/
-    printf("------\nVoici les variables de l'environmment et leur adresse :\n");
-
-    while(/*env.hasNext*/1)
-    {
-        /*disp var et adresse*/
-    }
-}
-
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
  * Sera utile pour faire PUSHG Id.adresse() par exemple.
@@ -157,21 +141,15 @@ int adresse(char *id)
 
 
 
-/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@??????????????????????????????????*/
-void atonbesoin()
-{
-    /*d'une fonction qui ajoute une variable à l'environnement de variables ? normalement non vu que ça se fait à 
-    la construction des structures*/
-
-}
 
 /*liste d'instructions*/
 void codeLInstr(TreeP tree)
 {
     if(tree->nbChildren == 2)
     {
-        codeLInstr(getChild(tree, 0));
-        codeInstr(getChild(tree, 1));
+        codeInstr(getChild(tree, 0));
+        codeLInstr(getChild(tree, 1));
+
     }
     else
     {
@@ -336,8 +314,6 @@ void codeConstructeur(TreeP tree)     					/*Expr: NEWC TypeC '(' LExprOpt ')'*/
 /*Code des expressions*/
 void codeExpr(TreeP tree)
 {
-    printf("Go codeExpr !!!\n");
-
     switch(tree->op) {
 
         case Cste:
@@ -400,7 +376,6 @@ void codeExpr(TreeP tree)
 
         /*on traite seulement le cas du moins unaire, le plus unaire reviendrait à ne rien faire*/
         case USUB :
-
             printf("unarySUB\n");
             /*on fait 0 moins l'expression */
             PUSHI(0);
@@ -485,12 +460,12 @@ void codeExpr(TreeP tree)
         }
 }
 
-/*Génère le code d'un envoi*/
+/*Génère le code d'un envoi*/                                  /*Envoi: Expr '.' MethodeC */
 void codeEnvoi(TreeP tree)		
 {
 	/*TODO*/
     fprintf(output, "IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
-   	TreeP expr = getChild(tree, 0);										/*Envoi: Expr '.' MethodeC */
+   	TreeP expr = getChild(tree, 0);										
 	TreeP methodeC = getChild(tree, 1);
 
 	/*Si la méthode est print ou println, on génère son code*/
@@ -551,13 +526,36 @@ void codePrint(TreeP expr, TreeP methodeC)
 
 
 /*Génère le code d'une sélection*/
-void codeSelec(TreeP tree)		/*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
+void codeSelec(TreeP tree)		                    /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
 {
 	/*TODO*/
     /*sélections comment faire ? mettre le x de x.f() en paramètres de f ? prof a dit ça*/
     fprintf(output, "IL Y AURA UNE SELECTION ICI;\n");
 
     /*Voir le code de paire.entiers dans Interp*/
+
+
+    /*
+    Voir le type de retour de l'expression
+    puis chercher le id dans sa structure
+    voilà
+    
+
+
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -680,6 +678,10 @@ void codeDeclChampMethode(TreeP tree)
     {
         printf("DECL METHODE\n");
         codeDeclMethode(tree);
+    }
+    else
+    {
+        fprintf(output, "--DEMTHOLFDHIGFHDGKDJ\n");
     }
 }
 

@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "tp.h"
 #include "tp_y.h"
+#include "code.h"
 
 extern int yylex();
 extern void yyerror(const char *); /*const necessaire pour eviter les warning de string literals*/
@@ -36,7 +37,7 @@ extern void yyerror(const char *); /*const necessaire pour eviter les warning de
 
 %%
 
-Prog : LClassOpt Bloc 														{ $$ = makeTree(YPROG, 2, $1, $2);  /*afficherProgramme($$, FALSE);*/ compile($1, $2); }
+Prog : LClassOpt Bloc 														{ $$ = makeTree(YPROG, 2, $1, $2);  /*afficherProgramme($$, FALSE);*/ compile($1, $2); genCode($1, $2);}
 ;
 
 
@@ -129,7 +130,7 @@ ExprOperateur: Expr ADD Expr 												{ $$ = makeTree(ADD, 2, $1, $3); }
 | Expr SUB Expr 															{ $$ = makeTree(SUB, 2, $1, $3); }
 | Expr MUL Expr 															{ $$ = makeTree(MUL, 2, $1, $3); }
 | Expr DIV Expr  															{ $$ = makeTree(DIV, 2, $1, $3); }
-| SUB Expr %prec UNARY 														{ $$ = makeTree(SUB, 2, makeLeafInt(Cste, 0), $2); }
+| SUB Expr %prec UNARY 														{ $$ = makeTree(USUB, 2, makeLeafInt(Cste, 0), $2); }
 | ADD Expr %prec UNARY 														{ $$ = makeTree(ADD, 2, makeLeafInt(Cste, 0), $2); }      
 | Expr CONCAT Expr 															{ $$ = makeTree(CONCAT, 2, $1, $3); }
 | Expr RelOp Expr 															{ $$ = makeTree($2, 2, $1, $3); }
@@ -138,7 +139,7 @@ ExprOperateur: Expr ADD Expr 												{ $$ = makeTree(ADD, 2, $1, $3); }
 
 Instr : Expr ';' 															{ $$ = makeTree(YEXPR, 1, $1); }
 | Bloc  																	{ $$ = $1; }
-| RETURN ';' 																{ $$ = NIL(Tree); }
+| RETURN ';' 																{ $$ = makeTree(YRETURN, 0); }
 | Selection AFF Expr ';' 													{ $$ = makeTree(EAFF, 2, $1, $3); }
 | IF Expr THEN Instr ELSE Instr 											{ $$ = makeTree(YITE, 3, $2, $4, $6); }
 ;
