@@ -1,0 +1,124 @@
+--Generation de code d'une classe...
+--########Bloc de type LDeclChamp IS LInstr--
+BIENVENUE DANS LE DeclChamp.
+--Var true : BIENVENUE DANS LE DeclChamp.
+--Var false : BIENVENUE DANS LE DeclChamp.
+--Var p1 : BIENVENUE DANS LE DeclChamp.
+--Var p2 : BIENVENUE DANS LE DeclChamp.
+--Var p3 : BIENVENUE DANS LE DeclChamp.
+--Var fv : BIENVENUE DANS LE DeclChamp.
+--Var o : BIENVENUE DANS LE DeclChamp.
+--Var pn : BIENVENUE DANS LE DeclChamp.
+--Var dp : BIENVENUE DANS LE DeclChamp.
+--Var clone1 : BIENVENUE DANS LE DeclChamp.
+--Var clone2 : IL Y AURA UN ENVOI vers "Debut du programme"
+--println affiche la chaine suivante :
+PUSHS "Debut du programme"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers p1
+IL Y AURA UN ENVOI vers p2
+IL Y AURA UN ENVOI vers p2
+IL Y AURA UN ENVOI vers p2
+IL Y AURA UN ENVOI vers o
+IL Y AURA UN ENVOI vers o
+IL Y AURA UN ENVOI vers o
+IL Y AURA UN ENVOI vers p2
+IL Y AURA UN ENVOI vers p2
+IL Y AURA UN ENVOI vers "On va essayer le clonage:"
+--println affiche la chaine suivante :
+PUSHS "On va essayer le clonage:"
+WRITES
+PUSHS "\n"
+WRITES
+Affectation : ident °ØŽ
+IL Y AURA UN ENVOI vers p1
+STOREG clone1.adresse()
+IL Y AURA UN ENVOI vers clone1
+IL Y AURA UN ENVOI vers "p1 cloned: "
+--print affiche la chaine suivante :
+PUSHS "p1 cloned: "
+WRITES
+if0 :IL Y AURA UN ENVOI vers p1
+JZ else1
+IL Y AURA UN ENVOI vers "OK"
+--println affiche la chaine suivante :
+PUSHS "OK"
+WRITES
+PUSHS "\n"
+WRITES
+JUMP endif2
+else1 :IL Y AURA UN ENVOI vers "KO"
+--println affiche la chaine suivante :
+PUSHS "KO"
+WRITES
+PUSHS "\n"
+WRITES
+endif2 : NOP
+Affectation : ident °àŽ
+IL Y AURA UN ENVOI vers clone1
+STOREG clone2.adresse()
+IL Y AURA UN ENVOI vers ðáŽ
+IL Y AURA UN ENVOI vers "Impression de tous les clones de p1:"
+--println affiche la chaine suivante :
+PUSHS "Impression de tous les clones de p1:"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers p1
+IL Y AURA UN ENVOI vers "Fin de l'impression de tous les clones"
+--println affiche la chaine suivante :
+PUSHS "Fin de l'impression de tous les clones"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers "Valeur du compteur de nombre de points: "
+--println affiche la chaine suivante :
+PUSHS "Valeur du compteur de nombre de points: "
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers 
+Affectation : ident 
+IL Y AURA UN ENVOI vers `íŽ
+STOREG p1.adresse()
+IL Y AURA UN ENVOI vers p1
+IL Y AURA UN ENVOI vers €òŽ
+IL Y AURA UN ENVOI vers "test(Point, PointColore, PointNoir)"
+--println affiche la chaine suivante :
+PUSHS "test(Point, PointColore, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers Test
+IL Y AURA UN ENVOI vers "test(PointNoir, PointNoir, PointNoir)"
+--println affiche la chaine suivante :
+PUSHS "test(PointNoir, PointNoir, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers Test
+Affectation : ident pn
+PUSHG pn.adresse()
+STOREG p1.adresse()
+IL Y AURA UN ENVOI vers Test
+IL Y AURA UN ENVOI vers Test
+Affectation : ident pn
+PUSHG pn.adresse()
+STOREG o.adresse()
+IL Y AURA UN ENVOI vers "test(PointNoir, PointNoir, PointNoir)"
+--println affiche la chaine suivante :
+PUSHS "test(PointNoir, PointNoir, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+IL Y AURA UN ENVOI vers Test
+IL Y AURA UN ENVOI vers Test
+IL Y AURA UN ENVOI vers Test
+IL Y AURA UN ENVOI vers "\nDone"
+--println affiche la chaine suivante :
+PUSHS "\nDone"
+WRITES
+PUSHS "\n"
+WRITES

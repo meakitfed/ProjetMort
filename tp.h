@@ -207,6 +207,10 @@ void printLMethode(LMethodeP lmethode);
 void printScope();
 void afficherProgramme(TreeP tree, bool verbose);
 
+void verifContextProg(TreeP arbreLClasse, TreeP main);
+void verifContextMain(TreeP main);
+void verifContextLClasse(TreeP arbreLClasse);
+
 
 #define YYSTYPE YYSTYPE
 #define YYERROR_VERBOSE 1

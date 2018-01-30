@@ -794,8 +794,25 @@ void initClasse(TreeP arbreLClasse)
 
         arbreCourant = getChild(arbreCourant, 1);
     }
+    
+}
+void verifContextProg(TreeP arbreLClasse, TreeP main)
+{
+    verifContextLClasse(arbreLClasse);
+    verifContextMain(main);
 }
 
+void verifContextMain(TreeP main)
+{
+    /*TODO*/
+}
+void verifContextLClasse(TreeP arbreLClasse)
+{
+    checkBoucleHeritage(lclasse);
+    checkDoublonClasse(lclasse);
+    /*if(checkOverrideLClasse(lclasse)) printf("tout est OK pour les overrides de méthode\n");*/
+    /*TODO*/
+}
 
 /* initialise les variables globales lclasse et lobjet */
 void stockerClasse(TreeP arbreLClasse, bool verbose)
@@ -876,8 +893,8 @@ void compile(TreeP arbreLClasse, TreeP main)
     {
         stockerClasse(arbreLClasse, TRUE);
     }
-
     stockerEnv(main, TRUE);
+    verifContextProg(arbreLClasse,main);
 }
 
 
