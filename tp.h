@@ -73,7 +73,7 @@ typedef unsigned char bool;
 
 /* Adapt as needed. Currently it is simply a list of names ! */
 typedef struct _varDecl {
-  char *nom;
+  char *nom;  
   struct _Classe *type;
   struct _Tree *exprOpt;
   struct _varDecl *next;

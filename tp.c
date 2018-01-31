@@ -808,8 +808,8 @@ void verifContextMain(TreeP main)
 }
 void verifContextLClasse(TreeP arbreLClasse)
 {
-    checkBoucleHeritage(lclasse);
-    checkDoublonClasse(lclasse);
+    /*checkBoucleHeritage(lclasse);
+    checkDoublonClasse(lclasse);*/
     /*if(checkOverrideLClasse(lclasse)) printf("tout est OK pour les overrides de méthode\n");*/
     /*TODO*/
 }
@@ -859,7 +859,7 @@ void stockerEnv(TreeP arbre, bool verbose)
     VarDeclP tmp = makeVarBloc(arbre, i);
     addEnv(tmp);
 
-    removeEnv(5);
+    removeEnv(0);
 
     /* TODO modifier makeVarBloc pour faire le stockage d'env en direct */
 

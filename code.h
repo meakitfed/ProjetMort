@@ -1,3 +1,6 @@
+#ifndef YY_YY_CODE_H_INCLUDED
+# define YY_YY_CODE_H_INCLUDED
+
 #include <stdlib.h>
 
 
@@ -8,7 +11,6 @@
 void listeSymboles();
 
 int adresse(char *id);
-
 
 void codeLInstr(TreeP tree);
 void codeInstr(TreeP tree);
@@ -29,6 +31,8 @@ void codePrint(TreeP expr, TreeP methodeC);
 void codeClasse(ClasseP classe);
 void genCode(TreeP LClasse, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/);
 void codeITE(TreeP tree);
+
+VarDeclP getVarDeclFromName(char *name);
 
 /* Fonctions servant à la génération de code
  * pour la machine virtuelle
@@ -147,3 +151,6 @@ for taille pile
     return
 return adresse de x
 */
+
+
+#endif /* !YY_YY_CODE_H_INCLUDED */

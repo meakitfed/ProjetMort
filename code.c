@@ -1,3 +1,4 @@
+
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
@@ -7,7 +8,7 @@
 #include "tp_y.h"
 
 extern char* strdup(const char *);
-
+extern ScopeP env;
 FILE* output;
 
 /*
@@ -85,9 +86,6 @@ void NEWLABEL(char* c) {
     NOP();
 }
 */
-
-
-
 
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
@@ -177,13 +175,9 @@ char *makeLabel(char *type)
 void codeITE(TreeP tree)
 {
     /*Création des étiquettes*/
-    char *labelIf = makeLabel("if");
     char *labelElse = makeLabel("else");
     char *labelEndIf = makeLabel("endif");
 
-    /*ajout de l'étiquette du if*/
-    fprintf(output, "%s :", labelIf);
-        
     /*ajout de la condition du if*/
     codeExpr(getChild(tree, 0));
 
@@ -197,7 +191,7 @@ void codeITE(TreeP tree)
     fprintf(output, "JUMP %s\n", labelEndIf);
 
     /*Etiquette du else*/
-    fprintf(output, "%s :", labelElse);
+    fprintf(output, "%s:", labelElse);
  
     /*Corps du else optionnel*/
     TreeP childElse = getChild(tree, 2);
@@ -211,7 +205,7 @@ void codeITE(TreeP tree)
     }
 
     /*Etiquette de sortie de la boucle*/
-    fprintf(output, "%s : NOP\n", labelEndIf);
+    fprintf(output, "%s: NOP\n", labelEndIf);
 }
 
 /* Génère le code d'une instruction.
@@ -460,11 +454,11 @@ void codeExpr(TreeP tree)
         }
 }
 
-/*Génère le code d'un envoi*/                                  /*Envoi: Expr '.' MethodeC */
+/*Génère le code d'un envoi*/                     /*Envoi: Expr '.' MethodeC */
 void codeEnvoi(TreeP tree)		
 {
 	/*TODO*/
-    fprintf(output, "IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
+    fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
    	TreeP expr = getChild(tree, 0);										
 	TreeP methodeC = getChild(tree, 1);
 
@@ -525,19 +519,43 @@ void codePrint(TreeP expr, TreeP methodeC)
 }
 
 
+VarDeclP getVarDeclFromName(char *name)
+{
+
+	/*ScopeP env : env de variables globales*/
+
+	VarDeclP temp = env->env;
+	while(temp->next != NULL)
+    {
+    	if(strcmp(name, temp->nom) == 0)
+    	{
+    		return temp;
+    	}
+    }
+    printf("Erreur environnement : variable introuvable.\n");
+    return NULL;
+}
+
+
 /*Génère le code d'une sélection*/
-void codeSelec(TreeP tree)		                    /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
+void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
 {
 	/*TODO*/
-    /*sélections comment faire ? mettre le x de x.f() en paramètres de f ? prof a dit ça*/
-    fprintf(output, "IL Y AURA UNE SELECTION ICI;\n");
+    /*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
+    fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
+
+
+
 
     /*Voir le code de paire.entiers dans Interp*/
 
 
     /*
     Voir le type de retour de l'expression
-    puis chercher le id dans sa structure
+    puis chercher le id dans la classe correspondante
+
+    on a donc besoin d'un getClasse(classname)
+
     voilà
     
 
@@ -545,16 +563,29 @@ void codeSelec(TreeP tree)		                    /*Selection: Expr '.' Id*/		/*Pb
     */
 
 
+    /*
+
+        codeExpr(Expr);
+        
+        ALLOC 12
 
 
 
 
+ if (expr->op == IDVAR) {
+            ClassP t = figureClass(getSymbole(expr->u.str)->var->type);
+            if (t) fprintf(out, "--type should be %s\n", t->name);
+            else return;
+            margin(d); 
+
+            if (in_method) PUSHL_addr(expr->u.str); else PUSHG_addr(expr->u.str);
+            
+            int x = getOffset(t,id->u.str);
+            margin(d); LOAD(x);
+            
 
 
-
-
-
-
+    */
 
 
 }
@@ -659,10 +690,7 @@ void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
     {
 		codeDeclChampMethode(getChild(tree, 0));
     }
-    else
-    {
-		fprintf(output, "--Contenu BlocObj vide.\n");
-    }
+   
 
 }
 
@@ -679,10 +707,7 @@ void codeDeclChampMethode(TreeP tree)
         printf("DECL METHODE\n");
         codeDeclMethode(tree);
     }
-    else
-    {
-        fprintf(output, "--DEMTHOLFDHIGFHDGKDJ\n");
-    }
+
 }
 
 /*Liste de déclarations champ*/
@@ -745,7 +770,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
     alloc 1
     dupn 1
-    codeExpr(valVar->expr);
+    codeExpr(Valvar);
     store(0)
     */
 }
@@ -756,68 +781,31 @@ void codeDeclMethode(TreeP tree)	/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt
 {									/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' TypeCOpt IS Bloc */
 
 	fprintf(output,"--Declaration de la methode %s.\n", getChild(tree, 0)->u.str);
-	/*j'attend la structure de méthode pour faire ça*/
 
 	/*codeBlocObj(tree);*/
 
     /*en principe : on compte le nombre de parametres avec un while param->next
 
-    ensuite on empile
-    
-    rang param
+    ensuite on empile en gardant en mémoire la taille de la pile au moment où tu rentres dans la fonction.
 
-    if les méthodes sont un bloc => codeBlocObj
-    else if méthode sont une expr => codeExpr
+    
+    rang param?????
+
+    if les méthodes sont un bloc => codeBlocObj if(tree->op == DMETHODE)
+    else if méthode sont une expr => codeExpr               DMETHODEL
+
 
     PUSHL(0 - (nbPAram+1))
-    SWAP()
-    STORE(0)
+    SWAP() pk ? lol
+    STORE(0) 
 
     RETURN
     
-    if methode->hasnext codeMethode
-    */
-}
-
-/*Génère le code d'une classe*/
-void codeClasse(ClasseP classe)
-{
-    
-    fprintf(output, "--Declaration d'une classe :\n");
-
-    /*
-
-    fprintf(output, "-- declaring class %s:\n", classe->name);
-     generate code constructor
-    
-     methods
-    generateCodeMethod(classe->methods,class);
-
-    fprintf(output, "-- end of class %s\n", classe->name);
-    if (class->next)
-    generateCodeClass(class->next);*/ 
-}
-
-
-
-void codeLClasse(TreeP tree)
-{
-
-    fprintf(output, "--Generation de code d'une classe...\n");
-
-
-    /*Parcours l'environnement de classe
-        
-    temp = getPremièreClasseDeLaListe ?
-
-    while(temp->next != NULL)
-    {
-        codeClasse(temp);
-        temp = temp->next;
-    }
+    if methode->next != null ; codeMethode
 
     */
 }
+
 
 void genCode(TreeP LClass, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/)
 {
@@ -826,12 +814,13 @@ void genCode(TreeP LClass, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, 
 
     if (output != NULL) {
 
-        codeLClasse(LClass);
+        fprintf(output, "START\n");
+        /*codeLClasse(LClass);*/
         codeInstr(Bloc);
+        fprintf(output, "STOP\n");
+
         fclose(output);
     }
 
 
 }
-
-
