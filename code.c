@@ -138,9 +138,9 @@ int adresse(char *id)
 }
 
 
-
-
-/*liste d'instructions*/
+/*
+ * liste d'instructions
+ */
 void codeLInstr(TreeP tree)
 {
     if(tree->nbChildren == 2)
@@ -208,8 +208,8 @@ void codeITE(TreeP tree)
     fprintf(output, "%s: NOP\n", labelEndIf);
 }
 
-/* Génère le code d'une instruction.
- *
+/* 
+ * Génère le code d'une instruction.
  */
 void codeInstr(TreeP tree)
 {
@@ -265,16 +265,13 @@ void codeConstructeur(TreeP tree)     					/*Expr: NEWC TypeC '(' LExprOpt ')'*/
 {
 
 	fprintf(output, "------------------ := Instanciation new %s():\n", getChild(tree, 0)->u.str);
-	
 
 	/*On récupère la classe à instancier*/
 	/*ClasseP classe = getClasse(getChild(tree, 0)->u.str);
     
 	TreeP LExprOpt = getChild(expr, 1);
 
-
 	int nombreExprOpt = classe.getTailleParam();
-
 
   	Ce que va faire le constructeur : 
 	for (i = nb de param)
@@ -521,21 +518,49 @@ void codePrint(TreeP expr, TreeP methodeC)
 
 VarDeclP getVarDeclFromName(char *name)
 {
-
 	/*ScopeP env : env de variables globales*/
-
 	VarDeclP temp = env->env;
-	while(temp->next != NULL)
+	while(temp != NULL)
     {
     	if(strcmp(name, temp->nom) == 0)
     	{
     		return temp;
     	}
+    	temp = temp->next;
     }
-    printf("Erreur environnement : variable introuvable.\n");
+    printf("Erreur environnement : variable %s introuvable.\n", name);
     return NULL;
 }
 
+
+int getOffset(ClasseP classe, char *idNom)
+{
+	/*TODO : classe extends*/
+	int offset = 0;
+
+    VarDeclP temp = classe->lchamps;
+    printf("PRINT VAR DECL :: \n");
+    printVarDecl(temp);
+	printf("Var de la classe %s : \n", classe->nom);
+
+    while(temp != NULL)
+	{
+		printf(">%s\n", temp->nom);
+        if(strcmp(temp->nom, idNom) == 0)
+        {
+        	printf("Offset = %d\n",offset);
+            return offset;
+        }
+        else
+        {
+            offset += 1;
+        }
+        temp = temp->next;
+        /*TODO : Comment parcourir une liste avec un unique élément*/
+    }	
+    printf("Erreur offset.\n");
+	return -1;
+}
 
 /*Génère le code d'une sélection*/
 void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
@@ -544,12 +569,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     /*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
     fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
 
-
-
-
     /*Voir le code de paire.entiers dans Interp*/
-
-
     /*
     Voir le type de retour de l'expression
     puis chercher le id dans la classe correspondante
@@ -557,21 +577,32 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     on a donc besoin d'un getClasse(classname)
 
     voilà
-    
-
-
     */
 
+    /*cas où Expr est un ident*/
+    TreeP Expr = getChild(tree,0);
+    TreeP Ident = getChild(tree,1);
 
-    /*
+    if(Expr->op == Id)
+    {
+    	VarDeclP temp = getVarDeclFromName(Expr->u.str);
+    	char *type = temp->type->nom;
+    	ClasseP classeType = getClassePointer(type);
 
-        codeExpr(Expr);
-        
-        ALLOC 12
+    /*if (in_method) PUSHL_addr(expr->u.str); else*/ 
+    	/*PUSHG_addr(expr->u.str);*/
+    	fprintf(output,"PUSHG %s.adresse()\n", Expr->u.str);
+            
+    	int offset = getOffset(classeType,Ident->u.str);
+    	LOAD(offset);
+    }
 
 
+   
 
+	
 
+	/*
  if (expr->op == IDVAR) {
             ClassP t = figureClass(getSymbole(expr->u.str)->var->type);
             if (t) fprintf(out, "--type should be %s\n", t->name);
@@ -589,6 +620,39 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 
 
 }
+
+
+/*Appel de méthode : 
+
+	class C is f(){}
+	
+    {var monC : C = new
+	   monC.f
+    }
+
+	START
+	PUSHN 1 -- allocation de ta variable monC 
+	PUSHG 0
+	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
+	
+	CALL ??? why what
+	STOP
+
+	--fonctions 
+	f1: NOP            -methode f   
+		corpsf1
+		RETURN
+    f2: skdfsd
+        RETURN
+
+ 
+    f546456: WRITES   -tostring
+            RETURN
+
+
+
+*/
+
 
 /*Code d'une affectation x := y*/
 void codeAff(TreeP tree)
@@ -802,6 +866,47 @@ void codeDeclMethode(TreeP tree)	/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt
     RETURN
     
     if methode->next != null ; codeMethode
+
+    */
+}
+
+
+/*Génère le code d'une classe*/
+void codeClasse(ClasseP classe)
+{
+    
+    fprintf(output, "--Declaration d'une classe :\n");
+
+    /*
+
+    fprintf(output, "-- declaring class %s:\n", classe->name);
+     generate code constructor
+    
+     methods
+    generateCodeMethod(classe->methods,class);
+
+    fprintf(output, "-- end of class %s\n", classe->name);
+    if (class->next)
+    generateCodeClass(class->next);*/ 
+}
+
+
+
+void codeLClasse(TreeP tree)
+{
+
+    fprintf(output, "--Generation de code d'une classe...\n");
+
+
+    /*Parcours l'environnement de classe
+        
+    temp = getPremièreClasseDeLaListe ?
+
+    while(temp->next != NULL)
+    {
+        codeClasse(temp);
+        temp = temp->next;
+    }
 
     */
 }

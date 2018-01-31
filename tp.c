@@ -44,23 +44,23 @@ int main(int argc, char **argv) {
     if (argv[i][0] == '-') {
       switch (argv[i][1]) {
       case 'd': case 'D':
-	debug = TRUE; continue;
+  debug = TRUE; continue;
       case 'v': case 'V':
-	verbose = TRUE; continue;
+  verbose = TRUE; continue;
       case 'e': case 'E':
-	noCode = TRUE; continue;
+  noCode = TRUE; continue;
       case '?': case 'h': case 'H':
-	fprintf(stderr, "Appel: tp -v -e -d -o file.out programme.txt\n");
-	exit(USAGE_ERROR);
+  fprintf(stderr, "Appel: tp -v -e -d -o file.out programme.txt\n");
+  exit(USAGE_ERROR);
       case'o':
-	  if ((out= fopen(argv[++i], "w")) == NULL) {
-	    fprintf(stderr, "erreur: Cannot open %s\n", argv[i]);
-	    exit(USAGE_ERROR);
-	  }
-	break;
+    if ((out= fopen(argv[++i], "w")) == NULL) {
+      fprintf(stderr, "erreur: Cannot open %s\n", argv[i]);
+      exit(USAGE_ERROR);
+    }
+  break;
       default:
-	fprintf(stderr, "Option inconnue: %c\n", argv[i][1]);
-	exit(USAGE_ERROR);
+  fprintf(stderr, "Option inconnue: %c\n", argv[i][1]);
+  exit(USAGE_ERROR);
       }
     } else break;
   }
@@ -905,12 +905,15 @@ void compile(TreeP arbreLClasse, TreeP main)
 /* affiche une liste de variables */
 void printVarDecl(VarDeclP lvar)
 {
+    int i = 0;
     VarDeclP tmp = lvar; 
     while(tmp != NIL(VarDecl))
     {
           if(tmp->type != NIL(Classe))
               printf("\t%s : %s\n", tmp->nom, tmp->type->nom);
           tmp = tmp->next;
+          printf("i = %d\n", i);
+          i++;
     }
 }
 
