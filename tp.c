@@ -248,9 +248,9 @@ ClasseP makeClasse(char *nom)
   classe->lchamps->exprOpt = NIL(Tree);
   classe->lchamps->next = NIL(VarDecl);
  
-  classe->lmethodes = NEW(1, LMethode);
-  classe->lmethodes->methode = NIL(Methode);
-  classe->lmethodes->next = NIL(LMethode);
+  classe->lmethodes = NIL(LMethode);
+  /* classe->lmethodes->methode = NIL(Methode);
+  classe->lmethodes->next = NIL(LMethode); */
 
   return classe;
 }
