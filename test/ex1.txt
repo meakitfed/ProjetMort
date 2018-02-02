@@ -67,7 +67,7 @@ class Point(var x: Integer, var y: Integer := 0, var name: String := "")
   }
 }
 
-class Couleur(var coul: Integer := 0)
+class Couleur(var a: Integer;)
    /* 3 couleurs : couleur = 0, 1 ou 2
     * Valeur initiale a 0 par defaut mais modifiable en passant un argument
     * explicitement. Le corps du constructeur garantit qu'on a bien que

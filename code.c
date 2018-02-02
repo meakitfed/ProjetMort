@@ -532,7 +532,8 @@ VarDeclP getVarDeclFromName(char *name)
     return NULL;
 }
 
-
+/*retourne le décalage d'une variable par rapport
+ *au fond de pile de sa classe*/
 int getOffset(ClasseP classe, char *idNom)
 {
 	/*TODO : classe extends*/
@@ -553,10 +554,9 @@ int getOffset(ClasseP classe, char *idNom)
         }
         else
         {
-            offset += 1;
-        }
-        temp = temp->next;
-        /*TODO : Comment parcourir une liste avec un unique élément*/
+            offset += 1;		/* TODO bizarre : renvoie 0 pour la dernière variable déclarée.*/
+        }						/*ça veut dire que c'est la variable qui est à 0 du fond de pile. C'est pas le cas si ?*/
+        temp = temp->next;	/*est égal à NULL s'il n'existe qu'un élément dans la liste*/
     }	
     printf("Erreur offset.\n");
 	return -1;
@@ -620,38 +620,6 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 
 
 }
-
-
-/*Appel de méthode : 
-
-	class C is f(){}
-	
-    {var monC : C = new
-	   monC.f
-    }
-
-	START
-	PUSHN 1 -- allocation de ta variable monC 
-	PUSHG 0
-	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
-	
-	CALL ??? why what
-	STOP
-
-	--fonctions 
-	f1: NOP            -methode f   
-		corpsf1
-		RETURN
-    f2: skdfsd
-        RETURN
-
- 
-    f546456: WRITES   -tostring
-            RETURN
-
-
-
-*/
 
 
 /*Code d'une affectation x := y*/
@@ -838,6 +806,38 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     store(0)
     */
 }
+
+
+/*Appel de méthode : 
+
+	class C is f(){}
+	
+    {var monC : C = new
+	   monC.f
+    }
+
+	START
+	PUSHN 1 -- allocation de ta variable monC 
+	PUSHG 0
+	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
+	
+	CALL ??? why what
+	STOP
+
+	--fonctions 
+	f1: NOP            -methode f   
+		corpsf1
+		RETURN
+    f2: skdfsd
+        RETURN
+
+ 
+    f546456: WRITES   -tostring
+            RETURN
+
+
+
+*/
 
 
 /*Methodes d'une classe*/
