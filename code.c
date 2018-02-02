@@ -137,6 +137,52 @@ int adresse(char *id)
   return 0;
 }
 
+VarDeclP getVarDeclFromName(char *nom)
+{
+	/*ScopeP env : env de variables globales*/
+	VarDeclP temp = env->env;
+	while(temp != NULL)
+    {
+    	if(strcmp(nom, temp->nom) == 0)
+    	{
+    		return temp;
+    	}
+    	temp = temp->next;
+    }
+    printf("Erreur environnement : variable %s introuvable.\n", nom);
+    return NULL;
+}
+
+
+/*retourne le décalage d'une variable par rapport
+ *au fond de pile de sa classe*/
+int getOffset(ClasseP classe, char *idNom)
+{
+	/*TODO : classe extends*/
+	int offset = 0;
+
+    VarDeclP temp = classe->lchamps;
+    printf("PRINT VAR DECL :: \n");
+    printVarDecl(temp);
+	printf("Var de la classe %s : \n", classe->nom);
+
+    while(temp != NULL)
+	{
+		printf(">%s\n", temp->nom);
+        if(strcmp(temp->nom, idNom) == 0)
+        {
+        	printf("Offset = %d\n",offset);
+            return offset;
+        }
+        else
+        {
+            offset += 1;		/* TODO bizarre : renvoie 0 pour la dernière variable déclarée.*/
+        }						/*ça veut dire que c'est la variable qui est à 0 du fond de pile. C'est pas le cas si ?*/
+        temp = temp->next;	/*est égal à NULL s'il n'existe qu'un élément dans la liste*/
+    }	
+    printf("Erreur offset.\n");
+	return -1;
+}
 
 /*
  * liste d'instructions
@@ -154,7 +200,6 @@ void codeLInstr(TreeP tree)
         codeInstr(tree);  
     }
 }
-
 
 /* Renvoie une étiquette toujours différente, en fonction
  * du type indiqué en paramètre.
@@ -446,50 +491,9 @@ void codeExpr(TreeP tree)
             {
                 codeExpr(getChild(tree, 0));
             }
-            printf("Cas Expression inconnue : %d!\n", tree->op);
+            printf("#ERREUR : Expression inconnue : %d!\n", tree->op);
             break;
         }
-}
-
-/*Génère le code d'un envoi*/                     /*Envoi: Expr '.' MethodeC */
-void codeEnvoi(TreeP tree)		
-{
-	/*TODO*/
-    fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
-   	TreeP Expr = getChild(tree, 0);										
-	TreeP MethodeC = getChild(tree, 1);
-
-	/*Si la méthode est print ou println, on génère son code*/
-	bool printOK = FALSE;
-	printOK = codePrint(expr, methodeC);
-
-	/*Si la méthode n'est pas un print ou println*/
-	if(printOK == FALSE)
-	{
-
-
-
-
-
-	}
-
-	/*Question : comment marche l'empilement de l'envoi ?
-	est-ce qu'on empile d'abord la partie gauche puis la partie droite ?*/
-
-	/*
-	generateCodeExpr(expr, depth+1); // resultat de la fonction
-	TreeP param = getChild(send, 2);
-	int arg = 0; 
-	while(param) {
-		PUSHG(arg);  // empiler l'argument 
-		arg++;
-	}
-    margin(depth);	PUSHA(method->u.str);
-    margin(depth);	CALL();
-	POPN(arg); // dépiler les arguments	
-
-	*/
-
 }
 
 /*Génère le code des fonctions print() et println()*/
@@ -497,7 +501,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 {
 	if(expr->op == Cste)
 	{
-		fprintf(output, "--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
+		fprintf(output, "\n--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
@@ -512,7 +516,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 	}
 	else if(expr->op == Chaine)
 	{
-		fprintf(output, "--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
+		fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
@@ -528,51 +532,104 @@ bool codePrint(TreeP expr, TreeP methodeC)
 	return FALSE;
 }
 
-
-VarDeclP getVarDeclFromName(char *name)
+/*Génère le code d'un envoi*/ 
+void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 {
-	/*ScopeP env : env de variables globales*/
-	VarDeclP temp = env->env;
+	/*TODO*/
+    fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
+   	TreeP Expr = getChild(tree, 0);										
+	TreeP MethodeC = getChild(tree, 1);
+
+	/*Si la méthode est print ou println, on génère son code*/
+	bool printOK = FALSE;
+	printOK = codePrint(Expr, MethodeC);
+
+	/*Si la méthode n'est pas un print ou println*/
+	if(printOK == FALSE)
+	{
+		/*On exécuter le code de l'expression*/
+		/*?TODO??codeExpr(Expr);*/
+		
+		/*On récupère la classe correspondant à l'expression*/
+ 		VarDeclP tempExpr = getVarDeclFromName(Expr->u.str);
+    	char *type = tempExpr->type->nom;
+    	ClasseP classeEnvoi = getClassePointer(type);
+
+    	/*On récupère la structure correspondant à MethodeC*/
+    	MethodeP tempMethode = getMethodeFromName(classeEnvoi, getChild(MethodeC,0)->u.str);
+    	
+    	if(tempMethode)
+    	{
+    		VarDeclP tempParam = tempMethode->lparametres;
+    		printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
+
+			int nbParam = 0; 
+			while(tempParam != NULL) 
+			{
+				PUSHG(nbParam);  /*empiler l'argument*/ 
+				nbParam++;
+				tempParam = tempParam->next;
+			}
+
+			/*Appel (statique...) de la méthode*/
+			char *adresseMethode = tempMethode->nom;
+			fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
+			PUSHA(adresseMethode);
+	    	CALL();
+
+	    	/*On dépile le nombre de paramètres empilés*/
+			POPN(nbParam);
+    	}
+    
+
+
+	}
+
+	/*Créer des méthodes avec des étiquettes uniques ?*/
+	/*Question : comment marche l'empilement de l'envoi ?
+	est-ce qu'on empile d'abord la partie gauche puis la partie droite ?*/
+}
+
+/*Appel de méthode : 
+	class C is f(){}
+	
+    {var monC : C = new
+	   monC.f
+    }
+
+	START
+	PUSHN 1 -- allocation de ta variable monC 
+	PUSHG 0
+	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
+	
+	CALL ??? why what
+	STOP
+
+	--fonctions 
+	f1: NOP            -methode f   
+		corpsf1
+		RETURN
+    f2: skdfsd
+        RETURN
+
+ 
+    f546456: WRITES   -tostring
+            RETURN
+*/
+
+MethodeP getMethodeFromName(ClasseP classe, char *nom)
+{
+	LMethodeP temp = classe->lmethodes;
 	while(temp != NULL)
     {
-    	if(strcmp(name, temp->nom) == 0)
+    	if(strcmp(nom, temp->methode->nom) == 0)
     	{
-    		return temp;
+    		return temp->methode;
     	}
     	temp = temp->next;
     }
-    printf("Erreur environnement : variable %s introuvable.\n", name);
+    printf("Erreur methode : methode %s  introuvable.\n", nom);
     return NULL;
-}
-
-/*retourne le décalage d'une variable par rapport
- *au fond de pile de sa classe*/
-int getOffset(ClasseP classe, char *idNom)
-{
-	/*TODO : classe extends*/
-	int offset = 0;
-
-    VarDeclP temp = classe->lchamps;
-    printf("PRINT VAR DECL :: \n");
-    printVarDecl(temp);
-	printf("Var de la classe %s : \n", classe->nom);
-
-    while(temp != NULL)
-	{
-		printf(">%s\n", temp->nom);
-        if(strcmp(temp->nom, idNom) == 0)
-        {
-        	printf("Offset = %d\n",offset);
-            return offset;
-        }
-        else
-        {
-            offset += 1;		/* TODO bizarre : renvoie 0 pour la dernière variable déclarée.*/
-        }						/*ça veut dire que c'est la variable qui est à 0 du fond de pile. C'est pas le cas si ?*/
-        temp = temp->next;	/*est égal à NULL s'il n'existe qu'un élément dans la liste*/
-    }	
-    printf("Erreur offset.\n");
-	return -1;
 }
 
 /*Génère le code d'une sélection*/
@@ -586,10 +643,6 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     /*
     Voir le type de retour de l'expression
     puis chercher le id dans la classe correspondante
-
-    on a donc besoin d'un getClasse(classname)
-
-    voilà
     */
 
     /*cas où Expr est un ident*/
@@ -602,18 +655,15 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     	char *type = temp->type->nom;
     	ClasseP classeType = getClassePointer(type);
 
-    /*if (in_method) PUSHL_addr(expr->u.str); else*/ 
-    	/*PUSHG_addr(expr->u.str);*/
+    					/*???if (in_method) PUSHL_addr(expr->u.str); else*/ 
+    					/*???PUSHG_addr(expr->u.str);*/
     	fprintf(output,"PUSHG %s.adresse()\n", Expr->u.str);
             
     	int offset = getOffset(classeType,Ident->u.str);
     	LOAD(offset);
     }
-
-
-
 	/*
- if (expr->op == IDVAR) {
+ 	if (expr->op == IDVAR) {
             ClassP t = figureClass(getSymbole(expr->u.str)->var->type);
             if (t) fprintf(out, "--type should be %s\n", t->name);
             else return;
@@ -623,19 +673,13 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
             
             int x = getOffset(t,id->u.str);
             margin(d); LOAD(x);
-            
-
-
     */
-
-
 }
 
 
 /*Code d'une affectation x := y*/
 void codeAff(TreeP tree)
 {
-
     /*membre gauche de l'affectation gauche := droit*/
     TreeP gauche = getChild(tree, 0);
 
@@ -660,11 +704,9 @@ void codeAff(TreeP tree)
             /*STOREG(gauche.getAdresse());*/
             fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
         }
-
     }
 
-/*
-	if (gauche->op = id et droit->op = eaff)
+/*	if (gauche->op = id et droit->op = eaff)
 		on fait constructeur(droit)
 		on fait storeg gauche.getadresse()
 
@@ -673,13 +715,9 @@ void codeAff(TreeP tree)
 		on codeExpr(droit)	
 
 	if gauche->op = selection 
-		if(gauche.filsgauche = est une classe)
-		
+		if(gauche.filsgauche = est une classe)	
 */
-
-
-/*
-    if (selectorid->op == IDVAR) {
+/*	if (selectorid->op == IDVAR) {
 
         if (expr->op == EALLOC) {
 
@@ -707,12 +745,10 @@ void codeAff(TreeP tree)
             char* t = getSymbole(var->u.str)->var->type;
             ClassP class = figureClass(t);
             offset = getOffset(class,field->u.str);
-            
+           
             STORE(offset);
         }
-
         else {
-            fprintf(out, "-- You shouldn't write something like expr.id := expr, this doesn't make any sense here ... \n");
         }
     }
 */
@@ -744,13 +780,16 @@ void codeDeclChampMethode(TreeP tree)
         codeDeclChamp(tree);
     }
 
-    else if(tree->op == DMETHODE) /*DeclMethode*/
+    else if(tree->op == DMETHODE) /*DeclMethode pas besoin de gérer ce cas, 
+    								vu qu'on met les méthodes dans des structures*/
     {
-        printf("DECL METHODE\n");
-        codeDeclMethode(tree);
-    }
+        printf("DECL METHODE qu'on appelera à partir de classe\n");
+       /* MethodeP methode = getMethodeFromName(tree->u.str);  
+       	codeDeclMethode(methode);
+*/    }
 
 }
+
 
 /*Liste de déclarations champ*/
 void codeLDeclChamp(TreeP tree)		
@@ -779,7 +818,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
     /*TODO : refaire mais avec la méthode makeVarDecl!!!!!!!!!!!!!!!!!!!*/
 
-    fprintf(output, "BIENVENUE DANS LE DeclChamp.\n");
+    fprintf(output, "----BIENVENUE DANS LE DeclChamp.\n");
 
     fprintf(output,"--Var %s : ", tree->u.lvar->nom);
         /*codeExpr(getChild(tree, 1));  correspond au typeC*/
@@ -812,45 +851,13 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     */
 }
 
-
-/*Appel de méthode : 
-
-	class C is f(){}
-	
-    {var monC : C = new
-	   monC.f
-    }
-
-	START
-	PUSHN 1 -- allocation de ta variable monC 
-	PUSHG 0
-	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
-	
-	CALL ??? why what
-	STOP
-
-	--fonctions 
-	f1: NOP            -methode f   
-		corpsf1
-		RETURN
-    f2: skdfsd
-        RETURN
-
- 
-    f546456: WRITES   -tostring
-            RETURN
-
-
-
-*/
-
-
 /*Methodes d'une classe*/
-void codeDeclMethode(TreeP tree)	/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' ':' TypeC AFF Expr*/
+void codeDeclMethode(MethodeP methode)	/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' ':' TypeC AFF Expr*/
 {									/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' TypeCOpt IS Bloc */
 
-	fprintf(output,"--Declaration de la methode %s.\n", getChild(tree, 0)->u.str);
+	fprintf(output,"--Declaration de la methode %s.\n", methode->nom);
 
+	fprintf(output, "%s: \t", methode->nom);
 	/*codeBlocObj(tree);*/
 
     /*en principe : on compte le nombre de parametres avec un while param->next
@@ -882,6 +889,13 @@ void codeClasse(ClasseP classe)
     
     fprintf(output, "--Declaration d'une classe :\n");
 
+    LMethodeP liste = classe->lmethodes;
+
+    while(liste != NULL)
+    {
+    	codeDeclMethode(liste->methode);
+    	liste = liste->next;
+    }
     /*
 
     fprintf(output, "-- declaring class %s:\n", classe->name);
@@ -896,12 +910,31 @@ void codeClasse(ClasseP classe)
 }
 
 
-
 void codeLClasse(TreeP tree)
 {
+    fprintf(output, "--Generation de code d'une liste de classe...\n");
 
-    fprintf(output, "--Generation de code d'une classe...\n");
+    /*
+    if(tree->nbChildren == 2)				
+    {
+        codeDeclChamp(getChild(tree, 0));
+        codeLDeclChamp(getChild(tree, 1));
+    }
+    else 									
+    {	
+        codeDeclChamp(tree);  
+    }
+	*/
 
+/*
+    LClasseP liste = classe->lmethodes;
+
+    while(liste != NULL)
+    {
+    	codeDeclMethode(liste->methode);
+    	liste = liste->next;
+    }
+*/
 
     /*Parcours l'environnement de classe
         

@@ -25,7 +25,7 @@ void codeBlocObj(TreeP tree);
 void codeDeclChampMethode(TreeP tree);
 void codeLDeclChamp(TreeP tree);
 void codeDeclChamp(TreeP tree);
-void codeDeclMethode(TreeP tree);
+void codeDeclMethode(MethodeP methode);
 bool codePrint(TreeP expr, TreeP methodeC);
 
 void codeClasse(ClasseP classe);
@@ -33,6 +33,8 @@ void genCode(TreeP LClasse, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv,
 void codeITE(TreeP tree);
 
 VarDeclP getVarDeclFromName(char *name);
+MethodeP getMethodeFromName(ClasseP classe, char *name);
+int getOffset(ClasseP classe, char *idNom);
 
 /* Fonctions servant à la génération de code
  * pour la machine virtuelle
