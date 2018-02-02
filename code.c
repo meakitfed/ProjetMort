@@ -456,17 +456,25 @@ void codeEnvoi(TreeP tree)
 {
 	/*TODO*/
     fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
-   	TreeP expr = getChild(tree, 0);										
-	TreeP methodeC = getChild(tree, 1);
+   	TreeP Expr = getChild(tree, 0);										
+	TreeP MethodeC = getChild(tree, 1);
 
 	/*Si la méthode est print ou println, on génère son code*/
-	codePrint(expr, methodeC);
+	bool printOK = FALSE;
+	printOK = codePrint(expr, methodeC);
 
-    /*Sinon, euh... je sais pas...*/
+	/*Si la méthode n'est pas un print ou println*/
+	if(printOK == FALSE)
+	{
+
+
+
+
+
+	}
 
 	/*Question : comment marche l'empilement de l'envoi ?
 	est-ce qu'on empile d'abord la partie gauche puis la partie droite ?*/
-
 
 	/*
 	generateCodeExpr(expr, depth+1); // resultat de la fonction
@@ -485,7 +493,7 @@ void codeEnvoi(TreeP tree)
 }
 
 /*Génère le code des fonctions print() et println()*/
-void codePrint(TreeP expr, TreeP methodeC)
+bool codePrint(TreeP expr, TreeP methodeC)
 {
 	if(expr->op == Cste)
 	{
@@ -493,11 +501,13 @@ void codePrint(TreeP expr, TreeP methodeC)
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
+            return TRUE;
         }
         else if (!strcmp(getChild(methodeC,0)->u.str,"println")) {		/*écriture de la chaine et saut de ligne*/
             WRITES();
             PUSHS("\"\\n\"");											/*équivaut à PUSHS "\n" */
             WRITES();
+            return TRUE;
         }
 	}
 	else if(expr->op == Chaine)
@@ -505,14 +515,17 @@ void codePrint(TreeP expr, TreeP methodeC)
 		fprintf(output, "--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
-            WRITES();						
+            WRITES();
+            return TRUE;						
         }
         else if (!strcmp(getChild(methodeC,0)->u.str,"println")) {		/*écriture de la chaine et saut de ligne*/
             WRITES();
             PUSHS("\"\\n\"");											/*équivaut à PUSHS "\n" */
             WRITES();
+            return TRUE;
         }
 	}
+	return FALSE;
 }
 
 
@@ -598,9 +611,6 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     }
 
 
-   
-
-	
 
 	/*
  if (expr->op == IDVAR) {
@@ -767,13 +777,10 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
 	/*il faut STROREG id.adresse à la fin ?*/
 
-
     /*TODO : refaire mais avec la méthode makeVarDecl!!!!!!!!!!!!!!!!!!!*/
-
 
     fprintf(output, "BIENVENUE DANS LE DeclChamp.\n");
 
- 
     fprintf(output,"--Var %s : ", tree->u.lvar->nom);
         /*codeExpr(getChild(tree, 1));  correspond au typeC*/
 
@@ -786,8 +793,6 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     }
     fprintf(output, "\n");
     */
-
-
 
     /* VariableP var = tree->u.lvar;
 

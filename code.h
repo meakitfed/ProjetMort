@@ -26,7 +26,7 @@ void codeDeclChampMethode(TreeP tree);
 void codeLDeclChamp(TreeP tree);
 void codeDeclChamp(TreeP tree);
 void codeDeclMethode(TreeP tree);
-void codePrint(TreeP expr, TreeP methodeC);
+bool codePrint(TreeP expr, TreeP methodeC);
 
 void codeClasse(ClasseP classe);
 void genCode(TreeP LClasse, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/);
