@@ -67,12 +67,6 @@ void NEWLABEL(char* c) {
     LABEL(c);
     NOP();}
 
-/*void NEWMETHODLABEL(char* meth, char* cla) {
-    fprintf(output, "%s_%s: ", cla, meth);
-    NOP();
-}
-*/
-
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
@@ -91,40 +85,37 @@ int adresse(char *id)
 
     Il faut :
     Portée : Globale, Locale, Param
-    Type : Attribut
     Offset
-    Valeur
-
+    
     Il faut savoir gérer l'appel de fonction (x.f(), passer x en paramètres ?)
 
     Nombre d'attributs dans une classe afin de faire ALLOC 3 par ex dans le cas d'un new, alloc de mémoire
-
 */
-
-
-
-/*
-    bubble_ptr bub = stack.top_bubble;
-    while(bub) {
-        SymboleP sy = bub->symboles;
-        while (sy) {
-            if (!strcmp(name,sy->var->name)) {
-                return sy->addr;
-            }
-            sy = sy->next;
-        }
-        bub = bub->next;
-    }
-    fprintf(out, "couldn't find %s in :", name);
-    showEnv();
-    return -1;
-
-    */
   return 0;
 }
 
-/*retourne la variable correspondant à un nom
- *à partir de l'environnement de variables globales
+
+/*retourne la méthode correspondant à un nom
+ *à partir de l'environnement de sa classe
+ */
+MethodeP getMethodeFromName(ClasseP classe, char *nom)
+{
+    LMethodeP temp = classe->lmethodes;
+    while(temp != NULL)
+    {
+        if(strcmp(nom, temp->methode->nom) == 0)
+        {
+            return temp->methode;
+        }
+        temp = temp->next;
+    }
+    printf("Erreur methode : methode %s  introuvable.\n", nom);
+    return NULL;
+}
+
+
+/* Retourne la variable correspondant à un nom
+ * à partir de l'environnement de variables globales
  */
 VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche pas, ScopeP env est vide*/
 {
@@ -143,11 +134,13 @@ VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche p
     return NULL;
 }
 
-/*retourne le décalage d'une variable par rapport
- *au fond de pile de sa classe*/
+
+/* Retourne le décalage d'une variable par rapport
+ * au fond de pile de sa classe
+ */
 int getOffset(ClasseP classe, char *idNom)
 {
-	/*TODO : classe extends*/
+	                                                       /*TODO : classe extends*/
 	int offset = 0;
 
     LVarDeclP temp = classe->lchamps;
@@ -173,8 +166,9 @@ int getOffset(ClasseP classe, char *idNom)
 	return -1;
 }
 
-/*
- * liste d'instructions
+
+/* 
+ * Génère le code d'une liste d'instructions.
  */
 void codeLInstr(TreeP tree)
 {
@@ -182,7 +176,6 @@ void codeLInstr(TreeP tree)
     {
         codeInstr(getChild(tree, 0));
         codeLInstr(getChild(tree, 1));
-
     }
     else
     {
@@ -190,13 +183,13 @@ void codeLInstr(TreeP tree)
     }
 }
 
+
 /* Renvoie une étiquette toujours différente, en fonction
  * du type indiqué en paramètre.
  * Permet d'obtenir if3 ou else10 par exemple.
  */
 char *makeLabel(char *type)
 {
-
     static char buf[30];
     static int cpt;
 
@@ -205,7 +198,10 @@ char *makeLabel(char *type)
     return strdup(buf);
 }
 
-/*Génère le code d'un bloc ITE*/
+
+/* 
+ * Génère le code d'une instruction ITE.
+ */
 void codeITE(TreeP tree)
 {
     /*Création des étiquettes*/
@@ -241,6 +237,7 @@ void codeITE(TreeP tree)
     /*Etiquette de sortie de la boucle*/
     fprintf(output, "%s: NOP\n", labelEndIf);
 }
+
 
 /* 
  * Génère le code d'une instruction.
@@ -297,7 +294,6 @@ void codeInstr(TreeP tree)
 /*Code du constructeur*/ 
 void codeConstructeur(TreeP tree)     					/*Expr: NEWC TypeC '(' LExprOpt ')'*/
 {
-
 	fprintf(output, "------- := Instanciation new %s():\n", getChild(tree, 0)->u.str);
 
 	/*On récupère la classe à instancier*/
@@ -537,8 +533,9 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 	if(printOK == FALSE)
 	{
 		/*On exécuter le code de l'expression*/
-		/*?TODO??codeExpr(Expr); ????????????????????????????????????????????????????*/
+		/*?TODO?? ????????????????????????????????????????????????????*/
 		
+        codeExpr(Expr);
 		/*On récupère la classe correspondant à l'expression*/
  		VarDeclP tempExpr = getVarDeclFromName(Expr->u.str);
     	
@@ -565,7 +562,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 
     			/*Appel (statique...) de la méthode*/
     			char *adresseMethode = tempMethode->nom;
-    			if(verb)  fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
+    			if(verb) fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
     			PUSHA(adresseMethode);
     	    	CALL();
 
@@ -612,32 +609,17 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
             RETURN
 */
 
-MethodeP getMethodeFromName(ClasseP classe, char *nom)
-{
-	LMethodeP temp = classe->lmethodes;
-	while(temp != NULL)
-    {
-    	if(strcmp(nom, temp->methode->nom) == 0)
-    	{
-    		return temp->methode;
-    	}
-    	temp = temp->next;
-    }
-    printf("Erreur methode : methode %s  introuvable.\n", nom);
-    return NULL;
-}
 
 /*Génère le code d'une sélection*/
 void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
 {                                                /*Voir l'exemple de paire.entiers*/
 	/*TODO*/
     /*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
-    fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
+    if(verb) fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
 
     /*
     Voir le type de retour de l'expression
-    puis chercher le id dans la classe correspondante
-    */
+    puis chercher le id dans la classe correspondante*/
 
     /*cas où Expr est un ident*/
     TreeP Expr = getChild(tree,0);
@@ -672,7 +654,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 
 
 /*Code d'une affectation x := y*/
-void codeAff(TreeP tree)
+void codeAff(TreeP tree)    /*TODO : il faudrait un boolean qui dise si on est dans une méthode ou pas*/
 {
     /*membre gauche de l'affectation gauche := droit*/
     TreeP gauche = getChild(tree, 0);
@@ -729,6 +711,7 @@ void codeAff(TreeP tree)
              x = 0 si variable locale, x = ? offset du champ de classe à déterminer 
         }
     }
+
     else if (selectorid->op == EPOINT) {
         TreeP var = getChild(selectorid, 0);
         TreeP field = getChild(selectorid, 1);
@@ -742,7 +725,7 @@ void codeAff(TreeP tree)
            
             STORE(offset);
         }
-        else {
+        else { c'est fait
         }
     }
 */
@@ -826,7 +809,12 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
 
     addVarEnv(tree->u.var, NIL(Classe));
-        /*codeExpr(getChild(tree, 1));  correspond au typeC*/
+
+    if(tree->u.var->exprOpt != NULL)
+    {
+        codeExpr(tree->u.var->exprOpt);  /*instanciation, affectation...*/
+
+    }
 
    /* fprintf(output, "%s", getChild(tree, 1)->u.str);*/    /*comment gérer le type d'une expression en terme de gén de code ?*/
 
@@ -837,9 +825,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     }
     fprintf(output, "\n");
     */
-/*
-
-    ajoutVariable(var) à l'environnement : initialiser l'adresse de la variable,
+/*  ajoutVariable(var) à l'environnement : initialiser l'adresse de la variable,
     afin de pouvoir la STOREG dans le futur
     
     déclaration ! comment ?
@@ -859,7 +845,6 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 {									
 
-	
     TreeP tree = methode->bloc;
     if(tree != NULL)
     {   
@@ -874,8 +859,6 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
             printf("Methodes print et println existantes.\n");
         }
     }
-
-
 
     /*en principe : on compte le nombre de parametres avec un while param->next
 
@@ -893,10 +876,19 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
     STORE(0) 
 
     RETURN
-    
     if methode->next != null ; codeMethode
 
     */
+}
+
+
+/*
+ * Génère le code d'un objet
+ */
+void codeObjet()
+{
+
+    /*?????????????????????????????????????????????????????????*/
 }
 
 
@@ -905,7 +897,9 @@ void codeClasse(ClasseP classe)
 {
     printf(">Generation du code d'une classe : %s\n", classe->nom);
 
-    /*constructeur*/
+    /*TODO : constructeur qui permet d'instancier les variables de la classe*/
+
+
     LMethodeP liste = classe->lmethodes;
 
     while(liste != NULL)
@@ -948,8 +942,10 @@ void genCode(TreeP LClass, TreeP Bloc)
          à partir de la variable globale LClasse*/
         codeLClasse();
 
+        /*saut de ligne nécessaire à la fin du programme, 
+        sans quoi il y a une erreur*/
+        fprintf(output, "\n");
+
         fclose(output);
     }
-
-
 }

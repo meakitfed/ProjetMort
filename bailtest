@@ -1,17 +1,22 @@
 START
 --########Bloc de type LDeclChamp IS LInstr--
 --DeclChamp.
---Var p1 : --DeclChamp.
---Var p2 : --IL Y AURA UN ENVOI vers p2
+--Var p1 : ------- := Instanciation new Point():
+--DeclChamp.
+--Var p2 : ------- := Instanciation new Point():
+--IL Y AURA UN ENVOI vers p2
+PUSHG p2.adresse()
 PUSHG 0
 PUSHA setName
 CALL
 POPN 1
 --IL Y AURA UN ENVOI vers p1
+PUSHG p1.adresse()
 PUSHA printAll
 CALL
 POPN 0
 --IL Y AURA UN ENVOI vers p2
+PUSHG p2.adresse()
 PUSHA printAll
 CALL
 POPN 0
@@ -39,36 +44,54 @@ setName: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : name)
 
 --Declaration de la methode print.
 print: 	--IL Y AURA UN ENVOI vers name
+PUSHG name.adresse()
 
 
 --Declaration de la methode printAll.
-printAll: 	--IL Y AURA UN ENVOI vers pn∞
+printAll: 	--IL Y AURA UN ENVOI vers pnü
+--IL Y AURA UN ENVOI vers –mü
+--IL Y AURA UN ENVOI vers this
+PUSHG this.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers pr∞
+--IL Y AURA UN ENVOI vers prü
+--IL Y AURA UN ENVOI vers –qü
+--IL Y AURA UN ENVOI vers this
+PUSHG this.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers pv∞
+--IL Y AURA UN ENVOI vers pvü
+--IL Y AURA UN ENVOI vers –uü
+--IL Y AURA UN ENVOI vers this
+PUSHG this.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers –y∞
+--IL Y AURA UN ENVOI vers –yü
+--IL Y AURA UN ENVOI vers w
+PUSHG w.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers }∞
+--IL Y AURA UN ENVOI vers }ü
+--IL Y AURA UN ENVOI vers w2
+PUSHG w2.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers PÄ∞
+--IL Y AURA UN ENVOI vers PÄü
+--IL Y AURA UN ENVOI vers w3
+PUSHG w3.adresse()
 --IL Y AURA UN ENVOI vers " "
 PUSHS " "
 WRITES
 --IL Y AURA UN ENVOI vers this
+PUSHG this.adresse()
 
 
 --Declaration de la methode methodeTest.
 methodeTest: 	PUSHI 3
 PUSHI 4
+
