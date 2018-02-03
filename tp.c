@@ -871,7 +871,7 @@ void compile(TreeP arbreLClasse, TreeP main)
         stockerClasse(arbreLClasse, FALSE);
     }
 
-    verifContextProg(arbreLClasse, main);
+    /*verifContextProg(arbreLClasse, main);*/
 }
 
 
