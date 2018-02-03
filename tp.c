@@ -868,7 +868,7 @@ void compile(TreeP arbreLClasse, TreeP main)
 
     if(arbreLClasse != NIL(Tree))
     {
-        stockerClasse(arbreLClasse, FALSE);
+        stockerClasse(arbreLClasse, TRUE);
     }
 
     /*verifContextProg(arbreLClasse, main);*/

@@ -1,3 +1,16 @@
+/* ATTENTION: ce ficher n'a pour l'instant ete verifie que pour les aspects
+ * lexicaux et syntaxiques.
+ * Il peut subsister des erreurs contextuelles qui seront indiquees
+ * ulterieurement.
+ * Il sert principalement à donner des exemples des differentes
+ * constructions.
+ * Les resultats donnés à l'exécution seront precises ulterieurement aussi.
+ */
+object CptPoint is           /* Compteur d'instances de Point */
+{ var next : Integer := 1;   /* index de la prochaine instance de Point */
+  def incr() : Integer is { result := next; next := next + 1;}
+  def howMany() : Integer := next - 1
+}
 
 class Point(var x: Integer, var y: Integer := 0, var name: String := "")
       { CptPoint.incr(); } is
@@ -44,7 +57,7 @@ class Point(var x: Integer, var y: Integer := 0, var name: String := "")
    * les clones de ce dernier
    */
   def allClones () is {
-    if hasClone <> 0 then { this.clone.print(1); this.clone.allClones(); }
+    if hasClone <> 0 then { this.print(); this.clone.allClones(); }
     else { }
   }
 
@@ -67,7 +80,7 @@ class Point(var x: Integer, var y: Integer := 0, var name: String := "")
   }
 }
 
-class Couleur(var a: Integer)
+class Couleur(var coul: Integer := 0)
    /* 3 couleurs : couleur = 0, 1 ou 2
     * Valeur initiale a 0 par defaut mais modifiable en passant un argument
     * explicitement. Le corps du constructeur garantit qu'on a bien que
@@ -85,7 +98,7 @@ class Couleur(var a: Integer)
       if coul = 0 then result:= "Blanc";
       else { var dummy : String; is
              if coul = 1 then aux := "Noir"; else aux := "Gris";
-	     result := aux;
+       result := aux;
            }
   }
 
@@ -94,6 +107,16 @@ class Couleur(var a: Integer)
      result := coul = 2;
   }
 
+}
+
+object CouleurFactory is
+{  var theBlanc: Couleur := new Couleur();
+   var theNoir : Couleur := new Couleur(1);
+   var theGris : Couleur := new Couleur(2);
+
+  def blanc() : Couleur := theBlanc
+  def noir() : Couleur := theNoir
+  def gris() : Couleur := theGris
 }
 
 /* ci-dessous on ne met pas var devant x et y sinon ca definirait deux
@@ -107,13 +130,7 @@ class PointColore(x: Integer := 0, y:Integer:= 0,
 
   def colore() : Integer := coul.estGris() <> 0
 
- /* pas PointColore. Pas de covariance ! On ne peut pas reutiliser le
-  * clone de Point car ca nous donenrait une instance de Point.
-  * On n'a pas le mecanisme general de Java ou SmallTalk qui permet de
-  * remonter jusqu'a la racine de la hierarchie tout en allouant un
-  * objet de la bonne classe.
-  */
-   override def clone() : Point /* pas PointColore. Pas de covariance ! */
+  override def clone() : Point /* pas PointColore. Pas de covariance ! */
   /* ci-dessous x et y sont les champs herites de Point */
        := new PointColore(x, y, coul)
 
@@ -149,6 +166,30 @@ is {
   override def couleur() : Couleur := CouleurFactory.blanc()
 }
 
+object Test is {
+  def test(p: Point, p2: PointColore, p3: PointNoir) is {
+      var c: String; var c2: String; var c3: String;
+      var true: Integer := 1;
+      is
+      p.print(true);
+      p2.print(true);
+      "Appel 1: ".println();
+      if p2.colore() <> 0 then c := "colore";  else c := "gris";
+      "Appel 2: ".println();
+      if p3.colore() <> 0 then c2 := "colore"; else c2 := "gris";
+      "Appel 3: ".println();
+      if p3.colore() <> 0 then c3 := "colore"; else c3 := "gris";
+      "Resultats de test: ".println();
+      c.print(); " ".print();
+      c2.print(); " ".print();
+      c3.print();
+      "".println(); /* imprime une ligne vide */
+  }
+
+  def test2(p: PointColore) is {
+      p.couleur().name().print();
+  }
+}
 
 /* des exemples ad-hoc qui montrent d'autres aspects ... */
 class A() is {
@@ -176,20 +217,19 @@ class A2() extends A() is {
    */
   override def h(x : Integer := 3, y: Integer) : Integer := super.h(x, y)
 }
+
 { /* Bloc qui correspond au programme principal */
   var true: Integer := 1;
-  var false: Integer := 0;
   var p1: Point := new Point(1, 5, "p1");
   var p2: Point := new Point(2, 3, "p2");
-  var p3 : Point := new Point(0, 0, "p3");
+  var p3 : Point := new Point(); /* utilise toutes les valeurs par defaut */
   /* Incorrect: les types ne sont pas consideres quand on decide s'il faut
    * utiliser les valeurs par defaut. Si on donne un argument, ca doit
    * forcement correspondre au premier parametre, etc. Ci-dessous, on ne
    * peut pas omettre les coordonnees et ne passer que la couleur !
    * var err : PointColore := new PointColore(new Couleur(25));
    */
-   var fv : Integer := 12;
-  var o : PointColore := new PointColore(0, 0, CouleurFactory.blanc());
+  var o : PointColore := new PointColore(0, 0, (new Couleur(0)).blanc());
   var pn : PointNoir := new PointNoir(+1, -1);
   /* Incorrect: le constructeur de PointNoir n'est pas une redefinition
    * du constructeur de PointColore ou de Point. Il ne beneficie donc
@@ -198,41 +238,22 @@ class A2() extends A() is {
    * var pn2 : PointNoir := new PointNoir();
    */
   var dp : DefaultPoint := new DefaultPoint();
-  var clone1: Point;
-  var clone2: Point;
 is
-  "Debut du programme".println();
-  p1.print(0);
-  p2.print(0); 
-  p2.move(p1.getx(), p1.gety(), 0);
-  p2.print(0);
-  o.print(0);
+  p2.move(p1.getx(), p1.gety());
   o.setName("origine");
-  o.print(true);
-  p2.move(p1.getx()-2*5-3, p1.gety(), 0);
-  p2.print(true);
-
-  "On va essayer le clonage:".println();
-  clone1 := p1.clone(); clone1.print(false);
-  "p1 cloned: ".print();
-  if p1.cloned() then "OK".println(); else "KO".println();
-  clone2 := clone1.clone(); clone2.move(54, 36, 0).print(false);
-
-  "Impression de tous les clones de p1:".println();
-   p1.allClones();
-  "Fin de l'impression de tous les clones".println();
-  
+  p2.move(p1.getx()-2*5-3, p1.gety());
+  o.print();
+  p2.print();
+  o.clone().print();
+  o.clone().move(54, 36).print(true);
+  o.allClones();
   /* Ne doit pas compiler car clone() renvoie statiquement un Point alors
    * que o est declare comme PointColore
    * o := o.clone();
    */
-
-  "Valeur du compteur de nombre de points: ".println();
-  CptPoint.howMany().toString().println();
-
-  p1 := p1.clone().move(+2, -3, 0);
-  p1.print(true);
-  o.clone().print(true);
+  p1 := p1.clone().move(+2, -3);
+  p1.print();
+  o.clone().print();
   "test(Point, PointColore, PointNoir)".println();
   Test.test(p1, o, pn);
   "test(PointNoir, PointNoir, PointNoir)".println();
