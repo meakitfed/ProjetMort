@@ -5,93 +5,187 @@ START
 --DeclChamp.
 --Var p2 : ------- := Instanciation new Point():
 --IL Y AURA UN ENVOI vers p2
+
+--setName affiche la chaine suivante :
+PUSHG p2.adresse()
 PUSHG p2.adresse()
 PUSHG 0
+
+--Appel de la methode setName.
 PUSHA setName
 CALL
 POPN 1
 --IL Y AURA UN ENVOI vers p1
+
+--printAll affiche la chaine suivante :
 PUSHG p1.adresse()
+PUSHG p1.adresse()
+
+--Appel de la methode printAll.
 PUSHA printAll
 CALL
 POPN 0
 --IL Y AURA UN ENVOI vers p2
+
+--printAll affiche la chaine suivante :
 PUSHG p2.adresse()
+PUSHG p2.adresse()
+
+--Appel de la methode printAll.
 PUSHA printAll
 CALL
 POPN 0
 STOP
 
 
---Declaration de la methode getx.
-getx: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : x)
+--Declaration de la methode getx de type de retour Integer.
+getx: 	
+Methode avec un type....
+RETURN
 
+--Declaration de la methode gety de type de retour Integer.
+gety: 	
+Methode avec un type....
+RETURN
 
---Declaration de la methode gety.
-gety: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : this)
-#ERREUR : Cas Instruction inconnu : 276! (son contenu est : y)
+--Declaration de la methode getz de type de retour Integer.
+getz: 	
+Methode avec un type....
+RETURN
 
+--Declaration de la methode setName de type de retour Void.
+setName: 	Affectation : ident s
+PUSHG s.adresse()
+STOREG name.adresse()
+RETURN
 
---Declaration de la methode getz.
-getz: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : result)
-#ERREUR : Cas Instruction inconnu : 276! (son contenu est : z)
-
-
---Declaration de la methode setName.
-setName: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : name)
-#ERREUR : Cas Instruction inconnu : 276! (son contenu est : s)
-
-
---Declaration de la methode print.
+--Declaration de la methode print de type de retour Void.
 print: 	--IL Y AURA UN ENVOI vers name
+
+--println affiche la chaine suivante :
 PUSHG name.adresse()
+WRITES
+PUSHS "\n"
+WRITES
+RETURN
 
+--Declaration de la methode printAll de type de retour Void.
+printAll: 	--IL Y AURA UN ENVOI vers p~o
 
---Declaration de la methode printAll.
-printAll: 	--IL Y AURA UN ENVOI vers pnü
---IL Y AURA UN ENVOI vers –mü
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers –}o
+
+--toString affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers this
+
+--getx affiche la chaine suivante :
 PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--getx affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers prü
---IL Y AURA UN ENVOI vers –qü
+--IL Y AURA UN ENVOI vers pÇo
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers –Åo
+
+--toString affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers this
+
+--gety affiche la chaine suivante :
 PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--gety affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers pvü
---IL Y AURA UN ENVOI vers –uü
+--IL Y AURA UN ENVOI vers pÜo
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers –Öo
+
+--toString affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers this
+
+--getz affiche la chaine suivante :
 PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--getz affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers –yü
+--IL Y AURA UN ENVOI vers –âo
+
+--print affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers w
+
+--toString affiche la chaine suivante :
 PUSHG w.adresse()
+PUSHG w.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers }ü
+--IL Y AURA UN ENVOI vers ço
+
+--print affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers w2
+
+--toString affiche la chaine suivante :
 PUSHG w2.adresse()
+PUSHG w2.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
---IL Y AURA UN ENVOI vers PÄü
+--IL Y AURA UN ENVOI vers Pêo
+
+--print affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers w3
+
+--toString affiche la chaine suivante :
 PUSHG w3.adresse()
+PUSHG w3.adresse()
+WRITES
 --IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
 PUSHS " "
 WRITES
 --IL Y AURA UN ENVOI vers this
+
+--print affiche la chaine suivante :
 PUSHG this.adresse()
+WRITES
+RETURN
 
-
---Declaration de la methode methodeTest.
+--Declaration de la methode methodeTest de type de retour Void.
 methodeTest: 	PUSHI 3
 PUSHI 4
-
+RETURN

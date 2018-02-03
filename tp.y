@@ -37,7 +37,7 @@ extern void yyerror(const char *); /*const necessaire pour eviter les warning de
 
 %%
 
-Prog : LClassOpt Bloc 														{ $$ = makeTree(YPROG, 2, $1, $2);  /*afficherProgramme($$, FALSE);*/ compile($1, $2); genCode($1, $2);}
+Prog : LClassOpt Bloc 														{ $$ = makeTree(YPROG, 2, $1, $2);  /*afficherProgramme($$, FALSE);*/ compile($1, $2, FALSE); genCode($1, $2);}
 ;
 
 
@@ -65,7 +65,7 @@ LParam: Param ',' LParam 													{ $$ = makeTree(YLPARAM, 2, $1, $3); }
 ;
 
  
-Param: VAR Id ':' Classname ValVar 											{ $$ = makeLeafLVar(YPARAM, makeVarDecl($2, $4, $5)); }
+Param: VAR Id ':' Classname ValVar 											{ $$ = makeLeafLVar(VYPARAM, makeVarDecl($2, $4, $5)); }
 | Id ':' Classname ValVar 													{ $$ = makeLeafLVar(YPARAM, makeVarDecl($1, $3, $4)); }
 ;
 
@@ -130,8 +130,8 @@ ExprOperateur: Expr ADD Expr 												{ $$ = makeTree(ADD, 2, $1, $3); }
 | Expr SUB Expr 															{ $$ = makeTree(SUB, 2, $1, $3); }
 | Expr MUL Expr 															{ $$ = makeTree(MUL, 2, $1, $3); }
 | Expr DIV Expr  															{ $$ = makeTree(DIV, 2, $1, $3); }
-| SUB Expr %prec UNARY 														{ $$ = makeTree(USUB, 2, makeLeafInt(Cste, 0), $2); }
-| ADD Expr %prec UNARY 														{ $$ = makeTree(ADD, 2, makeLeafInt(Cste, 0), $2); }      
+| SUB Expr %prec UNARY 														{ $$ = makeTree(USUB, 2, makeLeafInt(Cste, -1), $2); }
+| ADD Expr %prec UNARY 														{ $$ = makeTree(ADD, 2, makeLeafInt(Cste, 1), $2); }      
 | Expr CONCAT Expr 															{ $$ = makeTree(CONCAT, 2, $1, $3); }
 | Expr RelOp Expr 															{ $$ = makeTree($2, 2, $1, $3); }
 ;

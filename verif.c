@@ -13,7 +13,7 @@ extern int nbErreur;
 /* extern int yylineno; */
 
 
-/* verifie l'extistance d'une classe */
+/* verifie la declaration d'une classe */
 bool checkClassDefine(char* nom)
 {
     if(nom != NULL)
@@ -85,40 +85,49 @@ bool checkBlocMain(TreeP bloc, ClasseP classe)
         switch(bloc->op)
         {
             case YCONT :
+              /* ajoute dans l'environnement la liste de declaration, si une declaration est fausse addEnv renvoie false */
               tmp = makeLParam(getChild(bloc, 0), i);
 
               if(tmp != NIL(LVarDecl))
                 check = addEnv(tmp, classe) && check;
 
               check = checkBlocMain(getChild(bloc, 1), classe) && check;
+
+              /* met a jour l'env */
               removeEnv(*i);
               break;
             
             case LINSTR :
+              /* verification d'une liste d'instructions */
               check = checkBlocMain(getChild(bloc, 0), classe) && check;
               check = checkBlocMain(getChild(bloc, 1), classe) && check;
               break;
 
             case YITE :
+              /* verification d'un if then else */
               check = checkExpr(getChild(bloc, 0), classe) && check;  
               check = checkBlocMain(getChild(bloc, 1), classe) && check;
               check = checkBlocMain(getChild(bloc, 2), classe) && check;
               break;
 
             case EAFF :
+              /* verification d'une affectation */
               check = checkBlocMain(getChild(bloc, 0), classe) && check;
               check = checkExpr(getChild(bloc, 1), classe) && check;
               break;
 
             case SELEXPR :
+              /* verification d'une selection */
               check = checkSelection(bloc) && check;
               break;
 
             case Id :
+              /* verification de la portee */
               check = checkPortee(env->env, bloc->u.str) && check;  
               break;  
 
             case YEXPR :
+              /* verification d'une expression */
               check = checkExpr(getChild(bloc, 0), classe) && check;  
               break;
 
@@ -154,13 +163,16 @@ bool checkExpr(TreeP tree, ClasseP classe)
         switch (tree->op)
         {
             case Id :
+                /* verification de la portee d'une id */
                 nom = tree->u.str;
-                /* TODO : verifier OK ou KO */
-                if(strcmp(nom, "this") != 0 && strcmp(nom, "super") && strcmp(nom, "result"))
+                if(strcmp(nom, "this") != 0 && strcmp(nom, "super") != 0 && strcmp(nom, "result") != 0)
                     check = checkPortee(env->env, nom) && check;
+
+                /* TODO : super et result */
                 break;
 
             case Classname :
+                /* verification d'un nom de classe ou d'objet */
                 nom = tree->u.str;
                 check = checkClassDefine(nom) && check;
                 break;
@@ -180,10 +192,12 @@ bool checkExpr(TreeP tree, ClasseP classe)
             case SUPE :
             case INF :
             case INFE :
-
+                /* verification d'une expression arithmetique */
+                /* verifie que les deux expressions sont correctes */
                 check = checkExpr(getChild(tree, 0), classe) && check;
                 check = checkExpr(getChild(tree, 1), classe) && check;
 
+                /* verifie que les types des deux expressions sont des Integer */
                 typeG = getType(getChild(tree, 0), classe);
                 typeD = getType(getChild(tree, 1), classe);
 
@@ -215,19 +229,42 @@ bool checkExpr(TreeP tree, ClasseP classe)
                     /* fprintf(stderr, "erreur ligne : %d\n", yylineno); */
                     check = FALSE;
                 }
-                
                 break;
 
             case USUB :
-                /* TODO unaire */
+                /* verifie l'expression suivant le moins unaire */
                 check = checkExpr(getChild(tree, 1), classe) && check; 
+
+                /* verifie le type de l'expression */
+                typeD = getType(getChild(tree, 1), classe);
+                if(typeD != NIL(Classe))
+                {
+                    if((!strcmp(typeD->nom, "Integer") == 0))
+                    {
+                        fprintf(stderr, "Erreur verification d'une expression [- unaire] :\n");
+                        fprintf(stderr, "\t> le fils droit %s n'est pas un Integer\n\n", typeD->nom);
+                        nbErreur++;
+                        /* fprintf(stderr, "erreur ligne : %d\n", yylineno); */
+                        check = FALSE;             
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "Erreur verification d'une expression [- unaire] :\n");
+                    fprintf(stderr, "\t> type inconnu\n\n");
+                    nbErreur++;
+                    /* fprintf(stderr, "erreur ligne : %d\n", yylineno); */
+                    check = FALSE;
+                }
                 break;
 
             case CONCAT :
-
+                /* verification d'une concatenation */
+                /* verifie que les deux expressions sont correctes */
                 check = checkExpr(getChild(tree, 0), classe) && check;
                 check = checkExpr(getChild(tree, 1), classe) && check;
 
+                /* verifie que les types des expressions sont des String */
                 typeG = getType(getChild(tree, 0), classe);
                 typeD = getType(getChild(tree, 1), classe);
 
@@ -259,35 +296,36 @@ bool checkExpr(TreeP tree, ClasseP classe)
                     /* fprintf(stderr, "erreur ligne : %d\n", yylineno); */
                     check = FALSE;
                 }
-                
-
                 break;
 
             case ECAST :
-
+                /* verification d'un cast */
                 check = checkExpr(getChild(tree, 0), classe) && check;
                 check = checkExpr(getChild(tree, 1), classe) && check;
-                check = checkCast(getClassePointer(getChild(tree, 1)->u.str), getChild(tree, 0)->u.str) && check; 
+                check = checkCast(getClassePointer(getChild(tree, 1)->u.str), getChild(tree, 0)->u.str, classe) && check; 
                 break;
 
             case EINST :
-
+                /* verification d'une allocation */
                 check = checkExpr(getChild(tree, 0), classe) && check;
+
+                /* TODO : verifier le nombre/type d'argument du constructeur */
                 check = checkExpr(getChild(tree, 1), classe) && check;
                 break;
 
             case SELEXPR :      
-
+                /* verification d'une selection */
                 check = checkSelection(tree) && check;
                 break;
 
             case EENVOI :
-
+                /* verification d'un envoi */
                 check = checkExpr(getChild(tree, 0), classe) && check;
                 check = checkMethodes(getType(getChild(tree, 0), classe), getChild(getChild(tree, 1), 0)->u.str) && check;
                 break;
 
-            case YLEXPR : 
+            case YLEXPR :
+                /* verification d'une liste d'expressions */ 
                 check = checkExpr(getChild(tree, 0), classe) && check;
                 check = checkExpr(getChild(tree, 1), classe) && check;
                 break; 
@@ -308,6 +346,10 @@ bool checkExpr(TreeP tree, ClasseP classe)
 bool checkSelection(TreeP selection)
 {
     /* TODO */
+
+    /* soit classe.attribut dans une methode de other, si other n'herite pas de classe, alors 
+    classe.attribut est faux car l'attribut n'est pas visible dans other */
+
     return TRUE;
 }
 
@@ -329,6 +371,7 @@ ClasseP getType(TreeP expr, ClasseP classe)
         switch (expr->op)
         {
             case Id :
+                /* retourne le type de l'id : si l'id correspond a this, retourne la classe actuel */
                 if(strcmp(expr->u.str, "this") == 0)
                 {
                     if(classe != NIL(Classe))
@@ -368,7 +411,7 @@ ClasseP getType(TreeP expr, ClasseP classe)
             case SUPE :
             case INF :
             case INFE :
-
+                /* retourne Integer si l'operation arithmetique est entre deux Integer */
                 typeG = getType(getChild(expr, 0), classe);
                 typeD = getType(getChild(expr, 1), classe);
 
@@ -387,16 +430,19 @@ ClasseP getType(TreeP expr, ClasseP classe)
                 {
                     type = NIL(Classe);
                 }
-                
                 break;
 
             case USUB :
-                /* TODO unaire*/
-                type = getType(getChild(expr, 1), classe);; 
+                /* retourne Integer si l'operation unaire est correcte */
+                typeD = getType(getChild(expr, 1), classe); 
+                if(strcmp(typeD->nom, "Integer") == 0)
+                    type = typeD;
+                else
+                    type = NIL(Classe);
                 break;
 
             case CONCAT : 
-
+                /* retourne String si la concatenation est entre deux String */
                 typeG = getType(getChild(expr, 0), classe);
                 typeD = getType(getChild(expr, 1), classe);
 
@@ -415,11 +461,11 @@ ClasseP getType(TreeP expr, ClasseP classe)
                 {
                     type = NIL(Classe);
                 }
-
                 break;
 
             case ECAST :
-
+                /* retourne le type du cast si le cast est entre deux types existants */
+                /* TODO : verifier le cast ici pour le prob de l'ex1 ? */
                 typeG = getType(getChild(expr, 0), classe);
                 typeD = getType(getChild(expr, 1), classe);
 
@@ -438,22 +484,26 @@ ClasseP getType(TreeP expr, ClasseP classe)
                 {
                     type = NIL(Classe);
                 }
-
                 break;
 
             case EINST :
-
+                /* retourne le type de l'allocation */
+                /* TODO : verifie l'allocation ici ? */
                 type = getType(getChild(expr, 0), classe);
                 break;
 
             case SELEXPR :      
-
-                if(expr->nbChildren == 2)
+                /* retourne le type de la selection ou de l'id */
+                if(expr->nbChildren == 2) /* cas expr '.' id */
                 {
+                    /* on recupere la classe de l'expr */
                     typeG = getType(getChild(expr, 0), classe);
                     if(typeG != NIL(Classe))
                     {
+                        /* on recupere le nom de l'attribut */
                         nom = getChild(expr, 1)->u.str;
+
+                        /* on cherche l'attribut dans la classe et on retourne son type */ 
                         tmp = typeG->lchamps;
                         if(tmp != NIL(LVarDecl))
                         {
@@ -482,14 +532,14 @@ ClasseP getType(TreeP expr, ClasseP classe)
                         type = NIL(Classe);
                     }
                 }
-                else
+                else /* cas id */
                 {
                     type = getType(getChild(expr, 0), classe);
                 }
                 break;
 
             case EENVOI :
-
+                /* retourne le type de la methode */
                 typeG = getType(getChild(expr, 0), classe);
                 
                 if(typeG != NIL(Classe))
@@ -508,7 +558,6 @@ ClasseP getType(TreeP expr, ClasseP classe)
                 {
                     type = NIL(Classe);
                 }
-
                 break;
 
             default :
@@ -542,7 +591,7 @@ ClasseP getTypeId(char* nom)
 }  
 
 
-/* verification du type des variables et de l'affectation */
+/* verification du type des variables et des affectation associees */
 bool setEnvironnementType(LVarDeclP var, ClasseP classe)               
 {
     bool check = TRUE;
@@ -551,11 +600,13 @@ bool setEnvironnementType(LVarDeclP var, ClasseP classe)
     {
         if(tmp->var->type != NIL(Classe))
         {
+            /* recupere le pointeur vers le type de la variable dans la liste lclasse */
             ClasseP type = getClassePointer(tmp->var->type->nom);
             if(type != NIL(Classe))
             {
                 tmp->var->type = type;
 
+                /* verifie l'affectation opt */
                 if(tmp->var->exprOpt != NIL(Tree))
                 {
                     check = checkAff(tmp->var, tmp->var->exprOpt, classe);
@@ -577,7 +628,6 @@ bool setEnvironnementType(LVarDeclP var, ClasseP classe)
             check = FALSE;
         }
         
-
         tmp = tmp->next;
     }
 
@@ -601,116 +651,129 @@ bool checkBlocClasse(TreeP tree, ClasseP classe)
         switch(tree->op)
         {
             case YLCLASS :
+                /* parcours de la liste de classe ou d'objet */
                 check = checkBlocClasse(getChild(tree, 0), classe) && check;
                 check = checkBlocClasse(getChild(tree, 1), classe) && check;
                 break;
 
             case YCLASS :
+                /* verifie qu'une classe est correcte */
                 classe = getClassePointer(getChild(tree, 0)->u.str);
 
-                /* TODO : 
-                * verifier le nom, pour ne pas avoir deux fois la meme variable dans le meme bloc
-                */
-
+                /* verifie que l'heritage est correct */
                 TreeP extends = getChild(tree, 2);
                 if(extends != NIL(Tree))
                 {
                     superClasse = getClassePointer(getChild(extends, 0)->u.str);
-                    if(superClasse != NIL(Classe))
+                    if(superClasse != NIL(Classe) && superClasse->constructeur != NIL(Methode))
                     {
                         tmp = NIL(LVarDecl);
+                        /* ajoute dans l'env celui de la super classe */
                         tmp = envHerite(superClasse);
                         check = addEnv(tmp, classe) && check;
                     }
                     else
                     {
-                        fprintf(stderr, "Erreur d'heritage :\n");
+                        fprintf(stderr, "Erreur d'heritage dans checkBlocClasse :\n");
                         fprintf(stderr, "\t> la classe %s est inconnu\n\n", getChild(extends, 0)->u.str);
                         nbErreur++;
                     }
                 }
 
-
+                /* ajoute les parametres de la classe dans l'env pour faire la verification du constructeur */
+                /* TODO : verifier le nom des variables, pour ne pas avoir deux fois la meme variable dans le meme bloc */
                 tmp = classe->lparametres;
-
                 if(tmp != NIL(LVarDecl))
                     check = addEnv(tmp, classe) && check;
-            
+           
+                /* verification du constructeur de la classe */ 
                 TreeP constructeur = getChild(tree, 3);
                 check = checkBlocMain(constructeur, classe) && check;
 
                 int tailleLParam = getTailleListeVarDecl(tmp);
                 removeEnv(tailleLParam);
-    
 
-                /* TODO : 
-                * verifier le nom, pour ne pas avoir deux fois la meme variable dans le meme bloc
-                */
-
+                /* ajoute les champs de la classe dans l'env */
+                /* TODO : verifier le nom des variables, pour ne pas avoir deux fois la meme variable dans le meme bloc */
                 tmp = classe->lchamps;
                 if(tmp != NIL(LVarDecl))
                     check = addEnv(tmp, classe) && check;
 
+                /* verifie le blocObj de la classe */
                 check = checkBlocClasse(getChild(tree, 4), classe) && check; 
                 
+                /* reset l'env */
                 removeEnv(env->taille);
                 break;
 
             case YOBJ :
+                /* verifie qu'un objet est correct */
                 classe = getClassePointer(getChild(tree, 0)->u.str);
 
-                /* TODO : 
-                * verifier le nom, pour ne pas avoir deux fois la meme variable dans le meme bloc
-                */
-
+                /* ajoute les champs de l'objet dans l'env */
+                /* TODO : verifier le nom des variables, pour ne pas avoir deux fois la meme variable dans le meme bloc */
                 tmp = classe->lchamps;
                 if(tmp != NIL(LVarDecl))
                     check = addEnv(tmp, classe) && check;
 
+                /* verifie le blocObj de l'objet */
                 check = checkBlocClasse(getChild(tree, 1), classe) && check; 
+
+                /* reset l'env */
                 removeEnv(env->taille);
                 break;
 
             case LDECLMETH :
+                /* verification d'une liste de declarations */
                 check = checkBlocClasse(getChild(tree, 0), classe) && check;
                 check = checkBlocClasse(getChild(tree, 1), classe) && check;
                 break; 
 
             case YDECLC :
+                /* les champs d'une classe ou d'un objet sont deja ajoutes dans l'env */
                 break;
 
             case DMETHODEL :
-
+                /* verification d'une methode : OverrideOpt DEF Id '(' LParamOpt ')' ':' Classname AFF Expr*/
                 /* TODO : mettre dans cette partie la verification d'une declaration d'une methode 
                 * reste encore a mettre : override correct (attention entre classe et objet), nom correct (pas de surcharge) 
                 */
 
+                /* ajoute dans l'env les parametres de la methode */
                 tmp = makeLParam(getChild(tree, 2), i);
                 if(tmp != NIL(LVarDecl))
                     check = addEnv(tmp, classe) && check;
 
+                /* verifie le type de retour de la methode */
                 check = checkClassDefine(getChild(tree, 3)->u.str) && check;
 
+                /* verifie l'expression associee a la methode */
                 check = checkExpr(getChild(tree, 4), classe) && check;
 
+                /* met a jour l'env */
                 removeEnv(*i);
                 break;
 
             case DMETHODE :
-
+                /* verification d'une methode : OverrideOpt DEF Id '(' LParamOpt ')' TypeCOpt IS Bloc */
                 /* TODO : mettre dans cette partie la verification d'une declaration d'une methode 
                 * reste encore a mettre : override correct (attention entre classe et objet), nom correct (pas de surcharge) 
                 */
+
+                /* ajoute dans l'env les parametres de la methode */
                 tmp = makeLParam(getChild(tree, 2), i);
                 if(tmp != NIL(LVarDecl))
                     check = addEnv(tmp, classe) && check;
 
+                /* verifie le type de retour de la methode */
                 TreeP type = getChild(tree, 3);
                 if(type != NIL(Tree))
                     check = checkClassDefine(type->u.str) && check;
 
+                /* verifie le bloc associe a la methode */
                 check = checkBlocMain(getChild(tree, 4), classe) && check;
 
+                /* met a jour l'env */
                 removeEnv(*i);
                 break;
 
@@ -730,17 +793,9 @@ bool checkBlocClasse(TreeP tree, ClasseP classe)
 /* renvoie l'environnement de la super classe */
 LVarDeclP envHerite(ClasseP classeMere)
 {
+    /* TODO : verifier pour un .txt ou les classes d'heritages sont dans le desordre (A2 declare avant A) */
     LVarDeclP env = NIL(LVarDecl);
-
     env = addVarDecl(classeMere->lchamps, env);
-
-    /*
-    if(classeMere->superClasse != NIL(Classe))
-    {
-        env = addVarDecl(envHerite(classeMere->superClasse), env);
-    }
-    */
-
     return env;
 }
 
@@ -764,7 +819,7 @@ bool addEnv(LVarDeclP var, ClasseP classe)
 }
 
 
-/* ajoute une variable dans env */
+/* ajoute une variable dans env et verifie son affection opt ainsi que son type */
 bool addVarEnv(VarDeclP var, ClasseP classe)
 {
     bool check = TRUE;
@@ -845,7 +900,7 @@ bool checkAff(VarDeclP var, TreeP expr, ClasseP classe)
 }
 
 
-/* retourne la taille d'une lsite de varDecl */
+/* retourne la taille d'une liste de varDecl */
 int getTailleListeVarDecl(LVarDeclP liste)
 {
     int i = 0;
@@ -1063,24 +1118,29 @@ bool checkBoucleHeritage(LClasseP lclasse)
 }
 
 /*devrait marche, à tester avec les blocs*/
-bool checkCast(ClasseP classe, char* nom)
+bool checkCast(ClasseP classeCast, char* nom, ClasseP classe)
 {
-    if(classe != NIL(Classe))
+    if(classeCast != NIL(Classe))
     {
-        if(strcmp(classe->nom, nom) == 0)
+        if(strcmp(nom, "this") == 0 && classe != NIL(Classe))
+        {
+            nom = classe->nom;
+        }
+
+        if(strcmp(classeCast->nom, nom) == 0)
         {
             return TRUE;
         }
         else
         {
-            if(classe->superClasse != NULL)
+            if(classeCast->superClasse != NULL)
             {
-                return checkCast(classe->superClasse,nom);
+                return checkCast(classeCast->superClasse, nom, classe);
             }
             else
             {
                 fprintf(stderr, "Erreur verification d'un cast :\n");
-                fprintf(stderr, "\t> %s ne peut pas etre cast en %s\n\n", classe->nom, nom);
+                fprintf(stderr, "\t> %s ne peut pas etre cast en %s\n\n", classeCast->nom, nom);
                 nbErreur++;
                 /* fprintf(stderr, "erreur ligne : %d\n", yylineno); */
                 return FALSE;

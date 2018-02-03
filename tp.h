@@ -127,10 +127,10 @@ typedef struct _LClasse
 typedef struct _Methode
 {
   bool override;
-  char *nom;
-  int nbLocales;                                              /* TODO : le mettre dans les fonctions */
+  char *nom;                                         
   struct _LVarDecl *lparametres;
   struct _Classe *typeDeRetour;
+  struct _Classe *classeAppartenance;
   struct _Tree *bloc;
 } Methode, *MethodeP;
 
@@ -169,11 +169,11 @@ void setChild(TreeP tree, int rank, TreeP arg);
 VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt);
 ClasseP makeClasse(char* nom);
 ClasseP makeObjet(char *nom);
-MethodeP makeMethode(TreeP declMethode);
+MethodeP makeMethode(TreeP declMethode, ClasseP classe);
 LVarDeclP makeLParam(TreeP arbreLParam, int *i);
 LVarDeclP makeLParamIsVar(TreeP arbreLParam);
 LChampP makeChampsBlocObj(TreeP blocObj);
-LMethodeP makeMethodeBlocObj(TreeP blocObj);
+LMethodeP makeMethodeBlocObj(TreeP blocObj, ClasseP classe);
 
 ClasseP getClassePointer(char *nom);
 MethodeP getMethodePointer(ClasseP classe, char* nom);
@@ -190,7 +190,7 @@ void initClasse(TreeP arbreLClasse);
 void stockerClasse(TreeP arbreLClasse, bool verbose);
 void initEnv();
 
-void compile(TreeP arbreLClasse, TreeP main);
+void compile(TreeP arbreLClasse, TreeP main, bool verbose);
 
 void printVarDecl(LVarDeclP lvar);
 void printClasse(ClasseP classe);
@@ -237,7 +237,7 @@ bool checkOverrideMethode(ClasseP classe, char* nom, LParamP larg, bool isOverri
 bool checkOverrideLClasse(LClasseP lclasse);
 bool checkDoublonClasse(LClasseP lclasse);
 bool checkBoucleHeritage(LClasseP lclasse);
-bool checkCast(ClasseP classe, char* nom);
+bool checkCast(ClasseP classeCast, char* nom, ClasseP classe);
 bool checkMethodes(ClasseP classe, char* nom);
 
 

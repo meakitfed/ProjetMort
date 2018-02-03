@@ -11,12 +11,13 @@ extern char* strdup(const char *);
 extern ScopeP env;
 extern LClasseP lclasse;
 FILE* output;
-bool verb = FALSE;
+extern int verbose;
 
 /*
- * GENERATION DE CODE
+ * -----------------GENERATION DE CODE-----------------
  *
  */
+
 
 /* Fonctions basiques servant à la génération de code
  * pour la machine virtuelle
@@ -167,11 +168,162 @@ int getOffset(ClasseP classe, char *idNom)
 }
 
 
+/*
+ * Génère le code des expressions
+ */
+void codeExpr(TreeP tree)
+{
+    switch(tree->op) {
+
+        case Cste:
+            PUSHI(tree->u.val);
+            printf("PUSHI\n");
+
+        break;
+
+        case Chaine:
+        case Classname:
+            PUSHS(tree->u.str);
+            printf("PUSHS\n");
+        break;
+    
+        case SELEXPR:
+            codeSelec(tree);
+            printf("SELEXPR\n"); 
+            break;
+
+        case Id:
+            /*get adresse de la variable Id
+            Comme ça :
+            if (in_method) PUSHL_addr(tree->u.str); 
+            else PUSHG_addr(tree->u.str)
+
+            Il faut comprendre pourquoi on pushl dans une méthode et on pushg autre part ?
+            pushl : push la valeur vers le pointeur fp (voir poly genCode)
+
+            fp est le pointeur de la pile après qu'on ait fait START (affecte sp à fp)
+
+            */
+
+            /*TODO !!!!!!!!!!!!*/
+            fprintf(output, "PUSHG %s.adresse()\n", tree->u.str);
+
+            break;
+
+        /*instanciation/constructeur*/
+        case EINST: 
+            printf("Instanciation : EINST\n"); 
+
+            codeConstructeur(tree);
+            /*TODO*/     
+            break;
+
+        /*ExprOperateur*/
+        case ADD :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CADD();
+            printf("ADD\n");
+            break;
+
+        case SUB :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CSUB();
+            printf("SUB\n");
+            break;
+
+        /*on traite seulement le cas du moins unaire, le plus unaire reviendrait à ne rien faire*/
+        case USUB :
+            printf("unarySUB\n");
+            PUSHI(0);   
+            codeExpr(getChild(tree, 0));
+            CSUB();             /*on fait 0 moins l'expression */
+            break;
+
+        case MUL :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CMUL();
+            printf("MUL\n");
+            break;
+        case DIV :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            printf("DIV\n");
+            CDIV();
+            break;
+        case CONCAT:
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CCONCAT();
+            printf("CONCAT\n");
+            break;
+
+        /*Relop*/        
+        case NE:
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            EQUAL();
+            NOT();
+            printf("NE\n");
+            break;
+        case EQ :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            EQUAL();
+            printf("EQ\n");
+            break;
+ 
+        case INF :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CINF();
+            printf("INF\n");
+            break;
+
+        case INFE :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CINFEQ();
+            printf("INFE\n");
+            break;
+
+        case SUP :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CSUP();
+            printf("SUB\n");
+            break;
+
+        case SUPE :
+            codeExpr(getChild(tree, 0));
+            codeExpr(getChild(tree, 1));
+            CSUPEQ();
+            printf("SUPE\n");
+            break;
+        
+        case EENVOI:
+            codeEnvoi(tree);
+            printf("EENVOI\n");
+            break;
+
+        default: 
+            if(tree->nbChildren != 0)
+            {
+                codeExpr(getChild(tree, 0));
+            }
+            printf("#ERREUR : Expression inconnue : %d!\n", tree->op);
+            break;
+        }
+}
+
 /* 
  * Génère le code d'une liste d'instructions.
  */
 void codeLInstr(TreeP tree)
 {
+
     if(tree->nbChildren == 2)
     {
         codeInstr(getChild(tree, 0));
@@ -244,6 +396,7 @@ void codeITE(TreeP tree)
  */
 void codeInstr(TreeP tree)
 {
+
     switch (tree->op) {
     case YEXPR:                     		/* Expr;*/
 
@@ -332,161 +485,13 @@ void codeConstructeur(TreeP tree)     					/*Expr: NEWC TypeC '(' LExprOpt ')'*/
         */
 }
 
-/*Code des expressions*/
-void codeExpr(TreeP tree)
-{
-    switch(tree->op) {
-
-        case Cste:
-            PUSHI(tree->u.val);
-            printf("PUSHI\n");
-
-        break;
-
-        case Chaine:
-        case Classname:
-            PUSHS(tree->u.str);
-            printf("PUSHS\n");
-        break;
-    
-        case SELEXPR:
-            codeSelec(tree);
-            printf("SELEXPR\n"); 
-            break;
-
-        case Id:
-            /*get adresse de la variable Id
-            Comme ça :
-            if (in_method) PUSHL_addr(tree->u.str); 
-            else PUSHG_addr(tree->u.str)
-
-            Il faut comprendre pourquoi on pushl dans une méthode et on pushg autre part ?
-            pushl : push la valeur vers le pointeur fp (voir poly genCode)
-
-            fp est le pointeur de la pile après qu'on ait fait START (affecte sp à fp)
-
-            */
-
-            /*TODO !!!!!!!!!!!!*/
-            fprintf(output, "PUSHG %s.adresse()\n", tree->u.str);
-
-            break;
-
-        /*instanciation/constructeur*/
-        case EINST: 
-            printf("Instanciation : EINST\n"); 
-
-            codeConstructeur(tree);
-            /*TODO*/     
-            break;
-
-        /*ExprOperateur*/
-        case ADD :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CADD();
-            printf("ADD\n");
-            break;
-
-        case SUB :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CSUB();
-            printf("SUB\n");
-            break;
-
-        /*on traite seulement le cas du moins unaire, le plus unaire reviendrait à ne rien faire*/
-        case USUB :
-            printf("unarySUB\n");
-            /*on fait 0 moins l'expression */
-            PUSHI(0);
-            codeExpr(getChild(tree, 0));
-            CSUB();
-            break;
-
-        case MUL :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CMUL();
-            printf("MUL\n");
-            break;
-        case DIV :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            printf("DIV\n");
-            CDIV();
-            break;
-        case CONCAT:
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CCONCAT();
-            printf("CONCAT\n");
-            break;
-
-        /*Relop*/        
-        case NE:
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            EQUAL();
-            NOT();
-            printf("NE\n");
-            break;
-        case EQ :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            EQUAL();
-            printf("EQ\n");
-            break;
- 
-        case INF :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CINF();
-            printf("INF\n");
-            break;
-
-        case INFE :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CINFEQ();
-            printf("INFE\n");
-            break;
-
-        case SUP :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CSUP();
-            printf("SUB\n");
-            break;
-
-        case SUPE :
-            codeExpr(getChild(tree, 0));
-            codeExpr(getChild(tree, 1));
-            CSUPEQ();
-            printf("SUPE\n");
-            break;
-        
-        case EENVOI:
-            codeEnvoi(tree);
-            printf("EENVOI\n");
-            break;
-
-        default: 
-            if(tree->nbChildren != 0)
-            {
-                codeExpr(getChild(tree, 0));
-            }
-            printf("#ERREUR : Expression inconnue : %d!\n", tree->op);
-            break;
-        }
-}
 
 /*Génère le code des fonctions print() et println()*/
 bool codePrint(TreeP expr, TreeP methodeC)
 {
 	if(expr->op == Cste)
 	{
-		if(verb) fprintf(output, "\n--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
+		if(verbose) fprintf(output, "\n--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
@@ -499,21 +504,21 @@ bool codePrint(TreeP expr, TreeP methodeC)
             return TRUE;
         }
 	}
-	else if(expr->op == Chaine)
-	{
-		if(verb) fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
-		codeExpr(expr);
-		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
+    else
+    {
+        if(verbose) fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
+        codeExpr(expr);
+        if (!strcmp(getChild(methodeC,0)->u.str,"print")) {             /*écriture simple de la chaine en début de pile*/
             WRITES();
-            return TRUE;						
+            return TRUE;                        
         }
-        else if (!strcmp(getChild(methodeC,0)->u.str,"println")) {		/*écriture de la chaine et saut de ligne*/
+        else if (!strcmp(getChild(methodeC,0)->u.str,"println")) {      /*écriture de la chaine et saut de ligne*/
             WRITES();
-            PUSHS("\"\\n\"");											/*équivaut à PUSHS "\n" */
+            PUSHS("\"\\n\"");                                           /*équivaut à PUSHS "\n" */
             WRITES();
             return TRUE;
         }
-	}
+    }
 	return FALSE;
 }
 
@@ -534,7 +539,6 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 	{
 		/*On exécuter le code de l'expression*/
 		/*?TODO?? ????????????????????????????????????????????????????*/
-		
         codeExpr(Expr);
 		/*On récupère la classe correspondant à l'expression*/
  		VarDeclP tempExpr = getVarDeclFromName(Expr->u.str);
@@ -562,7 +566,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 
     			/*Appel (statique...) de la méthode*/
     			char *adresseMethode = tempMethode->nom;
-    			if(verb) fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
+    			if(verbose) fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
     			PUSHA(adresseMethode);
     	    	CALL();
 
@@ -594,7 +598,8 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 	PUSHG 0
 	PUSHA f1 (ça c'est en statique, dynamique plus compliqué que ça mais en principe c'est ça)
 	
-	CALL ??? why what
+	CALL 
+    POPN (&???)
 	STOP
 
 	--fonctions 
@@ -615,7 +620,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 {                                                /*Voir l'exemple de paire.entiers*/
 	/*TODO*/
     /*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
-    if(verb) fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
+    if(verbose) fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
 
     /*
     Voir le type de retour de l'expression
@@ -638,18 +643,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
     	int offset = getOffset(classeType,Ident->u.str);
     	LOAD(offset);
     }
-	/*
- 	if (expr->op == IDVAR) {
-            ClassP t = figureClass(getSymbole(expr->u.str)->var->type);
-            if (t) fprintf(out, "--type should be %s\n", t->name);
-            else return;
-            margin(d); 
 
-            if (in_method) PUSHL_addr(expr->u.str); else PUSHG_addr(expr->u.str);
-            
-            int x = getOffset(t,id->u.str);
-            margin(d); LOAD(x);
-    */
 }
 
 
@@ -778,10 +772,6 @@ void codeDeclChampMethode(TreeP tree)
 /*Liste de déclarations champ*/
 void codeLDeclChamp(TreeP tree)		
 {
-
-    /*la liste marche bien, 
-    elle reconnait toutes les déclarations normalement.
-    Testé avec des fprintf*/
     if(tree->nbChildren == 2)				/*LDeclChamp: DeclChamp LDeclChamp */
     {
         codeDeclChamp(getChild(tree, 0));
@@ -848,28 +838,18 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
     TreeP tree = methode->bloc;
     if(tree != NULL)
     {   
-        if((strcmp(tree->u.str, "print") != 0 ) | ((strcmp(tree->u.str, "println") ) != 0))
-        {
-            fprintf(output,"\n\n--Declaration de la methode %s.\n", methode->nom);
-            fprintf(output, "%s: \t", methode->nom);
-            codeLInstr(tree);
-        }
-        else
-        {
-            printf("Methodes print et println existantes.\n");
-        }
-    }
+ 
+        fprintf(output,"\n\n--Declaration de la methode %s de type de retour %s.\n", methode->nom, methode->typeDeRetour->nom);
+        fprintf(output, "%s: \t", methode->nom);
 
-    /*en principe : on compte le nombre de parametres avec un while param->next
+        /*Empilement des paramètres de la méthode*/
+
+ /*en principe : on compte le nombre de parametres avec un while param->next
 
     ensuite on empile en gardant en mémoire la taille de la pile au moment où tu rentres dans la fonction.
 
     
     rang param?????
-
-    if les méthodes sont un bloc => codeBlocObj if(tree->op == DMETHODE)
-    else if méthode sont une expr => codeExpr               DMETHODEL
-
 
     PUSHL(0 - (nbPAram+1))
     SWAP() 
@@ -879,6 +859,19 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
     if methode->next != null ; codeMethode
 
     */
+        /*Génération du code du bloc de la fonction*/
+        if(strcmp(methode->typeDeRetour->nom, "Void") == 0)
+        {
+            if(tree->op == 11) codeLInstr(tree);    /*si les instructions sont sous forme de liste*/
+            else codeInstr(tree);                   /*s'il existe qu'une seule instruction*/
+            
+        }
+        else fprintf(output,"\nMethode avec un type....\n");
+
+        fprintf(output, "RETURN");    
+    }
+
+   
 }
 
 
@@ -887,6 +880,11 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
  */
 void codeObjet()
 {
+
+
+
+
+
 
     /*?????????????????????????????????????????????????????????*/
 }
@@ -898,7 +896,6 @@ void codeClasse(ClasseP classe)
     printf(">Generation du code d'une classe : %s\n", classe->nom);
 
     /*TODO : constructeur qui permet d'instancier les variables de la classe*/
-
 
     LMethodeP liste = classe->lmethodes;
 
