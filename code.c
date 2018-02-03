@@ -9,6 +9,7 @@
 
 extern char* strdup(const char *);
 extern ScopeP env;
+extern LClasseP lclasse;
 FILE* output;
 
 /*
@@ -558,7 +559,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
     	/*On récupère la structure correspondant à MethodeC*/
     	MethodeP tempMethode = getMethodeFromName(classeEnvoi, getChild(MethodeC,0)->u.str);
     	
-        
+
     	if(tempMethode)
     	{
     		LVarDeclP tempParam = tempMethode->lparametres;
@@ -819,7 +820,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
     /*TODO : refaire mais avec la méthode makeVarDecl!!!!!!!!!!!!!!!!!!!*/
 
-    fprintf(output, "----BIENVENUE DANS LE DeclChamp.\n");
+    fprintf(output, "--DeclChamp.\n");
 
     fprintf(output,"--Var %s : ", tree->u.var->nom);
         /*codeExpr(getChild(tree, 1));  correspond au typeC*/
@@ -853,13 +854,13 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 }
 
 /*Methodes d'une classe*/
-void codeDeclMethode(MethodeP methode)	/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' ':' TypeC AFF Expr*/
-{									/*DeclMethode: OverrideOpt DEF Id '(' LParamOpt ')' TypeCOpt IS Bloc */
+void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
+{									
 
 	fprintf(output,"--Declaration de la methode %s.\n", methode->nom);
 
 	fprintf(output, "%s: \t", methode->nom);
-	/*codeBlocObj(tree);*/
+	codeBlocObj(methode->bloc);
 
     /*en principe : on compte le nombre de parametres avec un while param->next
 
@@ -887,9 +888,9 @@ void codeDeclMethode(MethodeP methode)	/*DeclMethode: OverrideOpt DEF Id '(' LPa
 /*Génère le code d'une classe*/
 void codeClasse(ClasseP classe)
 {
-    
-    fprintf(output, "--Declaration d'une classe :\n");
+    printf(">Generation du code d'une classe : %s\n", classe->nom);
 
+    /*constructeur*/
     LMethodeP liste = classe->lmethodes;
 
     while(liste != NULL)
@@ -897,71 +898,40 @@ void codeClasse(ClasseP classe)
     	codeDeclMethode(liste->methode);
     	liste = liste->next;
     }
-    /*
-
-    fprintf(output, "-- declaring class %s:\n", classe->name);
-     generate code constructor
-    
-     methods
-    generateCodeMethod(classe->methods,class);
-
-    fprintf(output, "-- end of class %s\n", classe->name);
-    if (class->next)
-    generateCodeClass(class->next);*/ 
 }
 
 
-void codeLClasse(TreeP tree)
+void codeLClasse()
 {
-    fprintf(output, "--Generation de code d'une liste de classe...\n");
+    printf(">Generation du code d'une liste de classe...\n");
 
-    /*
-    if(tree->nbChildren == 2)				
-    {
-        codeDeclChamp(getChild(tree, 0));
-        codeLDeclChamp(getChild(tree, 1));
-    }
-    else 									
-    {	
-        codeDeclChamp(tree);  
-    }
-	*/
+    /*Variable globale LClasse*/
+    LClasseP liste = lclasse;
 
-/*
-    LClasseP liste = classe->lmethodes;
-
+    /*Parcours l'environnement de classe*/
     while(liste != NULL)
     {
-    	codeDeclMethode(liste->methode);
+    	codeClasse(liste->classe);
     	liste = liste->next;
     }
-*/
-
-    /*Parcours l'environnement de classe
-        
-    temp = getPremièreClasseDeLaListe ?
-
-    while(temp->next != NULL)
-    {
-        codeClasse(temp);
-        temp = temp->next;
-    }
-
-    */
 }
 
 
-void genCode(TreeP LClass, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/)
+void genCode(TreeP LClass, TreeP Bloc)
 {
 
     output = fopen("bailtest", "a+");
 
     if (output != NULL) {
 
+        /*Generation de code du bloc principal*/
         fprintf(output, "START\n");
-        /*codeLClasse(LClass);*/
         codeInstr(Bloc);
         fprintf(output, "STOP\n");
+
+        /*Generation du code des méthodes des classes 
+         à partir de la variable globale LClasse*/
+        codeLClasse();
 
         fclose(output);
     }

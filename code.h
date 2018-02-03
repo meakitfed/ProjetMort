@@ -29,7 +29,7 @@ void codeDeclMethode(MethodeP methode);
 bool codePrint(TreeP expr, TreeP methodeC);
 
 void codeClasse(ClasseP classe);
-void genCode(TreeP LClasse, TreeP Bloc /*, Environnement *env, ClassesEnv* cenv, Adresse **addr*/);
+void genCode(TreeP LClasse, TreeP Bloc);
 void codeITE(TreeP tree);
 
 VarDeclP getVarDeclFromName(char *name);
