@@ -140,12 +140,12 @@ int adresse(char *id)
 VarDeclP getVarDeclFromName(char *nom)
 {
 	/*ScopeP env : env de variables globales*/
-	VarDeclP temp = env->env;
+	LVarDeclP temp = env->env;
 	while(temp != NULL)
     {
-    	if(strcmp(nom, temp->nom) == 0)
+    	if(strcmp(nom, temp->var->nom) == 0)
     	{
-    		return temp;
+    		return temp->var;
     	}
     	temp = temp->next;
     }
@@ -161,15 +161,15 @@ int getOffset(ClasseP classe, char *idNom)
 	/*TODO : classe extends*/
 	int offset = 0;
 
-    VarDeclP temp = classe->lchamps;
+    LVarDeclP temp = classe->lchamps;
     printf("PRINT VAR DECL :: \n");
     printVarDecl(temp);
 	printf("Var de la classe %s : \n", classe->nom);
 
     while(temp != NULL)
 	{
-		printf(">%s\n", temp->nom);
-        if(strcmp(temp->nom, idNom) == 0)
+		printf(">%s\n", temp->var->nom);
+        if(strcmp(temp->var->nom, idNom) == 0)
         {
         	printf("Offset = %d\n",offset);
             return offset;
@@ -558,9 +558,10 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
     	/*On récupère la structure correspondant à MethodeC*/
     	MethodeP tempMethode = getMethodeFromName(classeEnvoi, getChild(MethodeC,0)->u.str);
     	
+        
     	if(tempMethode)
     	{
-    		VarDeclP tempParam = tempMethode->lparametres;
+    		LVarDeclP tempParam = tempMethode->lparametres;
     		printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
 
 			int nbParam = 0; 
@@ -820,7 +821,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
     fprintf(output, "----BIENVENUE DANS LE DeclChamp.\n");
 
-    fprintf(output,"--Var %s : ", tree->u.lvar->nom);
+    fprintf(output,"--Var %s : ", tree->u.var->nom);
         /*codeExpr(getChild(tree, 1));  correspond au typeC*/
 
    /* fprintf(output, "%s", getChild(tree, 1)->u.str);*/    /*comment gérer le type d'une expression en terme de gén de code ?*/

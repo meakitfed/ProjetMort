@@ -44,6 +44,7 @@ typedef unsigned char bool;
 #define EINST 18
 #define SELEXPR 21
 #define YEXPR 23
+
 #define YLEXPR 24
 #define YEXT 25
 #define EENVOI 26
@@ -56,6 +57,7 @@ typedef unsigned char bool;
 #define YPARAM 33
 #define YOBJ 34
 #define DMETHODEL 35
+#define VYPARAM 36
 
 /* Codes d'erreurs. Cette liste n'est pas obligatoire ni limitative */
 #define NO_ERROR  0
@@ -67,23 +69,27 @@ typedef unsigned char bool;
 #define TYPE_ERROR  42  /* type checking problem */
 #define OTHER_CONTEXTUAL_ERROR  43 /* replace by something more precise */
 #define EVAL_ERROR  50  /* dubious when writing a compiler ! */
-#define UNEXPECTED  10O
+#define UNEXPECTED  100
 
 
 
 /* Adapt as needed. Currently it is simply a list of names ! */
 typedef struct _varDecl {
-  char *nom;  
+  char *nom;
   struct _Classe *type;
   struct _Tree *exprOpt;
-  struct _varDecl *next;
 } Param, Champ, VarDecl, *ParamP, *ChampP, *VarDeclP;
 
+typedef struct _LVarDecl
+{
+    struct _varDecl *var;
+    struct _LVarDecl *next;
+}LVarDecl, *LVarDeclP, LParam, LChamp, *LParamP, *LChampP;
 
 /* utile pour le check de portee */
 typedef struct _Scope {
   int taille;
-  struct _varDecl *env;
+  struct _LVarDecl *env;
 } Scope, *ScopeP;
 
 
@@ -94,7 +100,7 @@ typedef struct _Tree {
   union {
     char *str;      /* valeur de la feuille si op = Id ou STR */
     int val;        /* valeur de la feuille si op = Cste */
-    VarDeclP lvar;  /* ne pas utiliser tant qu'on n'en a pas besoin :-) */
+    VarDeclP var;  /* ne pas utiliser tant qu'on n'en a pas besoin :-) */
     struct _Tree **children; /* tableau des sous-arbres */
   } u;
 } Tree, *TreeP;
@@ -103,10 +109,10 @@ typedef struct _Tree {
 typedef struct _Classe /*represente la meta classe*/
 {
   char *nom;
-  struct _varDecl *lparametres;
+  struct _LVarDecl *lparametres;
   struct _Classe* superClasse;
   struct _Methode *constructeur; 
-  struct _varDecl *lchamps;
+  struct _LVarDecl *lchamps;
   struct _LMethode *lmethodes;
 } Classe, *ClasseP;
 
@@ -120,21 +126,21 @@ typedef struct _LClasse
 
 typedef struct _Objet
 {
-	char *nom;
-	struct _varDecl *lchamps;
-  	struct _LMethode *lmethodes;
-  	struct _Objet *next;
+  char *nom;
+  struct _LVarDecl *lchamps;
+    struct _LMethode *lmethodes;
+    struct _Objet *next;
 } Objet, *ObjetP;
 
 
 typedef struct _Methode
 {
-	bool override;
-	char *nom;
-	struct _varDecl *lparametres;
+  bool override;
+  char *nom;
+  int nbLocales;                                              /* TODO : le mettre dans les fonctions */
+  struct _LVarDecl *lparametres;
   struct _Classe *typeDeRetour;
   struct _Tree *bloc;
-  /* struct _Classe *classeAppartenance; */                   /* TODO Ca foire pour un objet :/ */
 } Methode, *MethodeP;
 
 
@@ -157,7 +163,6 @@ typedef union
 /*------------------protype------------------*/
 
 void setError(int code);
-/* void yyerror(char *ignore); */
 
 TreeP makeTree(short op, int nbChildren, ...);
 TreeP makeNode(int nbChildren, short op);
@@ -168,37 +173,37 @@ TreeP getChild(TreeP tree, int rank);
 void setChild(TreeP tree, int rank, TreeP arg);
 
 
-/*------------------protype perso------------------*/
+/*------------------protype tp.c------------------*/
 
 VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt);
 ClasseP makeClasse(char* nom);
 ObjetP makeObjet(char *nom);
 MethodeP makeMethode(TreeP declMethode);
-VarDeclP makeLParam(TreeP arbreLParam, int *i);
-ChampP makeChampsBlocObj(TreeP blocObj);
+LVarDeclP makeLParam(TreeP arbreLParam, int *i);
+LVarDeclP makeLParamIsVar(TreeP arbreLParam);
+LChampP makeChampsBlocObj(TreeP blocObj);
 LMethodeP makeMethodeBlocObj(TreeP blocObj);
-VarDeclP makeVarBloc(TreeP bloc, int *i);
 
 ClasseP getClassePointer(char *nom);
 ObjetP getObjetPointer(char *nom);
+MethodeP getMethodePointer(ClasseP classe, char* nom);
 
+void addChamp(VarDeclP lchamps, ParamP champ);
+LVarDeclP addLParamVar(LVarDeclP lchamps, TreeP arbreLParam);
 void addClasse(ClasseP classe);
 void addObjet(ObjetP objet);
-void addEnv(VarDeclP var);
-void removeEnv(int n);
-VarDeclP addVarDecl(VarDeclP var, VarDeclP liste);
+LVarDeclP addVarDecl(LVarDeclP var, LVarDeclP liste);
 LMethodeP addMethode(MethodeP methode, LMethodeP liste);
 void addConstructeur(TreeP blocOpt, ClasseP classe);
 
 void makeClassesPrimitives();
 void initClasse(TreeP arbreLClasse);
 void stockerClasse(TreeP arbreLClasse, bool verbose);
-void stockerEnv(TreeP arbre, bool verbose);
 void initEnv();
 
 void compile(TreeP arbreLClasse, TreeP main);
 
-void printVarDecl(VarDeclP lvar);
+void printVarDecl(LVarDeclP lvar);
 void printClasse(ClasseP classe);
 void printLClasse();
 void printObjet();
@@ -207,9 +212,44 @@ void printLMethode(LMethodeP lmethode);
 void printScope();
 void afficherProgramme(TreeP tree, bool verbose);
 
-void verifContextProg(TreeP arbreLClasse, TreeP main);
-void verifContextMain(TreeP main);
-void verifContextLClasse(TreeP arbreLClasse);
+bool verifContextProg(TreeP arbreLClasse, TreeP main);
+bool verifContextMain(TreeP main);
+bool verifContextLClasse(TreeP arbreLClasse);
+
+
+/*------------------protype verif.c------------------*/
+
+bool checkDoublonClasse(LClasseP lclasse);
+bool checkBoucleHeritage(LClasseP lclasse);
+
+bool checkClassDefine(char* nom);
+bool checkPortee(LVarDeclP lvar, char* nom);
+bool checkBlocMain(TreeP bloc);
+
+bool checkExpr(TreeP tree);
+bool checkSelection(TreeP selection);
+
+ClasseP getType(TreeP expr);
+ClasseP getTypeId(char* nom);
+
+bool setEnvironnementType(LVarDeclP var);
+bool checkBlocClasse(TreeP tree);
+
+LVarDeclP envHerite(ClasseP classeMere);
+bool addEnv(LVarDeclP var);
+void removeEnv(int n);
+
+
+bool checkArguments(LParamP larg1, LParamP larg2);
+bool checkOverrideMethode(ClasseP classe, char* nom, LParamP larg, bool isOverride);
+bool checkOverrideLClasse(LClasseP lclasse);
+bool checkDoublonClasse(LClasseP lclasse);
+bool checkBoucleHeritage(LClasseP lclasse);
+bool checkCast(ClasseP classe, char* nom);
+bool checkMethodes(ClasseP classe, char* nom);
+bool checkTypeAff(VarDeclP var, TreeP expr);
+bool checkLArg(LVarDeclP lvar);
+
 
 
 #define YYSTYPE YYSTYPE
