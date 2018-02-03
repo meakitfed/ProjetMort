@@ -1,0 +1,34 @@
+START
+--########Bloc de type LDeclChamp IS LInstr--
+--DeclChamp.
+--Var p1 : --DeclChamp.
+--Var p2 : --IL Y AURA UN ENVOI vers p2
+PUSHG 0
+
+--Appel de la methode setName.
+PUSHA setName
+CALL
+POPN 1
+--IL Y AURA UN ENVOI vers p1
+
+--Appel de la methode printAll.
+PUSHA printAll
+CALL
+POPN 0
+--IL Y AURA UN ENVOI vers p2
+
+--Appel de la methode printAll.
+PUSHA printAll
+CALL
+POPN 0
+STOP
+--Declaration de la methode toString.
+toString: 	--Declaration de la methode println.
+println: 	--Declaration de la methode print.
+print: 	--Declaration de la methode getx.
+getx: 	--Declaration de la methode gety.
+gety: 	--Declaration de la methode getz.
+getz: 	--Declaration de la methode setName.
+setName: 	--Declaration de la methode print.
+print: 	--Declaration de la methode printAll.
+printAll: 	

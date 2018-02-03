@@ -59,22 +59,6 @@ void STORE(int x) {fprintf(output, "STORE %d\n", x);}
 void LOAD(int x) {fprintf(output, "LOAD %d\n", x);}
 void ALLOC(int x) {fprintf(output, "ALLOC %d\n", x);}
 
-void PUSHG_addr(char* c) {
-  /*int a = getAddr(c);
-    if (a < 0) {fprintf(output, "PUSHG addr(%s)(%d)\n", c, a);}
-    else {PUSHG(a);}*/
-}
-
-void PUSHL_addr(char* c) {
-  /*int a = getAddr(c);
-    if (a < 0) {fprintf(output, "PUSHL addr(%s)(%d)\n", c, a);}
-    else {PUSHL(a);}*/}
-
-void STOREG_addr(char* c) {
-  /*int a = getAddr(c);
-    if (a < 0) {fprintf(output, "STOREG addr(%s)(%d)\n", c, a);}
-    else{STOREG(a);}*/}
-
 void LABEL(char* c) {
     fprintf(output, "%s : \t", c);}
 
@@ -138,10 +122,14 @@ int adresse(char *id)
   return 0;
 }
 
-VarDeclP getVarDeclFromName(char *nom)
+/*retourne la variable correspondant à un nom
+ *à partir de l'environnement de variables globales
+ */
+VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche pas, ScopeP env est vide*/
 {
 	/*ScopeP env : env de variables globales*/
 	LVarDeclP temp = env->env;
+
 	while(temp != NULL)
     {
     	if(strcmp(nom, temp->var->nom) == 0)
@@ -153,7 +141,6 @@ VarDeclP getVarDeclFromName(char *nom)
     printf("Erreur environnement : variable %s introuvable.\n", nom);
     return NULL;
 }
-
 
 /*retourne le décalage d'une variable par rapport
  *au fond de pile de sa classe*/
@@ -300,7 +287,7 @@ void codeInstr(TreeP tree)
         break;
 
     default: 
-        fprintf(output, "Cas Instruction inconnu : %d! son contenu est : %s\n", tree->op, tree->u.str);
+        fprintf(output, "#ERREUR : Cas Instruction inconnu : %d! (son contenu est : %s)\n", tree->op, tree->u.str);
         break;
     }   
 
@@ -310,7 +297,7 @@ void codeInstr(TreeP tree)
 void codeConstructeur(TreeP tree)     					/*Expr: NEWC TypeC '(' LExprOpt ')'*/
 {
 
-	fprintf(output, "------------------ := Instanciation new %s():\n", getChild(tree, 0)->u.str);
+	fprintf(output, "------- := Instanciation new %s():\n", getChild(tree, 0)->u.str);
 
 	/*On récupère la classe à instancier*/
 	/*ClasseP classe = getClasse(getChild(tree, 0)->u.str);
@@ -553,37 +540,42 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 		
 		/*On récupère la classe correspondant à l'expression*/
  		VarDeclP tempExpr = getVarDeclFromName(Expr->u.str);
-    	char *type = tempExpr->type->nom;
-    	ClasseP classeEnvoi = getClassePointer(type);
-
-    	/*On récupère la structure correspondant à MethodeC*/
-    	MethodeP tempMethode = getMethodeFromName(classeEnvoi, getChild(MethodeC,0)->u.str);
     	
+        if(tempExpr)
+        {
+            char *type = tempExpr->type->nom;
+            ClasseP classeEnvoi = getClassePointer(type);
 
-    	if(tempMethode)
-    	{
-    		LVarDeclP tempParam = tempMethode->lparametres;
-    		printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
+    	    /*On récupère la structure correspondant à MethodeC*/
+    	    MethodeP tempMethode = getMethodeFromName(classeEnvoi, getChild(MethodeC,0)->u.str);
 
-			int nbParam = 0; 
-			while(tempParam != NULL) 
-			{
-				PUSHG(nbParam);  /*empiler l'argument ?????????????????????????????????????????????????????*/ 
-				nbParam++;
-				tempParam = tempParam->next;
-			}
+        	if(tempMethode)
+        	{
+        		LVarDeclP tempParam = tempMethode->lparametres;
+        		printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
 
-			/*Appel (statique...) de la méthode*/
-			char *adresseMethode = tempMethode->nom;
-			fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
-			PUSHA(adresseMethode);
-	    	CALL();
+    			int nbParam = 0; 
+    			while(tempParam != NULL) 
+    			{
+    				PUSHG(nbParam);  /*empiler l'argument ?????????????????????????????????????????????????????*/ 
+    				nbParam++;
+    				tempParam = tempParam->next;
+    			}
 
-	    	/*On dépile le nombre de paramètres empilés*/
-			POPN(nbParam);
-    	}
+    			/*Appel (statique...) de la méthode*/
+    			char *adresseMethode = tempMethode->nom;
+    			fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
+    			PUSHA(adresseMethode);
+    	    	CALL();
+
+    	    	/*On dépile le nombre de paramètres empilés*/
+    			POPN(nbParam);
+        	}
+            else{printf("Erreur envoi : methode introuvable.\n");}
+
     
-
+        }
+        else{printf("Erreur envoi : variable introuvable.\n");}
 
 	}
 
@@ -636,12 +628,11 @@ MethodeP getMethodeFromName(ClasseP classe, char *nom)
 
 /*Génère le code d'une sélection*/
 void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du id dans la production Selection?*/
-{
+{                                                /*Voir l'exemple de paire.entiers*/
 	/*TODO*/
     /*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
     fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
 
-    /*Voir le code de paire.entiers dans Interp*/
     /*
     Voir le type de retour de l'expression
     puis chercher le id dans la classe correspondante
@@ -760,7 +751,7 @@ void codeAff(TreeP tree)
 void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
 {
 
-    if(tree->nbChildren == 2)
+    if(tree->nbChildren == 2)   /*segfault*/
     {
     	/*ptet qu'on ne peut pas appeler codeBlocObj ???*/
         codeBlocObj(getChild(tree, 1));                     /*LDeclChampMethode: LDeclChampMethode DeclChampMethode*/
@@ -769,6 +760,10 @@ void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
     else if(tree->nbChildren == 1)
     {
 		codeDeclChampMethode(getChild(tree, 0));
+    }
+    else
+    {
+
     }
    
 
@@ -823,6 +818,10 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     fprintf(output, "--DeclChamp.\n");
 
     fprintf(output,"--Var %s : ", tree->u.var->nom);
+
+    printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
+
+    addVarEnv(tree->u.var, NIL(Classe));
         /*codeExpr(getChild(tree, 1));  correspond au typeC*/
 
    /* fprintf(output, "%s", getChild(tree, 1)->u.str);*/    /*comment gérer le type d'une expression en terme de gén de code ?*/
@@ -834,8 +833,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
     }
     fprintf(output, "\n");
     */
-
-    /* VariableP var = tree->u.lvar;
+/*
 
     ajoutVariable(var) à l'environnement : initialiser l'adresse de la variable,
     afin de pouvoir la STOREG dans le futur
@@ -860,7 +858,9 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 	fprintf(output,"--Declaration de la methode %s.\n", methode->nom);
 
 	fprintf(output, "%s: \t", methode->nom);
-	codeBlocObj(methode->bloc);
+	/*codeBlocObj(methode->bloc);*/
+
+
 
     /*en principe : on compte le nombre de parametres avec un while param->next
 
@@ -874,7 +874,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 
 
     PUSHL(0 - (nbPAram+1))
-    SWAP() pk ? lol
+    SWAP() 
     STORE(0) 
 
     RETURN
