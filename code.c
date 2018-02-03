@@ -11,6 +11,7 @@ extern char* strdup(const char *);
 extern ScopeP env;
 extern LClasseP lclasse;
 FILE* output;
+bool verb = FALSE;
 
 /*
  * GENERATION DE CODE
@@ -489,7 +490,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 {
 	if(expr->op == Cste)
 	{
-		fprintf(output, "\n--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
+		if(verb) fprintf(output, "\n--%s affiche la constante suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
@@ -504,7 +505,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 	}
 	else if(expr->op == Chaine)
 	{
-		fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
+		if(verb) fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
 		codeExpr(expr);
 		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {				/*écriture simple de la chaine en début de pile*/
             WRITES();
@@ -564,7 +565,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 
     			/*Appel (statique...) de la méthode*/
     			char *adresseMethode = tempMethode->nom;
-    			fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
+    			if(verb)  fprintf(output, "\n--Appel de la methode %s.\n", adresseMethode);
     			PUSHA(adresseMethode);
     	    	CALL();
 
@@ -751,26 +752,28 @@ void codeAff(TreeP tree)
 void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
 {
 
-    if(tree->nbChildren == 2)   /*segfault*/
+    if(tree != NULL)
     {
-    	/*ptet qu'on ne peut pas appeler codeBlocObj ???*/
-        codeBlocObj(getChild(tree, 1));                     /*LDeclChampMethode: LDeclChampMethode DeclChampMethode*/
-        codeDeclChampMethode(getChild(tree, 0));            /* LDeclChampMethode: DeclChampMethode*/
-    }
-    else if(tree->nbChildren == 1)
-    {
-		codeDeclChampMethode(getChild(tree, 0));
-    }
-    else
-    {
+        if(tree->nbChildren == 2)  
+        {
+            /*ptet qu'on ne peut pas appeler codeBlocObj ???*/
 
+            codeBlocObj(getChild(tree, 0));                     /*LDeclChampMethode: LDeclChampMethode DeclChampMethode*/
+            codeDeclChampMethode(getChild(tree, 1));            
+        }
+        else if(tree->nbChildren == 1)
+        {
+            codeDeclChampMethode(getChild(tree, 0));            /* LDeclChampMethode: DeclChampMethode*/
+        }
     }
+
    
 
 }
 
 void codeDeclChampMethode(TreeP tree)
 {
+    printf("Mkay %d\n", tree->op);
     if(tree->op == YDECLC) /*DeclChamp*/
     {
         printf("DECL CHAMP\n");
@@ -780,6 +783,7 @@ void codeDeclChampMethode(TreeP tree)
     else if(tree->op == DMETHODE) /*DeclMethode pas besoin de gérer ce cas, 
     								vu qu'on met les méthodes dans des structures*/
     {
+
         printf("DECL METHODE qu'on appelera à partir de classe\n");
        /* MethodeP methode = getMethodeFromName(tree->u.str);  
        	codeDeclMethode(methode);
@@ -855,10 +859,21 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 {									
 
-	fprintf(output,"--Declaration de la methode %s.\n", methode->nom);
-
-	fprintf(output, "%s: \t", methode->nom);
-	/*codeBlocObj(methode->bloc);*/
+	
+    TreeP tree = methode->bloc;
+    if(tree != NULL)
+    {   
+        if((strcmp(tree->u.str, "print") != 0 ) | ((strcmp(tree->u.str, "println") ) != 0))
+        {
+            fprintf(output,"\n\n--Declaration de la methode %s.\n", methode->nom);
+            fprintf(output, "%s: \t", methode->nom);
+            codeLInstr(tree);
+        }
+        else
+        {
+            printf("Methodes print et println existantes.\n");
+        }
+    }
 
 
 

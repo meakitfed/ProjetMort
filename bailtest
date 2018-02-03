@@ -4,31 +4,71 @@ START
 --Var p1 : --DeclChamp.
 --Var p2 : --IL Y AURA UN ENVOI vers p2
 PUSHG 0
-
---Appel de la methode setName.
 PUSHA setName
 CALL
 POPN 1
 --IL Y AURA UN ENVOI vers p1
-
---Appel de la methode printAll.
 PUSHA printAll
 CALL
 POPN 0
 --IL Y AURA UN ENVOI vers p2
-
---Appel de la methode printAll.
 PUSHA printAll
 CALL
 POPN 0
 STOP
---Declaration de la methode toString.
-toString: 	--Declaration de la methode println.
-println: 	--Declaration de la methode print.
-print: 	--Declaration de la methode getx.
-getx: 	--Declaration de la methode gety.
-gety: 	--Declaration de la methode getz.
-getz: 	--Declaration de la methode setName.
-setName: 	--Declaration de la methode print.
-print: 	--Declaration de la methode printAll.
-printAll: 	
+
+
+--Declaration de la methode getx.
+getx: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : x)
+
+
+--Declaration de la methode gety.
+gety: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : this)
+#ERREUR : Cas Instruction inconnu : 276! (son contenu est : y)
+
+
+--Declaration de la methode getz.
+getz: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : result)
+#ERREUR : Cas Instruction inconnu : 276! (son contenu est : z)
+
+
+--Declaration de la methode setName.
+setName: 	#ERREUR : Cas Instruction inconnu : 276! (son contenu est : name)
+#ERREUR : Cas Instruction inconnu : 276! (son contenu est : s)
+
+
+--Declaration de la methode print.
+print: 	--IL Y AURA UN ENVOI vers name
+
+
+--Declaration de la methode printAll.
+printAll: 	--IL Y AURA UN ENVOI vers pn°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers pr°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers pv°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers Ðy°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers }°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers P€°
+--IL Y AURA UN ENVOI vers " "
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers this
+
+
+--Declaration de la methode methodeTest.
+methodeTest: 	PUSHI 3
+PUSHI 4
