@@ -34,7 +34,6 @@ FILE *out; /* fichier de sortie pour le code engendre */
 /*---------------------------VARIABLE GLOBALE---------------------------*/
 
 LClasseP lclasse = NIL(LClasse);
-ObjetP lobjet = NIL(Objet); 
 
 ScopeP env = NIL(Scope);
 int nbErreur = 0;
@@ -238,7 +237,7 @@ ClasseP makeClasse(char *nom)
   classe->nom = nom;
 
   classe->lparametres = NEW(1, LVarDecl);
-  classe->lparametres->var = NEW(1,VarDecl);
+  classe->lparametres->var = NEW(1, VarDecl);
   classe->lparametres->var->nom = "NIL";
   classe->lparametres->var->type = NIL(Classe);
   classe->lparametres->var->exprOpt = NIL(Tree);
@@ -249,7 +248,7 @@ ClasseP makeClasse(char *nom)
   classe->constructeur = NIL(Methode);
 
   classe->lchamps = NEW(1, LVarDecl);
-  classe->lchamps->var = NEW(1,VarDecl);
+  classe->lchamps->var = NEW(1, VarDecl);
   classe->lchamps->var->nom = "NIL";
   classe->lchamps->var->type = NIL(Classe);
   classe->lchamps->var->exprOpt = NIL(Tree);
@@ -262,24 +261,27 @@ ClasseP makeClasse(char *nom)
 
 
 /* Creer un objet isole sans aucun element initialise sauf le nom */
-ObjetP makeObjet(char *nom)
+ClasseP makeObjet(char *nom)
 {
-  ObjetP objet = NEW(1, Objet);
+  ClasseP objet = NEW(1, Classe);
   
   objet->nom = nom;
 
+  objet->lparametres = NEW(1, LVarDecl);
+  objet->lparametres->var = NIL(VarDecl);
+
+  objet->superClasse = NIL(Classe);
+
+  objet->constructeur = NIL(Methode);
+
   objet->lchamps = NEW(1, LVarDecl);
-  objet->lchamps->var = NEW(1,VarDecl);
+  objet->lchamps->var = NEW(1, VarDecl);
   objet->lchamps->var->nom = "NIL";
   objet->lchamps->var->type = NIL(Classe);
   objet->lchamps->var->exprOpt = NIL(Tree);
   objet->lchamps->next = NIL(LVarDecl);
  
-  objet->lmethodes = NEW(1, LMethode);
-  objet->lmethodes->methode = NIL(Methode);
-  objet->lmethodes->next = NIL(LMethode);
-
-  objet->next = NIL(Objet);
+  objet->lmethodes = NIL(LMethode);
 
   return objet;
 }
@@ -464,24 +466,6 @@ ClasseP getClassePointer(char *nom)
 }
 
 
-/* recupere le pointeur vers un objet nomme nom ou NIL */
-ObjetP getObjetPointer(char *nom)
-{
-  ObjetP cur = lobjet;
-  while (cur != NIL(Objet))
-  {
-    if (strcmp(cur->nom, nom) == 0)
-    {
-      return cur;
-    }
-
-    cur = cur->next;
-  }
-
-  return NIL(Objet);
-}
-
-
 /* recupere le pointeur vers une methode nomme nom ou NIL */
 MethodeP getMethodePointer(ClasseP classe, char* nom)
 {
@@ -536,54 +520,24 @@ void addClasse(ClasseP classe)
 }
 
 
-/* ajoute un objet dans la liste d'objet globale */
-void addObjet(ObjetP objet)
-{
-    if(lobjet == NIL(Objet))
-    {
-        lobjet = objet;      
-    }
-    else
-    {
-        ObjetP current = lobjet;
-        while (TRUE) { 
-            if(current->next == NULL)
-            {
-                current->next = objet;
-                break; 
-            }
-            current = current->next;
-        }
-    }
-}
-
-
-/* 
-* ajoute dans une liste une variable var 
-* n'ajoute pas la liste si une des variables est mal declaree 
-*/
+/*  ajoute dans une liste une variable var */
 LVarDeclP addVarDecl(LVarDeclP var, LVarDeclP liste)
 {
     if(var != NIL(LVarDecl))
     {
-        bool check = setEnvironnementType(var);
-
-        if(check)
+        if(liste != NIL(LVarDecl))
         {
-            if(liste != NIL(LVarDecl))
-            {
-                LVarDeclP tmp = liste;
+            LVarDeclP tmp = liste;
 
-                while(tmp->next != NIL(LVarDecl))
-                {
-                    tmp = tmp->next;
-                }
-                tmp->next = var;
-            }
-            else
+            while(tmp->next != NIL(LVarDecl))
             {
-                liste = var;
+                tmp = tmp->next;
             }
+            tmp->next = var;
+        }
+        else
+        {
+            liste = var;
         }
     }
 
@@ -683,9 +637,9 @@ void makeClassesPrimitives()
   string->lchamps = NIL(LVarDecl);
 
   addClasse(integer);
-  setEnvironnementType(paramListeInt);
+  setEnvironnementType(paramListeInt, integer);
   addClasse(string);
-  setEnvironnementType(paramListeStr);
+  setEnvironnementType(paramListeStr, string);
   addClasse(voidC);
 }
 
@@ -694,7 +648,7 @@ void makeClassesPrimitives()
 void initClasse(TreeP arbreLClasse)
 {
     ClasseP bufferClasse = NIL(Classe);
-    ObjetP bufferObj = NIL(Objet);
+    ClasseP bufferObj = NIL(Classe);
     TreeP arbreCourant = arbreLClasse;
     int *i = NEW(1, int);
     *i = 0;
@@ -728,7 +682,7 @@ void initClasse(TreeP arbreLClasse)
                   LParamP tmpListe = NEW(1,LParam);
                   tmpListe->var = getChild(arbreLParam,0)->u.var;
                   tmpListe->next = NIL(LParam);
-                  bufferClasse->lchamps = addVarDecl(tmpListe,bufferClasse->lchamps); 
+                  bufferClasse->lchamps = addVarDecl(tmpListe, bufferClasse->lchamps);  
                 }
                 arbreLParam = getChild(arbreLParam,1);
               }
@@ -737,7 +691,7 @@ void initClasse(TreeP arbreLClasse)
                 LParamP tmpListe = NEW(1,LParam);
                 tmpListe->var = arbreLParam->u.var;
                 tmpListe->next = NIL(LParam);
-                bufferClasse->lchamps = addVarDecl(tmpListe,bufferClasse->lchamps); 
+                bufferClasse->lchamps = addVarDecl(tmpListe, bufferClasse->lchamps);  
               }        
             }
 
@@ -753,7 +707,7 @@ void initClasse(TreeP arbreLClasse)
         }
         else
         {
-            bufferObj = getObjetPointer(getChild(arbreClasse, 0)->u.str);
+            bufferObj = getClassePointer(getChild(arbreClasse, 0)->u.str);
 
             TreeP arbreBlocObj = getChild(arbreClasse, 1); 
 
@@ -786,8 +740,8 @@ void stockerClasse(TreeP arbreLClasse, bool verbose)
         }
         else
         {
-            ObjetP tmp = makeObjet(getChild(arbreClasse, 0)->u.str);
-            addObjet(tmp);
+            ClasseP tmp = makeObjet(getChild(arbreClasse, 0)->u.str);
+            addClasse(tmp);
             courant = getChild(courant, 1);
         }
     }
@@ -796,11 +750,8 @@ void stockerClasse(TreeP arbreLClasse, bool verbose)
 
     if(verbose)
     {
-        printf("----------------------------LES CLASSES----------------------------\n");
+        printf("----------------------------LES CLASSES && OBJETS----------------------------\n");
         printLClasse();
-        printf("\n");
-        printf("----------------------------LES OBJETS----------------------------\n");
-        printObjet();
         printf("\n");
     }
 }
@@ -827,7 +778,7 @@ bool verifContextProg(TreeP arbreLClasse, TreeP main)
     check = verifContextMain(main) && check;
 
     if(nbErreur > 0)
-        fprintf(stderr, "\nVotre programme a %d erreur(s)\n", nbErreur);
+        fprintf(stderr, "Votre programme a %d erreur(s)\n\n", nbErreur);
 
     return check;
 }
@@ -838,7 +789,7 @@ bool verifContextMain(TreeP main)
 {
     bool check = TRUE;
 
-    check = checkBlocMain(main) && check;
+    check = checkBlocMain(main, NIL(Classe)) && check;
 
     return check;
 }
@@ -852,7 +803,7 @@ bool verifContextLClasse(TreeP arbreLClasse)
     /* check = checkBoucleHeritage(lclasse) && check;
     check = checkDoublonClasse(lclasse) && check; */
 
-    check = checkBlocClasse(arbreLClasse) && check;
+    check = checkBlocClasse(arbreLClasse, NIL(Classe)) && check;
 
     return check;
 }
@@ -868,10 +819,10 @@ void compile(TreeP arbreLClasse, TreeP main)
 
     if(arbreLClasse != NIL(Tree))
     {
-        stockerClasse(arbreLClasse, TRUE);
+        stockerClasse(arbreLClasse, FALSE);
     }
 
-    verifContextProg(arbreLClasse, main);
+    verifContextProg(arbreLClasse, main); 
 }
 
 
@@ -895,29 +846,45 @@ void printVarDecl(LVarDeclP lvar)
 /* affiche une classe */
 void printClasse(ClasseP classe)
 {
-    printf("#####################################\n");
-    printf("Classe : %s\n", classe->nom);
-    if(classe->superClasse != NIL(Classe))
+    if(classe->constructeur != NIL(Methode))
     {
-        printf("\nSuperClasse : %s\n", classe->superClasse->nom);
+        printf("#####################################\n");
+        printf("Classe : %s\n", classe->nom);
+        if(classe->superClasse != NIL(Classe))
+        {
+            printf("\nSuperClasse : %s\n", classe->superClasse->nom);
+        }
+        else
+        {
+            printf("\nSuperClasse : NIL\n");
+        }
+        printf("\n");
+        printf("Parametres :\n");
+        printVarDecl(classe->lparametres); 
+        printf("\n");
+        printf("Constructeur :\n");
+        printMethode(classe->constructeur); 
+        printf("\n");
+        printf("Champs :\n");
+        printVarDecl(classe->lchamps);
+        printf("\n");
+        printf("Methodes :\n\n");
+        printLMethode(classe->lmethodes);
+        printf("\n");
     }
     else
     {
-        printf("\nSuperClasse : NIL\n");
+        printf("#####################################\n");
+        printf("Objet : %s\n", classe->nom);
+        printf("\n");
+        printf("Champs :\n");
+        printVarDecl(classe->lchamps);
+        printf("\n");
+        printf("Methodes :\n\n");
+        printLMethode(classe->lmethodes);
+        printf("\n");
     }
-    printf("\n");
-    printf("Parametres :\n");
-    printVarDecl(classe->lparametres); 
-    printf("\n");
-    printf("Constructeur :\n");
-    printMethode(classe->constructeur); 
-    printf("\n");
-    printf("Champs :\n");
-    printVarDecl(classe->lchamps);
-    printf("\n");
-    printf("Methodes :\n\n");
-    printLMethode(classe->lmethodes);
-    printf("\n");
+    
 }
 
 
@@ -929,27 +896,6 @@ void printLClasse()
     {
         if(tmp->classe != NIL(Classe))
             printClasse(tmp->classe);
-        tmp = tmp->next;
-    }
-}
-
-
-/* affiche un objet */
-void printObjet()
-{
-    ObjetP tmp = lobjet;
-    while(tmp != NIL(Objet))
-    {
-        printf("#####################################\n");
-        printf("Objet : %s\n", tmp->nom);
-        printf("\n");
-        printf("Champs :\n");
-        printVarDecl(tmp->lchamps);
-        printf("\n");
-        printf("Methodes :\n\n");
-        printLMethode(tmp->lmethodes);
-        printf("\n");
-
         tmp = tmp->next;
     }
 }

@@ -124,15 +124,6 @@ typedef struct _LClasse
 } LClasse, *LClasseP;
 
 
-typedef struct _Objet
-{
-  char *nom;
-  struct _LVarDecl *lchamps;
-    struct _LMethode *lmethodes;
-    struct _Objet *next;
-} Objet, *ObjetP;
-
-
 typedef struct _Methode
 {
   bool override;
@@ -177,7 +168,7 @@ void setChild(TreeP tree, int rank, TreeP arg);
 
 VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt);
 ClasseP makeClasse(char* nom);
-ObjetP makeObjet(char *nom);
+ClasseP makeObjet(char *nom);
 MethodeP makeMethode(TreeP declMethode);
 LVarDeclP makeLParam(TreeP arbreLParam, int *i);
 LVarDeclP makeLParamIsVar(TreeP arbreLParam);
@@ -185,13 +176,11 @@ LChampP makeChampsBlocObj(TreeP blocObj);
 LMethodeP makeMethodeBlocObj(TreeP blocObj);
 
 ClasseP getClassePointer(char *nom);
-ObjetP getObjetPointer(char *nom);
 MethodeP getMethodePointer(ClasseP classe, char* nom);
 
 void addChamp(VarDeclP lchamps, ParamP champ);
 LVarDeclP addLParamVar(LVarDeclP lchamps, TreeP arbreLParam);
 void addClasse(ClasseP classe);
-void addObjet(ObjetP objet);
 LVarDeclP addVarDecl(LVarDeclP var, LVarDeclP liste);
 LMethodeP addMethode(MethodeP methode, LMethodeP liste);
 void addConstructeur(TreeP blocOpt, ClasseP classe);
@@ -224,21 +213,24 @@ bool checkBoucleHeritage(LClasseP lclasse);
 
 bool checkClassDefine(char* nom);
 bool checkPortee(LVarDeclP lvar, char* nom);
-bool checkBlocMain(TreeP bloc);
+bool checkBlocMain(TreeP bloc, ClasseP classe);
 
-bool checkExpr(TreeP tree);
+bool checkExpr(TreeP tree, ClasseP classe);
 bool checkSelection(TreeP selection);
 
-ClasseP getType(TreeP expr);
+ClasseP getType(TreeP expr, ClasseP classe);
 ClasseP getTypeId(char* nom);
 
-bool setEnvironnementType(LVarDeclP var);
-bool checkBlocClasse(TreeP tree);
+bool setEnvironnementType(LVarDeclP var, ClasseP classe);
+bool checkBlocClasse(TreeP tree, ClasseP classe);
 
 LVarDeclP envHerite(ClasseP classeMere);
-bool addEnv(LVarDeclP var);
+bool addEnv(LVarDeclP var, ClasseP classe);
+bool addVarEnv(VarDeclP var, ClasseP classe);
 void removeEnv(int n);
 
+bool checkAff(VarDeclP var, TreeP expr, ClasseP classe);
+int getTailleListeVarDecl(LVarDeclP liste);
 
 bool checkArguments(LParamP larg1, LParamP larg2);
 bool checkOverrideMethode(ClasseP classe, char* nom, LParamP larg, bool isOverride);
@@ -247,8 +239,6 @@ bool checkDoublonClasse(LClasseP lclasse);
 bool checkBoucleHeritage(LClasseP lclasse);
 bool checkCast(ClasseP classe, char* nom);
 bool checkMethodes(ClasseP classe, char* nom);
-bool checkTypeAff(VarDeclP var, TreeP expr);
-bool checkLArg(LVarDeclP lvar);
 
 
 
