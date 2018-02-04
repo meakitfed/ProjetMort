@@ -214,7 +214,27 @@ void CodeConstructeurVersionStructure(MethodeP methode)
 		}   
 	}
 } 
-		
+
+
+
+/*Génère le code d'une objet*/
+void codeObj(ClasseP classe)
+{
+	/*printf(">Generation du code d'un objet : %s\n", classe->nom);*/
+
+	LMethodeP lmethodes = classe->lmethodes;
+
+	while(lmethodes != NULL)
+	{
+		codeDeclMethode(lmethodes->methode);
+		liste = liste->next;
+	}
+
+
+	LVarDeclP lchamps = classe->lchamps;
+	codeDeclChamp(lchamps);  /*TODO */
+}
+
 /*
  * Génère le code des expressions
  */
@@ -880,19 +900,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 }
 
 
-/*
- * Génère le code d'un objet
- */
-void codeObjet()
-{
 
-
-
-
-
-
-	/*?????????????????????????????????????????????????????????*/
-}
 
 
 /*Génère le code d'une classe*/
