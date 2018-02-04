@@ -168,6 +168,28 @@ int getOffset(ClasseP classe, char *idNom)
 }
 
 
+/*CodeConstructeur*/ 
+void codeConstructeur(TreeP arbre)
+{
+    fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);
+    ClasseP classe = getClasse(getChild(arbre, 0)->u.str); 
+    TreeP lexpressions = getChild(arbre, 1);
+    int taille = getTailleListeVarDecl(classes->lparametres); 
+
+    TreeP buffer = getChild(arbre, 1);
+
+    ALLOC(taille);        
+    for (int i = 0;  i< taille && buffer != NIL(Tree); i++) {
+        DUPN(1);
+        codeExpr(getChild(buffer, 0));
+        STORE(i);
+        buffer = getChild(buffer,1);
+    }
+}   
+
+        
+
+
 /*
  * Génère le code des expressions
  */
