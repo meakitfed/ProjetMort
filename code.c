@@ -68,7 +68,7 @@ void NEWLABEL(char* c) {
 	LABEL(c);
 	NOP();}
 
-LInstance linstnces = NIL(LInstance);
+LInstance linstnces = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah ben nan ça se fait pas dans l'oredre putin ??!?N?*/
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
