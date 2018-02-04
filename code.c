@@ -68,11 +68,18 @@ void NEWLABEL(char* c) {
 	LABEL(c);
 	NOP();}
 
+int compteurAdresse = 0;
+LInstance linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
  * Sera utile pour faire PUSHG Id.adresse() par exemple.
  */
+
+
+
+
+
 int adresse(char *id) 
 {
 
@@ -407,7 +414,7 @@ void codeLInstr(TreeP tree)
  * du type indiqué en paramètre.
  * Permet d'obtenir if3 ou else10 par exemple.
  */
-char *makeLabel(char *type)
+char * makeLabel(char *type)
 {
 	static char buf[30];
 	static int cpt;
@@ -822,6 +829,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 	fprintf(output,"--Var %s : ", tree->u.var->nom);
 
 	printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
+	/*TODO ajouter la nouvelle instance à la liste*/
 
 	addVarEnv(tree->u.var, NIL(Classe));
 
@@ -943,14 +951,15 @@ void genCode(TreeP LClass, TreeP Bloc)
 
 	if (output != NULL) {
 
+		/*Generation du code des méthodes des classes 
+		 à partir de la variable globale LClasse*/
+		codeLClasse();
+
 		/*Generation de code du bloc principal*/
 		fprintf(output, "START\n");
 		codeInstr(Bloc);
 		fprintf(output, "STOP\n");
 
-		/*Generation du code des méthodes des classes 
-		 à partir de la variable globale LClasse*/
-		codeLClasse();
 
 		/*saut de ligne nécessaire à la fin du programme, 
 		sans quoi il y a une erreur*/
