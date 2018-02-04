@@ -68,6 +68,7 @@ void NEWLABEL(char* c) {
 	LABEL(c);
 	NOP();}
 
+LInstance linstnces = NIL(LInstance);
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 

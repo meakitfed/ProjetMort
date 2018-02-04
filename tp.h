@@ -72,6 +72,19 @@ typedef unsigned char bool;
 #define UNEXPECTED  100
 
 
+typedef struct _Instance
+{
+	char *nom;
+	struct _Classe *type;
+	int adresse;
+}Instance, *InstanceP;
+
+
+typedef struct _LInstance
+{
+	struct _Instance *instance;
+	struct _LInstance *next;
+}LInstance, *LInstanceP;
 
 /* Adapt as needed. Currently it is simply a list of names ! */
 typedef struct _varDecl {
