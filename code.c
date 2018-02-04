@@ -171,29 +171,50 @@ int getOffset(ClasseP classe, char *idNom)
 /*CodeConstructeur*/ 
 void codeConstructeur(TreeP arbre)
 {
-	fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);
+	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
 	ClasseP classe = getClassePointer(getChild(arbre, 0)->u.str); 
 	TreeP lexpressions = getChild(arbre, 1);
-	int taille = getTailleListeVarDecl(classe->lparametres); 
+	int taille = getTailleListeVarDecl(classe->lparametres); /*TODO : getTailleChamps*/
 
-	TreeP buffer = lexpressions;
+	TreeP tmp = lexpressions;
 
 	ALLOC(taille);  
 	int i = 0;      
 	for (i = 0;  i< taille; i++) {
-		if(buffer != NIL(Tree)){
+		if(tmp != NIL(Tree)){
 			DUPN(1);
-			codeExpr(getChild(buffer, 0));
+			codeExpr(getChild(tmp, 0));
 			STORE(i);
-			buffer = getChild(buffer,1);  
+			tmp = getChild(tmp,1);  
 			i++;
 		}   
 	}
 }   
 
+
+/*CodeConstructeurVersionStructure*/ 
+void CodeConstructeurVersionStructure(MethodeP methode)
+{
+	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
+	LVarDeclP lexpressions = methode->lparametres;
+	int taille = getTailleListeVarDecl(lexpressions);
+
+	TreeP tmp = methode->bloc;
+
+	ALLOC(taille);  
+	int i = 0;      
+	for (i = 0;  i< taille; i++) {
+		if(tmp != NIL(Tree)){
+			DUPN(1);
+			codeInstr(getChild(tmp, 0));
+			codeLInstr(getChild(tmp, 1));
+			STORE(i);
+			tmp = getChild(tmp,1);  
+			i++;
+		}   
+	}
+} 
 		
-
-
 /*
  * Génère le code des expressions
  */
