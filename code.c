@@ -69,7 +69,7 @@ void NEWLABEL(char* c) {
 	NOP();}
 
 int compteurAdresse = 0;
-LInstance linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
+LInstanceP linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
 
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
@@ -78,7 +78,17 @@ LInstance linstances = NIL(LInstance); /* a mettre a jour au moment des declarat
 
 
 
+InstanceP getInstFromName(char *name)
+{
+	LInstanceP cur = linstances;
 
+	while (linstances != NIL(LInstance))
+	{
+		if (!strcmp(cur->instance->nom, name)) return cur->instance;
+		cur = cur->next;
+	}
+	return NIL(Instance);
+}
 
 int adresse(char *id) 
 {
@@ -234,7 +244,7 @@ void codeObj(ClasseP classe)
 	while(lmethodes != NULL)
 	{
 		codeDeclMethode(lmethodes->methode);
-		liste = liste->next;
+		lmethodes = lmethodes->next; /*attention ça compilait pas ? */
 	}
 
 
@@ -674,6 +684,13 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 			
 		int offset = getOffset(classeType,Ident->u.str);
 		LOAD(offset);
+	}
+	else /*Select ::= expr . Id*/
+	{
+		codeExpr(getChild(tree, 0));
+		/*TODO trouver la classe de Expr :( parcourir la liste d'instances ? */
+		ClasseP classe = getInstFromName(getChild(tree,1)->u.str)->type;
+		LOAD(getOffset(classe, getChild(tree,1)->u.str));
 	}
 
 }

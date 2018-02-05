@@ -35,6 +35,8 @@ void codeITE(TreeP tree);
 VarDeclP getVarDeclFromName(char *name);
 MethodeP getMethodeFromName(ClasseP classe, char *name);
 int getOffset(ClasseP classe, char *idNom);
+InstanceP getInstFromName(char *name);
+
 
 /* Fonctions servant à la génération de code
  * pour la machine virtuelle
