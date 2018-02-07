@@ -2,8 +2,11 @@
 
 --Declaration de la methode incr de type de retour Integer.
 incr: 	
---Methode avec un type....
-PUSHG result.adresse()
+--Methode avec un type de retour.
+Affectation : ident next
+PUSHG next.adresse()
+STOREG result.adresse()
+PUSHG next.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -13,7 +16,7 @@ RETURN
 
 --Declaration de la methode howMany de type de retour Integer.
 howMany: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG next.adresse()
 PUSHI 1
 SUB
@@ -39,7 +42,7 @@ RETURN
 
 --Declaration de la methode getx de type de retour Integer.
 getx: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UNE SELECTION ICI;
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -50,7 +53,7 @@ RETURN
 
 --Declaration de la methode gety de type de retour Integer.
 gety: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UNE SELECTION ICI;
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -61,7 +64,7 @@ RETURN
 
 --Declaration de la methode cloned de type de retour Integer.
 cloned: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG hasClone.adresse()
 PUSHI 0
 EQUAL
@@ -81,8 +84,28 @@ LOAD 0
 PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
+Affectation : ident –€ 
 PUSHG x.adresse()
+PUSHG dx.adresse()
+ADD
+STOREG x.adresse()
+Affectation : ident ﬁ 
+PUSHG y.adresse()
+PUSHG dy.adresse()
+ADD
+STOREG y.adresse()
+PUSHG verbose.adresse()
+JZ else0
+--IL Y AURA UN ENVOI vers this
+
+--print affiche la chaine suivante :
+PUSHG this.adresse()
+WRITES
+JUMP endif1
+else0:
+endif1: NOP
+PUSHG result.adresse()
 --stocke le resultat a son emplacement
 PUSHL -4
 SWAP
@@ -94,7 +117,7 @@ RETURN
 print: 	PUSHL -1
 LOAD 0
 PUSHG verbose.adresse()
-JZ else0
+JZ else2
 --IL Y AURA UN ENVOI vers "Inside Point::print"
 
 --println affiche la chaine suivante :
@@ -102,15 +125,15 @@ PUSHS "Inside Point::print"
 WRITES
 PUSHS "\n"
 WRITES
-JUMP endif1
-else0:
-endif1: NOP
+JUMP endif3
+else2:
+endif3: NOP
 --IL Y AURA UN ENVOI vers name
 
 --print affiche la chaine suivante :
 PUSHG name.adresse()
 WRITES
---IL Y AURA UN ENVOI vers ¸
+--IL Y AURA UN ENVOI vers 0˛ 
 
 --println affiche la chaine suivante :
 PUSHS "= ("
@@ -142,10 +165,11 @@ RETURN
 
 --Declaration de la methode clone de type de retour Point.
 clone: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UNE SELECTION ICI;
 PUSHI 1
 EQUAL
+PUSHG result.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -158,20 +182,20 @@ allClones: 	PUSHG hasClone.adresse()
 PUSHI 0
 EQUAL
 NOT
-JZ else2
+JZ else4
 --IL Y AURA UN ENVOI vers this
 
 --print affiche la chaine suivante :
 PUSHG this.adresse()
 WRITES
---IL Y AURA UN ENVOI vers P	
+--IL Y AURA UN ENVOI vers @!
 
 --allClones affiche la chaine suivante :
 --IL Y AURA UNE SELECTION ICI;
 --IL Y AURA UNE SELECTION ICI;
-JUMP endif3
-else2:
-endif3: NOP
+JUMP endif5
+else4:
+endif5: NOP
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -183,7 +207,7 @@ RETURN
 egal: 	PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
 --stocke le resultat a son emplacement
 PUSHL -2
 SWAP
@@ -195,7 +219,7 @@ RETURN
 egal2: 	PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
 --stocke le resultat a son emplacement
 PUSHL -2
 SWAP
@@ -207,7 +231,7 @@ RETURN
 name: 	PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
 --stocke le resultat a son emplacement
 PUSHL -2
 SWAP
@@ -217,7 +241,7 @@ RETURN
 
 --Declaration de la methode estGris de type de retour Integer.
 estGris: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers "Inside Couleur::estGris"
 
 --println affiche la chaine suivante :
@@ -225,6 +249,7 @@ PUSHS "Inside Couleur::estGris"
 WRITES
 PUSHS "\n"
 WRITES
+PUSHG result.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -234,7 +259,7 @@ RETURN
 
 --Declaration de la methode blanc de type de retour Couleur.
 blanc: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG theBlanc.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -245,7 +270,7 @@ RETURN
 
 --Declaration de la methode noir de type de retour Couleur.
 noir: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG theNoir.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -256,7 +281,7 @@ RETURN
 
 --Declaration de la methode gris de type de retour Couleur.
 gris: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG theGris.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -267,7 +292,7 @@ RETURN
 
 --Declaration de la methode couleur de type de retour Couleur.
 couleur: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG coul.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -278,7 +303,7 @@ RETURN
 
 --Declaration de la methode colore de type de retour Integer.
 colore: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers coul
 
 --estGris affiche la chaine suivante :
@@ -296,7 +321,7 @@ RETURN
 
 --Declaration de la methode clone de type de retour Point.
 clone: 	
---Methode avec un type....
+--Methode avec un type de retour.
 ALLOC 3
 DUPN 1
 PUSHG x.adresse()
@@ -313,7 +338,7 @@ RETURN
 
 --Declaration de la methode estGris de type de retour Integer.
 estGris: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers coul
 
 --estGris affiche la chaine suivante :
@@ -330,7 +355,7 @@ RETURN
 print: 	PUSHL -1
 LOAD 0
 PUSHG verbose.adresse()
-JZ else4
+JZ else6
 --IL Y AURA UN ENVOI vers "Inside PointColore::print"
 
 --println affiche la chaine suivante :
@@ -338,18 +363,18 @@ PUSHS "Inside PointColore::print"
 WRITES
 PUSHS "\n"
 WRITES
-JUMP endif5
-else4:
-endif5: NOP
+JUMP endif7
+else6:
+endif7: NOP
 --IL Y AURA UN ENVOI vers super
 
 --print affiche la chaine suivante :
 PUSHG super.adresse()
 WRITES
---IL Y AURA UN ENVOI vers `W
+--IL Y AURA UN ENVOI vers @‚!
 
 --println affiche la chaine suivante :
---IL Y AURA UN ENVOI vers ¿V
+--IL Y AURA UN ENVOI vers ∞‡!
 
 --name affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers this
@@ -374,7 +399,7 @@ RETURN
 
 --Declaration de la methode estGris de type de retour Integer.
 estGris: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHI 0
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -385,7 +410,7 @@ RETURN
 
 --Declaration de la methode colore de type de retour Integer.
 colore: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHI 1
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -396,7 +421,7 @@ RETURN
 
 --Declaration de la methode couleur de type de retour Couleur.
 couleur: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers CouleurFactory
 
 --noir affiche la chaine suivante :
@@ -411,7 +436,7 @@ RETURN
 
 --Declaration de la methode estGris de type de retour Integer.
 estGris: 	
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHI 0
 --stocke le resultat a son emplacement
 PUSHL -1
@@ -422,7 +447,7 @@ RETURN
 
 --Declaration de la methode couleur de type de retour Couleur.
 couleur: 	
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers CouleurFactory
 
 --blanc affiche la chaine suivante :
@@ -473,15 +498,15 @@ PUSHG p2.adresse()
 PUSHI 0
 EQUAL
 NOT
-JZ else6
+JZ else8
 Affectation : ident "colore"
 PUSHS "colore"
 STOREG c.adresse()
-JUMP endif7
-else6:Affectation : ident "gris"
+JUMP endif9
+else8:Affectation : ident "gris"
 PUSHS "gris"
 STOREG c.adresse()
-endif7: NOP
+endif9: NOP
 --IL Y AURA UN ENVOI vers "Appel 2: "
 
 --println affiche la chaine suivante :
@@ -497,15 +522,15 @@ PUSHG p3.adresse()
 PUSHI 0
 EQUAL
 NOT
-JZ else8
+JZ else10
 Affectation : ident "colore"
 PUSHS "colore"
 STOREG c2.adresse()
-JUMP endif9
-else8:Affectation : ident "gris"
+JUMP endif11
+else10:Affectation : ident "gris"
 PUSHS "gris"
 STOREG c2.adresse()
-endif9: NOP
+endif11: NOP
 --IL Y AURA UN ENVOI vers "Appel 3: "
 
 --println affiche la chaine suivante :
@@ -521,15 +546,15 @@ PUSHG p3.adresse()
 PUSHI 0
 EQUAL
 NOT
-JZ else10
+JZ else12
 Affectation : ident "colore"
 PUSHS "colore"
 STOREG c3.adresse()
-JUMP endif11
-else10:Affectation : ident "gris"
+JUMP endif13
+else12:Affectation : ident "gris"
 PUSHS "gris"
 STOREG c3.adresse()
-endif11: NOP
+endif13: NOP
 --IL Y AURA UN ENVOI vers "Resultats de test: "
 
 --println affiche la chaine suivante :
@@ -579,10 +604,10 @@ RETURN
 --Declaration de la methode test2 de type de retour Void.
 test2: 	PUSHL -1
 LOAD 0
---IL Y AURA UN ENVOI vers @ï
+--IL Y AURA UN ENVOI vers ‡|"
 
 --print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers †î
+--IL Y AURA UN ENVOI vers P{"
 
 --name affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers p
@@ -622,7 +647,7 @@ LOAD 0
 PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
 PUSHG x.adresse()
 PUSHG y.adresse()
 ADD
@@ -655,7 +680,7 @@ STOREG v.adresse()
 --f affiche la chaine suivante :
 PUSHG this.adresse()
 PUSHG this.adresse()
---IL Y AURA UN ENVOI vers –©
+--IL Y AURA UN ENVOI vers  ∞"
 
 --f affiche la chaine suivante :
 PUSHS A
@@ -673,7 +698,7 @@ LOAD 0
 PUSHL -1
 LOAD 0
 
---Methode avec un type....
+--Methode avec un type de retour.
 --IL Y AURA UN ENVOI vers super
 
 --h affiche la chaine suivante :
@@ -728,6 +753,7 @@ STORE 0
 --move affiche la chaine suivante :
 PUSHG p2.adresse()
 PUSHG p2.adresse()
+--Envoi : m√©thode move de la class Point
 PUSHG 0
 PUSHG 1
 PUSHG 2
@@ -746,6 +772,7 @@ PUSHG o.adresse()
 --move affiche la chaine suivante :
 PUSHG p2.adresse()
 PUSHG p2.adresse()
+--Envoi : m√©thode move de la class Point
 PUSHG 0
 PUSHG 1
 PUSHG 2
@@ -764,7 +791,7 @@ WRITES
 --print affiche la chaine suivante :
 PUSHG p2.adresse()
 WRITES
---IL Y AURA UN ENVOI vers `‘
+--IL Y AURA UN ENVOI vers p#
 
 --print affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers o
@@ -772,6 +799,7 @@ WRITES
 --clone affiche la chaine suivante :
 PUSHG o.adresse()
 PUSHG o.adresse()
+--Envoi : m√©thode clone de la class PointColore
 
 --Appel de la methode clone.
 PUSHA clone
@@ -781,7 +809,7 @@ WRITES
 --IL Y AURA UN ENVOI vers 
 
 --print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers `÷
+--IL Y AURA UN ENVOI vers p#
 
 --move affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers o
@@ -789,6 +817,7 @@ WRITES
 --clone affiche la chaine suivante :
 PUSHG o.adresse()
 PUSHG o.adresse()
+--Envoi : m√©thode clone de la class PointColore
 
 --Appel de la methode clone.
 PUSHA clone
@@ -799,6 +828,7 @@ POPN 0
 --clone affiche la chaine suivante :
 PUSHG o.adresse()
 PUSHG o.adresse()
+--Envoi : m√©thode clone de la class PointColore
 
 --Appel de la methode clone.
 PUSHA clone
@@ -810,8 +840,8 @@ WRITES
 --allClones affiche la chaine suivante :
 PUSHG o.adresse()
 PUSHG o.adresse()
-Affectation : ident 
---IL Y AURA UN ENVOI vers `€
+Affectation : ident Ä-#
+--IL Y AURA UN ENVOI vers +#
 
 --move affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers p1
@@ -819,6 +849,7 @@ Affectation : ident
 --clone affiche la chaine suivante :
 PUSHG p1.adresse()
 PUSHG p1.adresse()
+--Envoi : m√©thode clone de la class Point
 
 --Appel de la methode clone.
 PUSHA clone
@@ -829,6 +860,7 @@ POPN 0
 --clone affiche la chaine suivante :
 PUSHG p1.adresse()
 PUSHG p1.adresse()
+--Envoi : m√©thode clone de la class Point
 
 --Appel de la methode clone.
 PUSHA clone
@@ -840,7 +872,7 @@ STOREG p1.adresse()
 --print affiche la chaine suivante :
 PUSHG p1.adresse()
 WRITES
---IL Y AURA UN ENVOI vers ‡ﬂ
+--IL Y AURA UN ENVOI vers 07#
 
 --print affiche la chaine suivante :
 --IL Y AURA UN ENVOI vers o
@@ -848,6 +880,7 @@ WRITES
 --clone affiche la chaine suivante :
 PUSHG o.adresse()
 PUSHG o.adresse()
+--Envoi : m√©thode clone de la class PointColore
 
 --Appel de la methode clone.
 PUSHA clone

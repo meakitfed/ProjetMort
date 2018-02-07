@@ -133,11 +133,11 @@ MethodeP getMethodeFromName(ClasseP classe, char *nom)
 
 
 /* Retourne la variable correspondant à un nom
- * à partir de l'environnement de variables globales
+ * à partir de l'environnement de variables 
  */
 VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche pas, ScopeP env est vide*/
 {
-	/*ScopeP env : env de variables globales*/
+	/*ScopeP env : env de variables*/
 	LVarDeclP temp = env->env;
 
 	while(temp != NULL)
@@ -407,16 +407,23 @@ void codeExpr(TreeP tree)
  */
 void codeLInstr(TreeP tree)
 {
-
-	if(tree->nbChildren == 2)
+	if(tree->op == 11)
 	{
-		codeInstr(getChild(tree, 0));
-		codeLInstr(getChild(tree, 1));
+		if(tree->nbChildren == 2)
+		{
+			codeInstr(getChild(tree, 0));
+			codeLInstr(getChild(tree, 1));
+		}
+		else
+		{
+			codeInstr(tree);  
+		}
 	}
 	else
 	{
-		codeInstr(tree);  
+		codeExpr(tree);
 	}
+
 }
 
 
@@ -424,7 +431,7 @@ void codeLInstr(TreeP tree)
  * du type indiqué en paramètre.
  * Permet d'obtenir if3 ou else10 par exemple.
  */
-char * makeLabel(char *type)
+char *makeLabel(char *type)
 {
 	static char buf[30];
 	static int cpt;
@@ -486,14 +493,14 @@ void codeInstr(TreeP tree)
 
 		codeExpr(getChild(tree, 0));   
 		printf("YEXPR\n");
-	   /* POPN(1); a quoi sert-il ?*/
+	   														/*TODO : il faut un POPN(1) ici; a quoi sert-il ?*/
 		break;
 
 	/*atteignable à travers Bloc ;*/
 	/*Generation du code d'un bloc*/
-	case YCONT:                 			/*LDeclChamp IS LInstr */
+	case YCONT:                 			/*Contenu := LDeclChamp IS LInstr */
 
-		fprintf(output, "--########Bloc de type LDeclChamp IS LInstr--\n");
+		fprintf(output, "--########DEBUG : Bloc de type LDeclChamp IS LInstr--\n");
 		/*LdeclChamp = list variables locales*/
 		codeLDeclChamp(getChild(tree, 0));
 		codeLInstr(getChild(tree, 1));
@@ -502,22 +509,22 @@ void codeInstr(TreeP tree)
 
 	/*atteignable à travers Bloc ;*/
 	/*Generation du code d'un bloc*/
-	case LINSTR:        
+	case LINSTR:        					/*liste d'instr*/
 		codeLInstr(tree);
 		printf("LINSTR\n");
 		break;
 	
-	case YRETURN:                            /*modifier tp.y et tp.h pour y ajouter YRETURN!!!!!!!!!!!!!!!!!!!!!!!!!	$$ = makeTree(YRETURN, 0); */
+	case YRETURN:                           /*$$ = makeTree(YRETURN, 0); */
 		CRETURN();
 		printf("YRETURN\n");
 		break;
 	
-	case EAFF:
+	case EAFF:								/*Selection := Expr*/
 		codeAff(tree);
 		printf("EAFF\n");
 		break;
 
-	case YITE:
+	case YITE:								/*Bloc if then else*/
 		codeITE(tree);
 		break;
 
@@ -567,7 +574,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 /*Génère le code d'un envoi*/ 
 void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 {
-	/*TODO*/
+	
 	fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
 	TreeP Expr = getChild(tree, 0);										
 	TreeP MethodeC = getChild(tree, 1);
@@ -597,7 +604,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 			if(tempMethode)
 			{
 				LVarDeclP tempParam = tempMethode->lparametres;
-				printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
+				if(verbose) fprintf(output, "--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
 
 				tailleParam = 0; 
 				while(tempParam != NULL) 
@@ -923,8 +930,8 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 		}
 		else
 		{
-			 if(verbose) fprintf(output,"\n--Methode avec un type....\n"); /*TODO : pas qqc de general. */
-			 codeExpr(tree);											/*On peut avoir une liste d'instr mais ma fct pour list instr est mal concue.*/
+			 if(verbose) fprintf(output,"\n--Methode avec un type de retour.\n"); /*TODO : pas qqc de general. */
+			 codeLInstr(tree);											/*On peut avoir une liste d'instr mais ma fct pour list instr est mal concue.*/
 		}
 
 		if(verbose) fprintf(output, "--stocke le resultat a son emplacement\n");
