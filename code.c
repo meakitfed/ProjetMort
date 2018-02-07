@@ -682,6 +682,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 					char *type = temp->type->nom;
 			ClasseP classeType = getClassePointer(type);
 
+			/*TODO : savoir si on est dans une méthode ou pas*/
 						/*???if (in_method) PUSHL_addr(expr->u.str); else*/ 
 						/*???PUSHG_addr(expr->u.str);*/
 			fprintf(output,"PUSHG %s.adresse()\n", Expr->u.str);
