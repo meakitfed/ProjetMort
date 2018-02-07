@@ -1,31 +1,22 @@
 
 
---Declaration de la methode getx de type de retour Integer.
-getx: 	
---Methode avec un type....
-PUSHG x.adresse()
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode gety de type de retour Integer.
-gety: 	
---Methode avec un type....
---IL Y AURA UNE SELECTION ICI;
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode getz de type de retour Integer.
-getz: 	
+--Declaration de la methode incr de type de retour Integer.
+incr: 	
 --Methode avec un type....
 PUSHG result.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode howMany de type de retour Integer.
+howMany: 	
+--Methode avec un type....
+PUSHG next.adresse()
+PUSHI 1
+SUB
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -46,11 +37,191 @@ STORE 0
 RETURN
 
 
+--Declaration de la methode getx de type de retour Integer.
+getx: 	
+--Methode avec un type....
+--IL Y AURA UNE SELECTION ICI;
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode gety de type de retour Integer.
+gety: 	
+--Methode avec un type....
+--IL Y AURA UNE SELECTION ICI;
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode cloned de type de retour Integer.
+cloned: 	
+--Methode avec un type....
+PUSHG hasClone.adresse()
+PUSHI 0
+EQUAL
+NOT
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode move de type de retour Point.
+move: 	PUSHL -3
+LOAD 0
+PUSHL -2
+LOAD 0
+PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+PUSHG x.adresse()
+--stocke le resultat a son emplacement
+PUSHL -4
+SWAP
+STORE 0
+RETURN
+
+
 --Declaration de la methode print de type de retour Void.
-print: 	--IL Y AURA UN ENVOI vers name
+print: 	PUSHL -1
+LOAD 0
+PUSHG verbose.adresse()
+JZ else0
+--IL Y AURA UN ENVOI vers "Inside Point::print"
 
 --println affiche la chaine suivante :
+PUSHS "Inside Point::print"
+WRITES
+PUSHS "\n"
+WRITES
+JUMP endif1
+else0:
+endif1: NOP
+--IL Y AURA UN ENVOI vers name
+
+--print affiche la chaine suivante :
 PUSHG name.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers ü
+
+--println affiche la chaine suivante :
+PUSHS "= ("
+--IL Y AURA UN ENVOI vers x
+
+--toString affiche la chaine suivante :
+PUSHG x.adresse()
+PUSHG x.adresse()
+CONCAT
+PUSHS ", "
+CONCAT
+--IL Y AURA UN ENVOI vers y
+
+--toString affiche la chaine suivante :
+PUSHG y.adresse()
+PUSHG y.adresse()
+CONCAT
+PUSHS ")"
+CONCAT
+WRITES
+PUSHS "\n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode clone de type de retour Point.
+clone: 	
+--Methode avec un type....
+--IL Y AURA UNE SELECTION ICI;
+PUSHI 1
+EQUAL
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode allClones de type de retour Void.
+allClones: 	PUSHG hasClone.adresse()
+PUSHI 0
+EQUAL
+NOT
+JZ else2
+--IL Y AURA UN ENVOI vers this
+
+--print affiche la chaine suivante :
+PUSHG this.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers P	
+
+--allClones affiche la chaine suivante :
+--IL Y AURA UNE SELECTION ICI;
+--IL Y AURA UNE SELECTION ICI;
+JUMP endif3
+else2:
+endif3: NOP
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode egal de type de retour Integer.
+egal: 	PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode egal2 de type de retour Integer.
+egal2: 	PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode name de type de retour String.
+name: 	PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode estGris de type de retour Integer.
+estGris: 	
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers "Inside Couleur::estGris"
+
+--println affiche la chaine suivante :
+PUSHS "Inside Couleur::estGris"
 WRITES
 PUSHS "\n"
 WRITES
@@ -61,120 +232,10 @@ STORE 0
 RETURN
 
 
---Declaration de la methode printAll de type de retour Void.
-printAll: 	--IL Y AURA UN ENVOI vers p.e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers Ð-e
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---getx affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---getx affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers p2e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers Ð1e
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---gety affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---gety affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers p6e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers Ð5e
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---getz affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---getz affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers Ð9e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w
-
---toString affiche la chaine suivante :
-PUSHG w.adresse()
-PUSHG w.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers =e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w2
-
---toString affiche la chaine suivante :
-PUSHG w2.adresse()
-PUSHG w2.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers P@e
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w3
-
---toString affiche la chaine suivante :
-PUSHG w3.adresse()
-PUSHG w3.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers this
-
---print affiche la chaine suivante :
-PUSHG this.adresse()
-WRITES
+--Declaration de la methode blanc de type de retour Couleur.
+blanc: 	
+--Methode avec un type....
+PUSHG theBlanc.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
@@ -182,56 +243,821 @@ STORE 0
 RETURN
 
 
---Declaration de la methode methodeTest de type de retour Void.
-methodeTest: 	PUSHI 3
-PUSHI 4
+--Declaration de la methode noir de type de retour Couleur.
+noir: 	
+--Methode avec un type....
+PUSHG theNoir.adresse()
 --stocke le resultat a son emplacement
 PUSHL -1
 SWAP
 STORE 0
 RETURN
-START
+
+
+--Declaration de la methode gris de type de retour Couleur.
+gris: 	
+--Methode avec un type....
+PUSHG theGris.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode couleur de type de retour Couleur.
+couleur: 	
+--Methode avec un type....
+PUSHG coul.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode colore de type de retour Integer.
+colore: 	
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers coul
+
+--estGris affiche la chaine suivante :
+PUSHG coul.adresse()
+PUSHG coul.adresse()
+PUSHI 0
+EQUAL
+NOT
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode clone de type de retour Point.
+clone: 	
+--Methode avec un type....
+ALLOC 3
+DUPN 1
+PUSHG x.adresse()
+STORE 0
+DUPN 1
+PUSHG y.adresse()
+STORE 2
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode estGris de type de retour Integer.
+estGris: 	
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers coul
+
+--estGris affiche la chaine suivante :
+PUSHG coul.adresse()
+PUSHG coul.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode print de type de retour Void.
+print: 	PUSHL -1
+LOAD 0
+PUSHG verbose.adresse()
+JZ else4
+--IL Y AURA UN ENVOI vers "Inside PointColore::print"
+
+--println affiche la chaine suivante :
+PUSHS "Inside PointColore::print"
+WRITES
+PUSHS "\n"
+WRITES
+JUMP endif5
+else4:
+endif5: NOP
+--IL Y AURA UN ENVOI vers super
+
+--print affiche la chaine suivante :
+PUSHG super.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers `W
+
+--println affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers ÀV
+
+--name affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers this
+
+--couleur affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--couleur affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
+PUSHS "\n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode estGris de type de retour Integer.
+estGris: 	
+--Methode avec un type....
+PUSHI 0
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode colore de type de retour Integer.
+colore: 	
+--Methode avec un type....
+PUSHI 1
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode couleur de type de retour Couleur.
+couleur: 	
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers CouleurFactory
+
+--noir affiche la chaine suivante :
+PUSHS CouleurFactory
+PUSHS CouleurFactory
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode estGris de type de retour Integer.
+estGris: 	
+--Methode avec un type....
+PUSHI 0
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode couleur de type de retour Couleur.
+couleur: 	
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers CouleurFactory
+
+--blanc affiche la chaine suivante :
+PUSHS CouleurFactory
+PUSHS CouleurFactory
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode test de type de retour Void.
+test: 	PUSHL -3
+LOAD 0
+PUSHL -2
+LOAD 0
+PUSHL -1
+LOAD 0
 --########Bloc de type LDeclChamp IS LInstr--
 --DeclChamp.
---Var p1 : ALLOC 2
+--Var c : --DeclChamp.
+--Var c2 : --DeclChamp.
+--Var c3 : --DeclChamp.
+--Var true : PUSHI 1
+--IL Y AURA UN ENVOI vers p
+
+--print affiche la chaine suivante :
+PUSHG p.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers p2
+
+--print affiche la chaine suivante :
+PUSHG p2.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers "Appel 1: "
+
+--println affiche la chaine suivante :
+PUSHS "Appel 1: "
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers p2
+
+--colore affiche la chaine suivante :
+PUSHG p2.adresse()
+PUSHG p2.adresse()
+PUSHI 0
+EQUAL
+NOT
+JZ else6
+Affectation : ident "colore"
+PUSHS "colore"
+STOREG c.adresse()
+JUMP endif7
+else6:Affectation : ident "gris"
+PUSHS "gris"
+STOREG c.adresse()
+endif7: NOP
+--IL Y AURA UN ENVOI vers "Appel 2: "
+
+--println affiche la chaine suivante :
+PUSHS "Appel 2: "
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers p3
+
+--colore affiche la chaine suivante :
+PUSHG p3.adresse()
+PUSHG p3.adresse()
+PUSHI 0
+EQUAL
+NOT
+JZ else8
+Affectation : ident "colore"
+PUSHS "colore"
+STOREG c2.adresse()
+JUMP endif9
+else8:Affectation : ident "gris"
+PUSHS "gris"
+STOREG c2.adresse()
+endif9: NOP
+--IL Y AURA UN ENVOI vers "Appel 3: "
+
+--println affiche la chaine suivante :
+PUSHS "Appel 3: "
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers p3
+
+--colore affiche la chaine suivante :
+PUSHG p3.adresse()
+PUSHG p3.adresse()
+PUSHI 0
+EQUAL
+NOT
+JZ else10
+Affectation : ident "colore"
+PUSHS "colore"
+STOREG c3.adresse()
+JUMP endif11
+else10:Affectation : ident "gris"
+PUSHS "gris"
+STOREG c3.adresse()
+endif11: NOP
+--IL Y AURA UN ENVOI vers "Resultats de test: "
+
+--println affiche la chaine suivante :
+PUSHS "Resultats de test: "
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers c
+
+--print affiche la chaine suivante :
+PUSHG c.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers c2
+
+--print affiche la chaine suivante :
+PUSHG c2.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers c3
+
+--print affiche la chaine suivante :
+PUSHG c3.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers ""
+
+--println affiche la chaine suivante :
+PUSHS ""
+WRITES
+PUSHS "\n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -4
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode test2 de type de retour Void.
+test2: 	PUSHL -1
+LOAD 0
+--IL Y AURA UN ENVOI vers @•
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers  ”
+
+--name affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers p
+
+--couleur affiche la chaine suivante :
+PUSHG p.adresse()
+PUSHG p.adresse()
+--IL Y AURA UN ENVOI vers p
+
+--couleur affiche la chaine suivante :
+PUSHG p.adresse()
+PUSHG p.adresse()
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode f de type de retour Void.
+f: 	--IL Y AURA UN ENVOI vers "A::f()\"n"
+
+--print affiche la chaine suivante :
+PUSHS "A::f()\"n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode h de type de retour Integer.
+h: 	PUSHL -2
+LOAD 0
+PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+PUSHG x.adresse()
+PUSHG y.adresse()
+ADD
+--stocke le resultat a son emplacement
+PUSHL -3
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode f de type de retour Void.
+f: 	--IL Y AURA UN ENVOI vers "A2::f()\"n"
+
+--print affiche la chaine suivante :
+PUSHS "A2::f()\"n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode g de type de retour Void.
+g: 	Affectation : ident "world"
+PUSHS "world"
+STOREG v.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--f affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers Ð©
+
+--f affiche la chaine suivante :
+PUSHS A
+PUSHS A
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode h de type de retour Integer.
+h: 	PUSHL -2
+LOAD 0
+PUSHL -1
+LOAD 0
+
+--Methode avec un type....
+--IL Y AURA UN ENVOI vers super
+
+--h affiche la chaine suivante :
+PUSHG super.adresse()
+PUSHG super.adresse()
+--stocke le resultat a son emplacement
+PUSHL -3
+SWAP
+STORE 0
+RETURN
+main: 	START
+--########Bloc de type LDeclChamp IS LInstr--
+--DeclChamp.
+--Var true : PUSHI 1
+--DeclChamp.
+--Var p1 : ALLOC 3
 DUPN 1
 PUSHI 1
 STORE 0
+DUPN 1
+PUSHI 5
+STORE 2
 --DeclChamp.
---Var p2 : ALLOC 2
+--Var p2 : ALLOC 3
 DUPN 1
 PUSHI 2
 STORE 0
+DUPN 1
+PUSHI 3
+STORE 2
+--DeclChamp.
+--Var p3 : ALLOC 3
+--DeclChamp.
+--Var o : ALLOC 3
+DUPN 1
+PUSHI 0
+STORE 0
+DUPN 1
+PUSHI 0
+STORE 2
+--DeclChamp.
+--Var pn : ALLOC 2
+DUPN 1
+PUSHI 1
+PUSHI 1
+ADD
+STORE 0
+--DeclChamp.
+--Var dp : ALLOC 0
 --IL Y AURA UN ENVOI vers p2
 
---setName affiche la chaine suivante :
+--move affiche la chaine suivante :
 PUSHG p2.adresse()
 PUSHG p2.adresse()
 PUSHG 0
+PUSHG 1
+PUSHG 2
 
---Appel de la methode setName.
-PUSHA setName
+--Appel de la methode move.
+PUSHA move
 CALL
-POPN 1
---IL Y AURA UN ENVOI vers p1
+POPN 3
+--IL Y AURA UN ENVOI vers o
 
---printAll affiche la chaine suivante :
-PUSHG p1.adresse()
-PUSHG p1.adresse()
-
---Appel de la methode printAll.
-PUSHA printAll
-CALL
-POPN 0
+--setName affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
 --IL Y AURA UN ENVOI vers p2
 
---printAll affiche la chaine suivante :
+--move affiche la chaine suivante :
 PUSHG p2.adresse()
 PUSHG p2.adresse()
+PUSHG 0
+PUSHG 1
+PUSHG 2
 
---Appel de la methode printAll.
-PUSHA printAll
+--Appel de la methode move.
+PUSHA move
+CALL
+POPN 3
+--IL Y AURA UN ENVOI vers o
+
+--print affiche la chaine suivante :
+PUSHG o.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers p2
+
+--print affiche la chaine suivante :
+PUSHG p2.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers `Ô
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers o
+
+--clone affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
 CALL
 POPN 0
+WRITES
+--IL Y AURA UN ENVOI vers 
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers `Ö
+
+--move affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers o
+
+--clone affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
+CALL
+POPN 0
+--IL Y AURA UN ENVOI vers o
+
+--clone affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
+CALL
+POPN 0
+WRITES
+--IL Y AURA UN ENVOI vers o
+
+--allClones affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
+Affectation : ident 
+--IL Y AURA UN ENVOI vers `Û
+
+--move affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers p1
+
+--clone affiche la chaine suivante :
+PUSHG p1.adresse()
+PUSHG p1.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
+CALL
+POPN 0
+--IL Y AURA UN ENVOI vers p1
+
+--clone affiche la chaine suivante :
+PUSHG p1.adresse()
+PUSHG p1.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
+CALL
+POPN 0
+STOREG p1.adresse()
+--IL Y AURA UN ENVOI vers p1
+
+--print affiche la chaine suivante :
+PUSHG p1.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers àß
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers o
+
+--clone affiche la chaine suivante :
+PUSHG o.adresse()
+PUSHG o.adresse()
+
+--Appel de la methode clone.
+PUSHA clone
+CALL
+POPN 0
+WRITES
+--IL Y AURA UN ENVOI vers "test(Point, PointColore, PointNoir)"
+
+--println affiche la chaine suivante :
+PUSHS "test(Point, PointColore, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers Test
+
+--test affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+--IL Y AURA UN ENVOI vers "test(PointNoir, PointNoir, PointNoir)"
+
+--println affiche la chaine suivante :
+PUSHS "test(PointNoir, PointNoir, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers Test
+
+--test affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+Affectation : ident pn
+PUSHG pn.adresse()
+STOREG p1.adresse()
+--IL Y AURA UN ENVOI vers Test
+
+--test2 affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+--IL Y AURA UN ENVOI vers Test
+
+--test2 affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+Affectation : ident pn
+PUSHG pn.adresse()
+STOREG o.adresse()
+--IL Y AURA UN ENVOI vers "test(PointNoir, PointNoir, PointNoir)"
+
+--println affiche la chaine suivante :
+PUSHS "test(PointNoir, PointNoir, PointNoir)"
+WRITES
+PUSHS "\n"
+WRITES
+--IL Y AURA UN ENVOI vers Test
+
+--test affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+--IL Y AURA UN ENVOI vers Test
+
+--test2 affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+--IL Y AURA UN ENVOI vers Test
+
+--test2 affiche la chaine suivante :
+PUSHS Test
+PUSHS Test
+--IL Y AURA UN ENVOI vers "\nDone"
+
+--println affiche la chaine suivante :
+PUSHS "\nDone"
+WRITES
+PUSHS "\n"
+WRITES
 STOP
+
+--------Initialiser les tables virtuelles.--------
+
+
+--Classe CptPoint
+ALLOC 2
+PUSHA incr
+STORE 0
+DUPN 1
+PUSHA howMany
+STORE 1
+DUPN 1
+
+--Classe Point
+ALLOC 10
+PUSHA setName
+STORE 0
+DUPN 1
+PUSHA getx
+STORE 1
+DUPN 1
+PUSHA gety
+STORE 2
+DUPN 1
+PUSHA cloned
+STORE 3
+DUPN 1
+PUSHA move
+STORE 4
+DUPN 1
+PUSHA print
+STORE 5
+DUPN 1
+PUSHA clone
+STORE 6
+DUPN 1
+PUSHA allClones
+STORE 7
+DUPN 1
+PUSHA egal
+STORE 8
+DUPN 1
+PUSHA egal2
+STORE 9
+DUPN 1
+
+--Classe Couleur
+ALLOC 2
+PUSHA name
+STORE 0
+DUPN 1
+PUSHA estGris
+STORE 1
+DUPN 1
+
+--Classe CouleurFactory
+ALLOC 3
+PUSHA blanc
+STORE 0
+DUPN 1
+PUSHA noir
+STORE 1
+DUPN 1
+PUSHA gris
+STORE 2
+DUPN 1
+
+--Classe PointColore
+ALLOC 5
+PUSHA couleur
+STORE 0
+DUPN 1
+PUSHA colore
+STORE 1
+DUPN 1
+PUSHA clone
+STORE 2
+DUPN 1
+PUSHA estGris
+STORE 3
+DUPN 1
+PUSHA print
+STORE 4
+DUPN 1
+
+--Classe PointNoir
+ALLOC 3
+PUSHA estGris
+STORE 0
+DUPN 1
+PUSHA colore
+STORE 1
+DUPN 1
+PUSHA couleur
+STORE 2
+DUPN 1
+
+--Classe DefaultPoint
+ALLOC 2
+PUSHA estGris
+STORE 0
+DUPN 1
+PUSHA couleur
+STORE 1
+DUPN 1
+
+--Classe Test
+ALLOC 2
+PUSHA test
+STORE 0
+DUPN 1
+PUSHA test2
+STORE 1
+DUPN 1
+
+--Classe A
+ALLOC 2
+PUSHA f
+STORE 0
+DUPN 1
+PUSHA h
+STORE 1
+DUPN 1
+
+--Classe A2
+ALLOC 3
+PUSHA f
+STORE 0
+DUPN 1
+PUSHA g
+STORE 1
+DUPN 1
+PUSHA h
+STORE 2
+DUPN 1
+JUMP main
 

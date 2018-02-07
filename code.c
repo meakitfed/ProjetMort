@@ -25,7 +25,7 @@ extern int verbose;
 void NOP() {fprintf(output, "NOP\n");}
 
 /*ERR str, START, STOP*/
-void PUSHI(int i) {fprintf(output, "PUSHI %d\n", i); printf("PUSHHHHHHH---");}
+void PUSHI(int i) {fprintf(output, "PUSHI %d\n", i);}
 void PUSHS(char *c) {fprintf(output, "PUSHS %s\n", c);}
 void PUSHG(int a) {fprintf(output, "PUSHG %d\n", a);}
 void PUSHL(int a) {fprintf(output, "PUSHL %d\n", a);}
@@ -847,11 +847,11 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
 
 
-	fprintf(output, "--DeclChamp.\n");
+	if(verbose) fprintf(output, "--DeclChamp.\n");
 
 	fprintf(output,"--Var %s : ", tree->u.var->nom);
 
-	printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
+	if(verbose) printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
 	
 	/*ajouter la nouvelle instance à la liste*/
 	addVarEnv(tree->u.var, NIL(Classe));	/*TODO? Environnement de classe*/
@@ -900,7 +900,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 	if(tree != NULL)
 	{   
  
-		fprintf(output,"\n\n--Declaration de la methode %s de type de retour %s.\n", methode->nom, methode->typeDeRetour->nom);
+		if(verbose) fprintf(output,"\n\n--Declaration de la methode %s de type de retour %s.\n", methode->nom, methode->typeDeRetour->nom);
 		fprintf(output, "%s: \t", methode->nom);
 
 		/*Empilement des paramètres de la méthode*/
@@ -945,7 +945,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 /*Génère le code d'une classe*/
 void codeClasse(ClasseP classe)
 {
-	printf(">Generation du code d'une classe : %s\n", classe->nom);
+	if(verbose) printf(">Generation du code d'une classe : %s\n", classe->nom);
 
 	/*TODO : constructeur qui permet d'instancier les variables de la classe*/
 
@@ -961,17 +961,103 @@ void codeClasse(ClasseP classe)
 
 void codeLClasse()
 {
-	printf(">Generation du code d'une liste de classe...\n");
+	if(verbose) printf(">Generation du code d'une liste de classe...\n");
 
 	/*Variable globale LClasse*/
 	LClasseP liste = lclasse;
 
 	/*Parcours l'environnement de classe*/
-	while(liste != NULL)
+	while(liste != NIL(LClasse))
 	{
 		codeClasse(liste->classe);
 		liste = liste->next;
 	}
+}
+
+/* retourne la taille d'une liste de methodes */
+int getTailleListeMethode(LMethodeP liste)
+{
+    int i = 0;
+    if(liste != NIL(LMethode))
+    {
+        LMethodeP tmp = liste;
+        while(tmp != NIL(LMethode))
+        {
+            i++;
+            tmp = tmp->next;
+        }
+    }
+    return i;
+}
+
+void codeTV()
+{
+	int nbMethodes = 0;
+	int cptStore = 0;
+	if(verbose) printf(">Generation de la table virtuelle...\n");
+
+	fprintf(output, "--------Initialiser les tables virtuelles.--------\n\n");
+	/*Variable globale LClasse*/
+	LClasseP liste = lclasse;
+
+	/*Parcours l'environnement de classe*/
+	while(liste != NIL(LClasse))
+	{
+		if((strcmp(liste->classe->nom, "Integer") != 0) && (strcmp(liste->classe->nom, "String") != 0) && (strcmp(liste->classe->nom, "Void") != 0))
+		{
+			cptStore = 0;
+			if(verbose) fprintf(output, "\n--Classe %s\n",liste->classe->nom);
+
+			LMethodeP lmethodes = liste->classe->lmethodes;
+			nbMethodes = getTailleListeMethode(lmethodes);
+
+			ALLOC(nbMethodes);
+
+			while(lmethodes != NIL(LMethode))
+			{
+				PUSHA(lmethodes->methode->nom);
+				STORE(cptStore);
+				DUPN(1);
+
+				cptStore++;
+				lmethodes = lmethodes->next;
+			}
+		}
+
+		liste = liste->next;
+	}
+	JUMP("main");
+	fprintf(output, "\n");
+
+	/*TODO : les méthodes call i*/
+
+
+	/*-- invoquer 1ere methode du receveur
+call1:	PUSHL -1	-- le recepteur
+	DUPN 1
+	LOAD 0 -- charger TV
+	LOAD 0 -- charger @methode1
+	CALL
+	RETURN
+	*/
+
+
+	/*dans le main
+
+
+		-- invoquer la premiere methode sur a: m1
+	PUSHL 0
+	PUSHA call1
+	CALL
+	POPN 1
+	-- invoquer la seconde methode sur a: m2
+	PUSHL 0
+	PUSHA call2
+	CALL
+	POPN 1
+
+
+	*/
 }
 
 
@@ -987,7 +1073,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 		codeLClasse();
 
 		/*Generation de code du bloc principal*/
-		fprintf(output, "START\n");
+		fprintf(output, "main: \tSTART\n");
 		codeInstr(Bloc);
 		fprintf(output, "STOP\n");
 
@@ -995,6 +1081,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 		/*saut de ligne nécessaire à la fin du programme, 
 		sans quoi il y a une erreur*/
 		fprintf(output, "\n");
+		codeTV();
 
 		fclose(output);
 	}
