@@ -673,6 +673,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 	TreeP Expr = getChild(tree,0);
 	TreeP Ident = getChild(tree,1);
 
+	/*cas de select ::= Id . Id*/
 	if(Expr->op == Id)
 	{
 		VarDeclP temp = getVarDeclFromName(Expr->u.str);
@@ -689,7 +690,9 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 			LOAD(offset);
 		}
 	}
-	else /*Select ::= expr . Id*/
+
+	/*cas de select ::= expr . Id*/
+	else 
 	{
 		codeExpr(getChild(tree, 0));
 		/*TODO trouver la classe de Expr :( parcourir la liste d'instances ? */
