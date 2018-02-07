@@ -14,7 +14,7 @@ extern int yylineno;
 /* Peut servir a controloer le niveau de 'verbosite'.
  * Par defaut, n'imprime que le resultat et les messages d'erreur
  */
-bool verbose = FALSE;
+bool verbose = TRUE;
 
 /* Peut servir a controler la generation de code. Par defaut, on produit le code
  * On pourrait avoir un flag similaire pour s'arreter avant les verifications

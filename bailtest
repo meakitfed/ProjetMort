@@ -1,0 +1,237 @@
+
+
+--Declaration de la methode getx de type de retour Integer.
+getx: 	
+--Methode avec un type....
+PUSHG x.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode gety de type de retour Integer.
+gety: 	
+--Methode avec un type....
+--IL Y AURA UNE SELECTION ICI;
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode getz de type de retour Integer.
+getz: 	
+--Methode avec un type....
+PUSHG result.adresse()
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode setName de type de retour Void.
+setName: 	PUSHL -1
+LOAD 0
+Affectation : ident s
+PUSHG s.adresse()
+STOREG name.adresse()
+--stocke le resultat a son emplacement
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode print de type de retour Void.
+print: 	--IL Y AURA UN ENVOI vers name
+
+--println affiche la chaine suivante :
+PUSHG name.adresse()
+WRITES
+PUSHS "\n"
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode printAll de type de retour Void.
+printAll: 	--IL Y AURA UN ENVOI vers p.e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers Ð-e
+
+--toString affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers this
+
+--getx affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--getx affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers p2e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers Ð1e
+
+--toString affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers this
+
+--gety affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--gety affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers p6e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers Ð5e
+
+--toString affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers this
+
+--getz affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+--IL Y AURA UN ENVOI vers this
+
+--getz affiche la chaine suivante :
+PUSHG this.adresse()
+PUSHG this.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers Ð9e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers w
+
+--toString affiche la chaine suivante :
+PUSHG w.adresse()
+PUSHG w.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers =e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers w2
+
+--toString affiche la chaine suivante :
+PUSHG w2.adresse()
+PUSHG w2.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers P@e
+
+--print affiche la chaine suivante :
+--IL Y AURA UN ENVOI vers w3
+
+--toString affiche la chaine suivante :
+PUSHG w3.adresse()
+PUSHG w3.adresse()
+WRITES
+--IL Y AURA UN ENVOI vers " "
+
+--print affiche la chaine suivante :
+PUSHS " "
+WRITES
+--IL Y AURA UN ENVOI vers this
+
+--print affiche la chaine suivante :
+PUSHG this.adresse()
+WRITES
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+
+
+--Declaration de la methode methodeTest de type de retour Void.
+methodeTest: 	PUSHI 3
+PUSHI 4
+--stocke le resultat a son emplacement
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+START
+--########Bloc de type LDeclChamp IS LInstr--
+--DeclChamp.
+--Var p1 : ALLOC 2
+DUPN 1
+PUSHI 1
+STORE 0
+--DeclChamp.
+--Var p2 : ALLOC 2
+DUPN 1
+PUSHI 2
+STORE 0
+--IL Y AURA UN ENVOI vers p2
+
+--setName affiche la chaine suivante :
+PUSHG p2.adresse()
+PUSHG p2.adresse()
+PUSHG 0
+
+--Appel de la methode setName.
+PUSHA setName
+CALL
+POPN 1
+--IL Y AURA UN ENVOI vers p1
+
+--printAll affiche la chaine suivante :
+PUSHG p1.adresse()
+PUSHG p1.adresse()
+
+--Appel de la methode printAll.
+PUSHA printAll
+CALL
+POPN 0
+--IL Y AURA UN ENVOI vers p2
+
+--printAll affiche la chaine suivante :
+PUSHG p2.adresse()
+PUSHG p2.adresse()
+
+--Appel de la methode printAll.
+PUSHA printAll
+CALL
+POPN 0
+STOP
+

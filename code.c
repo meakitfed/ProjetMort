@@ -571,6 +571,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 	fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
 	TreeP Expr = getChild(tree, 0);										
 	TreeP MethodeC = getChild(tree, 1);
+	int tailleParam = 0;
 
 	/*Si la méthode est print ou println, on génère son code*/
 	bool printOK = FALSE;
@@ -598,11 +599,11 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 				LVarDeclP tempParam = tempMethode->lparametres;
 				printf("\n\n--Envoi : méthode %s de la class %s\n", tempMethode->nom, classeEnvoi->nom);
 
-				int nbParam = 0; 
+				tailleParam = 0; 
 				while(tempParam != NULL) 
 				{
-					PUSHG(nbParam);  /*empiler l'argument ?????????????????????????????????????????????????????*/ 
-					nbParam++;
+					PUSHG(tailleParam);  /*empiler l'argument ?????????????????????????????????????????????????????*/ 
+					tailleParam++;
 					tempParam = tempParam->next;
 				}
 
@@ -613,7 +614,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 				CALL();
 
 				/*On dépile le nombre de paramètres empilés*/
-				POPN(nbParam);
+				POPN(tailleParam);
 			}
 			else{printf("Erreur envoi : methode introuvable.\n");}
 
@@ -675,15 +676,18 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 	if(Expr->op == Id)
 	{
 		VarDeclP temp = getVarDeclFromName(Expr->u.str);
-		char *type = temp->type->nom;
-		ClasseP classeType = getClassePointer(type);
+		if(temp)
+		{
+					char *type = temp->type->nom;
+			ClasseP classeType = getClassePointer(type);
 
 						/*???if (in_method) PUSHL_addr(expr->u.str); else*/ 
 						/*???PUSHG_addr(expr->u.str);*/
-		fprintf(output,"PUSHG %s.adresse()\n", Expr->u.str);
+			fprintf(output,"PUSHG %s.adresse()\n", Expr->u.str);
 			
-		int offset = getOffset(classeType,Ident->u.str);
-		LOAD(offset);
+			int offset = getOffset(classeType,Ident->u.str);
+			LOAD(offset);
+		}
 	}
 	else /*Select ::= expr . Id*/
 	{
@@ -837,18 +841,16 @@ void codeLDeclChamp(TreeP tree)
 void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'*/
 {                                           /*ValVar: AFF Expr*/
 
-	/*il faut STROREG id.adresse à la fin ?*/
 
-	/*TODO : refaire mais avec la méthode makeVarDecl!!!!!!!!!!!!!!!!!!!*/
 
 	fprintf(output, "--DeclChamp.\n");
 
 	fprintf(output,"--Var %s : ", tree->u.var->nom);
 
 	printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
-	/*TODO ajouter la nouvelle instance à la liste*/
-
-	addVarEnv(tree->u.var, NIL(Classe));
+	
+	/*ajouter la nouvelle instance à la liste*/
+	addVarEnv(tree->u.var, NIL(Classe));	/*TODO? Environnement de classe*/
 
 	if(tree->u.var->exprOpt != NULL)
 	{
@@ -856,7 +858,10 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 
 	}
 
-   /* fprintf(output, "%s", getChild(tree, 1)->u.str);*/    /*comment gérer le type d'une expression en terme de gén de code ?*/
+	/*il faut STROREG id.adresse à la fin ?*/
+
+  /*comment gérer le type d'une expression en terme de gén de code ?*/
+
 
   /*  TreeP valVar = getChild(tree, 2);
 	if (valVar)
@@ -886,6 +891,8 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 {									
 
 	TreeP tree = methode->bloc;
+	int tailleParam = 0;
+	int i = 0;
 	if(tree != NULL)
 	{   
  
@@ -894,21 +901,15 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 
 		/*Empilement des paramètres de la méthode*/
 
- /*en principe : on compte le nombre de parametres avec un while param->next
+		tailleParam = getTailleListeVarDecl(methode->lparametres);
+		i = tailleParam;
+		while(i > 0)
+		{
+			PUSHL(-i);
+			LOAD(0);
+			i--;
+		}
 
-	ensuite on empile en gardant en mémoire la taille de la pile au moment où tu rentres dans la fonction.
-
-	
-	rang param?????
-
-	PUSHL(0 - (nbPAram+1))
-	SWAP() 
-	STORE(0) 
-
-	RETURN
-	if methode->next != null ; codeMethode
-
-	*/
 		/*Génération du code du bloc de la fonction*/
 		if(strcmp(methode->typeDeRetour->nom, "Void") == 0)
 		{
@@ -916,9 +917,18 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 			else codeInstr(tree);                   /*s'il existe qu'une seule instruction*/
 			
 		}
-		else fprintf(output,"\nMethode avec un type....\n");
+		else
+		{
+			 if(verbose) fprintf(output,"\n--Methode avec un type....\n"); /*TODO : pas qqc de general. */
+			 codeExpr(tree);											/*On peut avoir une liste d'instr mais ma fct pour list instr est mal concue.*/
+		}
 
-		fprintf(output, "RETURN");    
+		if(verbose) fprintf(output, "--stocke le resultat a son emplacement\n");
+		PUSHL(-(tailleParam+1)); 
+		SWAP(); 
+		STORE(0);
+
+		fprintf(output, "RETURN\n");    
 	}
 
    
