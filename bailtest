@@ -1,270 +1,49 @@
-
-
---Declaration de la methode getx de type de retour Integer.
-getx: 	
---Methode avec un type de retour.
-PUSHG x.adresse()
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode gety de type de retour Integer.
-gety: 	
---Methode avec un type de retour.
---IL Y AURA UNE SELECTION ICI;
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode getz de type de retour Integer.
-getz: 	
---Methode avec un type de retour.
-Affectation : ident z
-PUSHG z.adresse()
-STOREG result.adresse()
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode setName de type de retour Void.
-setName: 	PUSHL -1
-LOAD 0
-Affectation : ident s
-PUSHG s.adresse()
-STOREG name.adresse()
---stocke le resultat a son emplacement
-PUSHL -2
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode print de type de retour Void.
-print: 	--IL Y AURA UN ENVOI vers name
-
---println affiche la chaine suivante :
-PUSHG name.adresse()
-WRITES
-PUSHS "\n"
-WRITES
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode printAll de type de retour Void.
-printAll: 	--IL Y AURA UN ENVOI vers pÆ{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers –≠{
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---getx affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---getx affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers p≤{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers –±{
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---gety affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---gety affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers p∂{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers –µ{
-
---toString affiche la chaine suivante :
---IL Y AURA UN ENVOI vers this
-
---getz affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
---IL Y AURA UN ENVOI vers this
-
---getz affiche la chaine suivante :
-PUSHG this.adresse()
-PUSHG this.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers –π{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w
-
---toString affiche la chaine suivante :
-PUSHG w.adresse()
-PUSHG w.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers Ω{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w2
-
---toString affiche la chaine suivante :
-PUSHG w2.adresse()
-PUSHG w2.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers P¿{
-
---print affiche la chaine suivante :
---IL Y AURA UN ENVOI vers w3
-
---toString affiche la chaine suivante :
-PUSHG w3.adresse()
-PUSHG w3.adresse()
-WRITES
---IL Y AURA UN ENVOI vers " "
-
---print affiche la chaine suivante :
-PUSHS " "
-WRITES
---IL Y AURA UN ENVOI vers this
-
---print affiche la chaine suivante :
-PUSHG this.adresse()
-WRITES
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
-
-
---Declaration de la methode methodeTest de type de retour Void.
-methodeTest: 	PUSHI 3
-PUSHI 4
---stocke le resultat a son emplacement
-PUSHL -1
-SWAP
-STORE 0
-RETURN
 main: 	START
 --########DEBUG : Bloc de type LDeclChamp IS LInstr--
 --DeclChamp.
---Var p1 : ALLOC 2
-DUPN 1
-PUSHI 1
-STORE 0
---DeclChamp.
---Var p2 : ALLOC 2
-DUPN 1
+--Var x : --DeclChamp.
+--Var y : Affectation : constante 9
+PUSHI 9
+STOREG x.adresse()
+Affectation : constante 2
 PUSHI 2
-STORE 0
---IL Y AURA UN ENVOI vers p2
+STOREG y.adresse()
+PUSHG x.adresse()
+PUSHI 9
+INF
+JZ else0
+--IL Y AURA UN ENVOI vers "x est inf a 9" d'operateur 278
 
---setName affiche la chaine suivante :
-PUSHG p2.adresse()
-PUSHG p2.adresse()
---Envoi : m√©thode setName de la class Point
-PUSHG 0
+--println affiche la chaine suivante :
+PUSHS "x est inf a 9"
+WRITES
+PUSHS "\n"
+WRITES
+JUMP endif1
+else0:	PUSHS "y est inf a x"
+endif1:	NOP
+--IL Y AURA UN ENVOI vers "valeur de x : " d'operateur 278
 
---Appel de la methode setName.
-PUSHA setName
+--print affiche la chaine suivante :
+PUSHS "valeur de x : "
+WRITES
+--IL Y AURA UN ENVOI vers x d'operateur 276
+PUSHA toString
 CALL
-POPN 1
---IL Y AURA UN ENVOI vers p1
+--IL Y AURA UN ENVOI vers "valeur de y : " d'operateur 278
 
---printAll affiche la chaine suivante :
-PUSHG p1.adresse()
-PUSHG p1.adresse()
---Envoi : m√©thode printAll de la class Point
-
---Appel de la methode printAll.
-PUSHA printAll
+--print affiche la chaine suivante :
+PUSHS "valeur de y : "
+WRITES
+--IL Y AURA UN ENVOI vers y d'operateur 276
+PUSHA toString
 CALL
-POPN 0
---IL Y AURA UN ENVOI vers p2
-
---printAll affiche la chaine suivante :
-PUSHG p2.adresse()
-PUSHG p2.adresse()
---Envoi : m√©thode printAll de la class Point
-
---Appel de la methode printAll.
-PUSHA printAll
-CALL
-POPN 0
 STOP
 
 --------Initialiser les tables virtuelles.--------
 
 --Classe Point
-ALLOC 7
-PUSHA getx
-STORE 0
-DUPN 1
-PUSHA gety
-STORE 1
-DUPN 1
-PUSHA getz
-STORE 2
-DUPN 1
-PUSHA setName
-STORE 3
-DUPN 1
-PUSHA print
-STORE 4
-DUPN 1
-PUSHA printAll
-STORE 5
-DUPN 1
-PUSHA methodeTest
-STORE 6
-DUPN 1
+ALLOC 0
 JUMP main
 
 --------Initialisation des invocations.--------
@@ -281,40 +60,5 @@ call2: 	PUSHL -1
 DUPN 1
 LOAD 0
 LOAD 1
-CALL
-RETURN
---invoquer methode numero 3 du receveur
-call3: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 2
-CALL
-RETURN
---invoquer methode numero 4 du receveur
-call4: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 3
-CALL
-RETURN
---invoquer methode numero 5 du receveur
-call5: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 4
-CALL
-RETURN
---invoquer methode numero 6 du receveur
-call6: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 5
-CALL
-RETURN
---invoquer methode numero 7 du receveur
-call7: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 6
 CALL
 RETURN

@@ -185,7 +185,7 @@ int getOffset(ClasseP classe, char *idNom)
 
 
 /*CodeConstructeur*/ 
-void codeConstructeur(TreeP arbre)
+void codeConstructeur(TreeP arbre)		/*Le constructeur permet d'instancier les variables de la classe*/
 {
 	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
 	ClasseP classe = getClassePointer(getChild(arbre, 0)->u.str); 
@@ -406,7 +406,7 @@ void codeExpr(TreeP tree)
  */
 void codeLInstr(TreeP tree)
 {
-	if(tree->op == 11)	/*si tree est une liste d'instruction*/
+	if(tree->op == LINSTR)	
 	{
 		if(tree->nbChildren == 2)
 		{
@@ -418,7 +418,7 @@ void codeLInstr(TreeP tree)
 			codeInstr(tree);  
 		}
 	}
-	else if((tree->op == 23) | (tree->op == 12)) 
+	else if((tree->op == YEXPR) | (tree->op == EAFF)) 
 	{
 		codeInstr(tree);
 	}
@@ -467,7 +467,7 @@ void codeITE(TreeP tree)
 	fprintf(output, "JUMP %s\n", labelEndIf);
 
 	/*Etiquette du else*/
-	fprintf(output, "%s:", labelElse);
+	fprintf(output, "%s:\t", labelElse);
  
 	/*Corps du else optionnel*/
 	TreeP childElse = getChild(tree, 2);
@@ -481,7 +481,7 @@ void codeITE(TreeP tree)
 	}
 
 	/*Etiquette de sortie de la boucle*/
-	fprintf(output, "%s: NOP\n", labelEndIf);
+	fprintf(output, "%s:\tNOP\n", labelEndIf);
 }
 
 
@@ -504,7 +504,7 @@ void codeInstr(TreeP tree)
 	case YCONT:                 			/*Contenu := LDeclChamp IS LInstr */
 
 		fprintf(output, "--########DEBUG : Bloc de type LDeclChamp IS LInstr--\n");
-		/*LdeclChamp = list variables locales*/
+		/*LDeclChamp = list variables locales*/
 		codeLDeclChamp(getChild(tree, 0));
 		codeLInstr(getChild(tree, 1));
 		printf("YCONT\n");
@@ -556,6 +556,30 @@ bool codePrint(TreeP expr, TreeP methodeC)
 			return TRUE;
 		}
 	}
+	else if(expr->op == Id)				/*TODO*/
+	{
+
+
+		if(verbose) fprintf(output, "\n--%s affiche l'id suivant :\n", getChild(methodeC,0)->u.str);
+		
+		/*PUSHL("tree.adresse()");*/	/*TODO*/
+		PUSHA("toString");
+		CALL();
+		
+		if (!strcmp(getChild(methodeC,0)->u.str,"print")) {             /*écriture simple de la chaine en début de pile*/
+			WRITES();
+			return TRUE;                        
+		}
+		else if (!strcmp(getChild(methodeC,0)->u.str,"println")) {      /*écriture de la chaine et saut de ligne*/
+			WRITES();
+			PUSHS("\"\\n\"");                                           /*équivaut à PUSHS "\n" */
+			WRITES();
+			return TRUE;
+		}
+
+
+		return TRUE;
+	}
 	else
 	{
 		if(verbose) fprintf(output, "\n--%s affiche la chaine suivante :\n", getChild(methodeC,0)->u.str);
@@ -574,21 +598,21 @@ bool codePrint(TreeP expr, TreeP methodeC)
 	return FALSE;
 }
 
+
+
 /*Génère le code d'un envoi*/ 
 void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 {
 	
-	fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
+	fprintf(output, "--IL Y AURA UN ENVOI vers %s d'operateur %d\n", getChild(tree, 0)->u.str,  getChild(tree, 0)->op);
 	TreeP Expr = getChild(tree, 0);										
 	TreeP MethodeC = getChild(tree, 1);
 	int tailleParam = 0;
 
-	/*Si la méthode est print ou println, on génère son code*/
 	bool printOK = FALSE;
-	printOK = codePrint(Expr, MethodeC);
+	printOK = codePrint(Expr, MethodeC);			/*Si la méthode est print ou println, on génère son code*/
 
-	/*Si la méthode n'est pas un print ou println*/
-	if(printOK == FALSE)
+	if(printOK == FALSE)							/*Si la méthode n'est pas un print ou println*/
 	{
 		/*On exécuter le code de l'expression*/
 		/*?TODO?? ????????????????????????????????????????????????????*/
@@ -715,7 +739,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 
 
 /*Code d'une affectation x := y*/
-void codeAff(TreeP tree)    /*TODO : il faudrait un boolean qui dise si on est dans une méthode ou pas*/
+void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si on est dans une méthode ou pas*/
 {
 	/*membre gauche de l'affectation gauche := droit*/
 	TreeP gauche = getChild(tree, 0);
@@ -793,7 +817,7 @@ void codeAff(TreeP tree)    /*TODO : il faudrait un boolean qui dise si on est d
 }
 
 /*Code d'un bloc objet situé dans les objets isolés et dans les classes*/
-void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
+void codeBlocObj(TreeP tree)        							/*BlocObj: '{' LDeclChampMethodeOpt '}' */
 {
 
 	if(tree != NULL)
@@ -810,9 +834,6 @@ void codeBlocObj(TreeP tree)        /*BlocObj: '{' LDeclChampMethodeOpt '}' */
 			codeDeclChampMethode(getChild(tree, 0));            /* LDeclChampMethode: DeclChampMethode*/
 		}
 	}
-
-   
-
 }
 
 void codeDeclChampMethode(TreeP tree)
@@ -827,11 +848,7 @@ void codeDeclChampMethode(TreeP tree)
 	else if(tree->op == DMETHODE) /*DeclMethode pas besoin de gérer ce cas, 
 									vu qu'on met les méthodes dans des structures*/
 	{
-
-		printf("DECL METHODE qu'on appelera à partir de classe\n");
-	   /* MethodeP methode = getMethodeFromName(tree->u.str);  
-		codeDeclMethode(methode);
-*/    }
+	}
 
 }
 
@@ -851,7 +868,9 @@ void codeLDeclChamp(TreeP tree)
 }
 
 
-
+/*
+ * Génère le code des déclarations
+ */
 void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'*/
 {                                           /*ValVar: AFF Expr*/
 
@@ -947,16 +966,10 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
    
 }
 
-
-
-
-
 /*Génère le code d'une classe*/
-void codeClasse(ClasseP classe)
+void codeClasse(ClasseP classe)			
 {
 	if(verbose) printf(">Generation du code d'une classe : %s\n", classe->nom);
-
-	/*TODO : constructeur qui permet d'instancier les variables de la classe*/
 
 	LMethodeP liste = classe->lmethodes;
 

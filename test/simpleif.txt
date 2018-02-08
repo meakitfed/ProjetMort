@@ -1,0 +1,21 @@
+class Point() {
+     w2 := -25;
+} 
+is
+{
+}
+
+{ 
+  var x: Integer;
+  var y: Integer;
+  is
+  x := 9;
+  y := 2;
+  if x < 9 then "x est inf a 9".println();
+  else "y est inf a x";
+
+  "valeur de x : ".print();
+  x.print();
+  "valeur de y : ".print();
+  y.print();
+}
