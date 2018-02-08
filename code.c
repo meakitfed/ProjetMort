@@ -604,7 +604,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 {
 	
-	if(verbose) fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
+	if(verbose) fprintf(output, "--#######DEBUG : IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
 	TreeP Expr = getChild(tree, 0);										
 	TreeP MethodeC = getChild(tree, 1);
 	int tailleParam = 0;
@@ -696,7 +696,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 {                                                /*Voir l'exemple de paire.entiers*/
 	/*TODO*/
 	/*sélections comment faire ? mettre le x de x.t en paramètres de f ? prof a dit ça*/
-	if(verbose) fprintf(output, "--IL Y AURA UNE SELECTION ICI;\n");
+	if(verbose) fprintf(output, "--#######DEBUG : IL Y AURA UNE SELECTION ICI;\n");
 
 	/*
 	Voir le type de retour de l'expression
@@ -752,7 +752,7 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 	{
 		if(droit->op == Cste)
 		{
-			fprintf(output, "Affectation : constante %d\n", droit->u.val);
+			if(verbose) fprintf(output, "--#######DEBUG : Affectation : constante %d\n", droit->u.val);
 			codeExpr(droit);
 			/*STOREG(gauche.getAdresse());*/
 			fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
@@ -761,7 +761,7 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 
 		else
 		{
-			fprintf(output, "Affectation : ident %s\n", droit->u.str);
+			if(verbose) fprintf(output, "--#######DEBUG : Affectation : ident %s\n", droit->u.str);
 			codeExpr(droit);
 			/*STOREG(gauche.getAdresse());*/
 			fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
@@ -779,9 +779,9 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 
 			codeExpr(Expr);
 
-			/*char* t = getSymbole(Expr->u.str)->Expr->type;
+			/*char* t = getSymbole(Expr->u.str)->Expr->type;		TODO
 
-			ClassP class = figureClass(t); cimer 
+			ClassP class = figureClass(t); cimer 			TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
 			offset = getOffset(class,Id->u.str);
 		   
@@ -802,7 +802,10 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 */
 
 
-/*	if (selectorid->op == IDExpr) {
+/*	code des ET 5 !
+
+
+	if (selectorid->op == IDExpr) {
 
 		if (expr->op == EALLOC) {
 
@@ -821,20 +824,10 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 		}
 	}
 
-	else if (selectorid->op == EPOINT) {
-		TreeP var = getChild(selectorid, 0);
-		TreeP field = getChild(selectorid, 1);
-		if (var->op == IDVAR) {
-			
-			if (in_method) PUSHL_addr(var->u.str); else PUSHG_addr(var->u.str);		JE TROUVE CA BIZARRE
-			codeExpr(expr, depth+1);
-			char* t = getSymbole(var->u.str)->var->type;
-			ClassP class = figureClass(t);
-			offset = getOffset(class,field->u.str);
-		   
-			STORE(offset);
+	else if (selectorid->op == EPOINT) { 
+		c'est notre SELEXPR
 		}
-		else { c'est fait
+		else { c'est notre Id
 		}
 	}
 */
@@ -858,9 +851,15 @@ void codeBlocObj(TreeP tree)        							/*BlocObj: '{' LDeclChampMethodeOpt '
 	}
 }
 
+
+/*
+ * Permet d'accéder au code d'une liste de déclaration
+ */
 void codeDeclChampMethode(TreeP tree)
 {
-	printf("Mkay %d\n", tree->op);
+	
+	printf("############DEBUG : Mkay %d\n", tree->op);
+	
 	if(tree->op == YDECLC) /*DeclChamp*/
 	{
 		printf("DECL CHAMP\n");
@@ -875,7 +874,9 @@ void codeDeclChampMethode(TreeP tree)
 }
 
 
-/*Liste de déclarations champ*/
+/* 
+ * Génère le code d'une Liste de déclarations
+ */
 void codeLDeclChamp(TreeP tree)		
 {
 	if(tree->nbChildren == 2)				/*LDeclChamp: DeclChamp LDeclChamp */
@@ -984,7 +985,9 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
    
 }
 
-/*Génère le code d'une classe*/
+/*
+ * Génère le code d'une classe
+ */
 void codeClasse(ClasseP classe)			
 {
 	if(verbose) fprintf(output, "--Generation du code d'une classe : %s\n", classe->nom);
@@ -999,6 +1002,9 @@ void codeClasse(ClasseP classe)
 }
 
 
+/*
+ * Génère le code d'une liste de classes
+ */
 void codeLClasse()
 {
 	if(verbose) printf(">Generation du code d'une liste de classe...\n");
@@ -1014,7 +1020,9 @@ void codeLClasse()
 	}
 }
 
-/* retourne la taille d'une liste de methodes */
+/*
+ * Retourne la taille d'une liste de methodes
+ */
 int getTailleListeMethode(LMethodeP liste)
 {
     int i = 0;
@@ -1109,7 +1117,7 @@ void codeTV()
 		cptCall++;
 	}
 
-	/*
+	/* EXEMPLES : (dynlink)
 		-- allouer un objet de classe A
 	ALLOC 1 -- a
 	DUPN 1
@@ -1127,8 +1135,6 @@ void codeTV()
 	PUSHA call2
 	CALL
 	POPN 1
-
-
 	*/
 }
 
