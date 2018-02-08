@@ -32,6 +32,10 @@ void codeClasse(ClasseP classe);
 void genCode(TreeP LClasse, TreeP Bloc);
 void codeITE(TreeP tree);
 
+int getTailleListeMethode(LMethodeP liste);
+void codeTV();
+void codeToString();
+
 VarDeclP getVarDeclFromName(char *name);
 MethodeP getMethodeFromName(ClasseP classe, char *name);
 int getOffset(ClasseP classe, char *idNom);

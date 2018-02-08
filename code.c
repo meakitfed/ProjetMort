@@ -604,7 +604,7 @@ bool codePrint(TreeP expr, TreeP methodeC)
 void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 {
 	
-	fprintf(output, "--IL Y AURA UN ENVOI vers %s d'operateur %d\n", getChild(tree, 0)->u.str,  getChild(tree, 0)->op);
+	if(verbose) fprintf(output, "--IL Y AURA UN ENVOI vers %s\n", getChild(tree, 0)->u.str);
 	TreeP Expr = getChild(tree, 0);										
 	TreeP MethodeC = getChild(tree, 1);
 	int tailleParam = 0;
@@ -615,7 +615,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 	if(printOK == FALSE)							/*Si la méthode n'est pas un print ou println*/
 	{
 		/*On exécuter le code de l'expression*/
-		/*?TODO?? ????????????????????????????????????????????????????*/
+																	/*?TODO?? ????????????????????????????????????????????????????*/
 		codeExpr(Expr);
 		/*On récupère la classe correspondant à l'expression*/
 		VarDeclP tempExpr = getVarDeclFromName(Expr->u.str);
@@ -636,7 +636,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 				tailleParam = 0; 
 				while(tempParam != NULL) 
 				{
-					PUSHG(tailleParam);  /*empiler l'argument ?????????????????????????????????????????????????????*/ 
+					PUSHG(tailleParam);  								/*empiler l'argument ?????????????????????????????????????????????????????*/ 
 					tailleParam++;
 					tempParam = tempParam->next;
 				}
@@ -658,7 +658,6 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 
 	}
 
-	/*Créer des méthodes avec des étiquettes uniques ?*/
 	/*Question : comment marche l'empilement de l'envoi ?
 	est-ce qu'on empile d'abord la partie gauche puis la partie droite ?*/
 }
@@ -749,15 +748,17 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 
 	/*pour l'instant on gère les affectations de constante et d'id*/
 
-	if( getChild(tree, 0)->op == Id)
+	if(gauche->op == Id)
 	{
-		if(getChild(tree, 1)->op == Cste)
+		if(droit->op == Cste)
 		{
 			fprintf(output, "Affectation : constante %d\n", droit->u.val);
 			codeExpr(droit);
 			/*STOREG(gauche.getAdresse());*/
 			fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
 		}
+
+
 		else
 		{
 			fprintf(output, "Affectation : ident %s\n", droit->u.str);
@@ -765,11 +766,32 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 			/*STOREG(gauche.getAdresse());*/
 			fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
 		}
-	}
 
-/*	if (gauche->op = id et droit->op = eaff)
+	}
+	else if (gauche->op == SELEXPR) {
+
+		TreeP Expr = getChild(gauche, 0);
+		TreeP Id = getChild(gauche, 1);
+
+		if (Expr->op == SELEXPR) {
+			
+			/*if (in_method) PUSHL_addr(Expr->u.str); else PUSHG_addr(Expr->u.str);*/
+
+			codeExpr(Expr);
+
+			/*char* t = getSymbole(Expr->u.str)->Expr->type;
+
+			ClassP class = figureClass(t); cimer 
+
+			offset = getOffset(class,Id->u.str);
+		   
+			STORE(offset);*/
+		}
+
+	}
+/*	if (gauche->op = id et droit->op = eaff) ?? pk j'ai écrit ça
 		on fait constructeur(droit)
-		on fait storeg gauche.getadresse()
+		on fait storeg gauche.getadresse() jcrois ce cas n'arrive jamais
 
 	if(gauche->op = id et droit->op != eaff)
 		on pushl ou pushg id
@@ -778,7 +800,9 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 	if gauche->op = selection 
 		if(gauche.filsgauche = est une classe)	
 */
-/*	if (selectorid->op == IDVAR) {
+
+
+/*	if (selectorid->op == IDExpr) {
 
 		if (expr->op == EALLOC) {
 
@@ -824,8 +848,6 @@ void codeBlocObj(TreeP tree)        							/*BlocObj: '{' LDeclChampMethodeOpt '
 	{
 		if(tree->nbChildren == 2)  
 		{
-			/*ptet qu'on ne peut pas appeler codeBlocObj ???*/
-
 			codeBlocObj(getChild(tree, 0));                     /*LDeclChampMethode: LDeclChampMethode DeclChampMethode*/
 			codeDeclChampMethode(getChild(tree, 1));            
 		}
@@ -874,11 +896,7 @@ void codeLDeclChamp(TreeP tree)
 void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'*/
 {                                           /*ValVar: AFF Expr*/
 
-
-
-	if(verbose) fprintf(output, "--DeclChamp.\n");
-
-	fprintf(output,"--Var %s : ", tree->u.var->nom);
+	if(verbose) fprintf(output,"--Var %s : ", tree->u.var->nom);
 
 	if(verbose) printf("Ajout de la variable %s à l'environnement...\n", tree->u.var->nom);
 	
@@ -969,7 +987,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 /*Génère le code d'une classe*/
 void codeClasse(ClasseP classe)			
 {
-	if(verbose) printf(">Generation du code d'une classe : %s\n", classe->nom);
+	if(verbose) fprintf(output, "--Generation du code d'une classe : %s\n", classe->nom);
 
 	LMethodeP liste = classe->lmethodes;
 
@@ -1012,13 +1030,20 @@ int getTailleListeMethode(LMethodeP liste)
     return i;
 }
 
+
+/*
+ * Génère la table virtuelle du programme.
+ */
 void codeTV()
 {
 	int nbMethodes = 0;
 	int cptStore = 0;
 	if(verbose) printf(">Generation de la table virtuelle...\n");
 
-	fprintf(output, "--------Initialiser les tables virtuelles.--------\n");
+	fprintf(output, "--------Initialisation des tables virtuelles.--------\n");
+	
+	fprintf(output, "init:\t NOP\n");
+
 	/*Variable globale LClasse*/
 	LClasseP liste = lclasse;
 
@@ -1045,7 +1070,6 @@ void codeTV()
 				lmethodes = lmethodes->next;
 			}
 		}
-
 		liste = liste->next;
 	}
 	JUMP("main");
@@ -1109,12 +1133,32 @@ void codeTV()
 }
 
 
+/*
+ * Génération du code de la méthode toString pour la classe Integer
+ */
+void codeToString()
+{
+	fprintf(output, "toString:\t PUSHL -1\n");
+	fprintf(output, "PUSHL -1\n");
+	fprintf(output, "LOAD 0\n");
+	fprintf(output, "STR\n");
+	fprintf(output, "STOREL -2\n");
+	fprintf(output, "RETURN\n");
+}
+
+
+/*
+ * Fonction principale de génération de code
+ */
 void genCode(TreeP LClass, TreeP Bloc)
 {
 
-	output = fopen("bailtest", "a+");
+	output = fopen("genCode", "a+");
 
 	if (output != NULL) {
+
+		/*Jump vers la table virtuelle*/
+		fprintf(output, "JUMP init\t --initialiser\n\n");
 
 		/*Generation du code des méthodes des classes 
 		 à partir de la variable globale LClasse*/
@@ -1125,11 +1169,15 @@ void genCode(TreeP LClass, TreeP Bloc)
 		codeInstr(Bloc);
 		fprintf(output, "STOP\n");
 
+		/*Generation de la table virtuelle*/
+		codeTV();
+
+		/*Generation de la methode toString*/
+		codeToString();
 
 		/*saut de ligne nécessaire à la fin du programme, 
 		sans quoi il y a une erreur*/
 		fprintf(output, "\n");
-		codeTV();
 
 		fclose(output);
 	}

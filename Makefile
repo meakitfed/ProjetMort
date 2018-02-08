@@ -32,5 +32,5 @@ tp_y.h tp_y.c : tp.y tp.h
 .Phony: clean
 
 clean:
-	rm -f *~ tp.exe* ./tp *.o tp_l.* tp_y.* bailtest
+	rm -f *~ tp.exe* ./tp *.o tp_l.* tp_y.* genCode
 	rm -f test/*~ test/*.out test/*/*~ test/*/*.out
