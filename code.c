@@ -1059,7 +1059,6 @@ void codeTV()
 	}
 
 	/*generation des methodes call*/
-
 	int cptCall = 1;
 	while (cptCall <= nbMethodes)
 	{
@@ -1073,10 +1072,14 @@ void codeTV()
 		cptCall++;
 	}
 
+	/*
+		-- allouer un objet de classe A
+	ALLOC 1 -- a
+	DUPN 1
+	PUSHG 0 -> on met la table virtuelle dans l'objet a
+	STORE 0*/
 
 	/*dans le main
-
-
 		-- invoquer la premiere methode sur a: m1
 	PUSHL 0
 	PUSHA call1
