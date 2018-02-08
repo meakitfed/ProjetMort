@@ -30,7 +30,6 @@ void PUSHS(char *c) {fprintf(output, "PUSHS %s\n", c);}
 void PUSHG(int a) {fprintf(output, "PUSHG %d\n", a);}
 void PUSHL(int a) {fprintf(output, "PUSHL %d\n", a);}
 
-/*PUSHSP, PUSHFP*/
 void STOREL(int x) {fprintf(output, "STOREL %d\n", x);}
 void STOREG(int x) {fprintf(output, "STOREG %d\n", x);}
 void PUSHN(int x) {fprintf(output, "PUSHN %d\n", x);}
@@ -397,7 +396,7 @@ void codeExpr(TreeP tree)
 			{
 				codeExpr(getChild(tree, 0));
 			}
-			printf("#ERREUR : Expression inconnue : %d!\n", tree->op);
+			fprintf(output, "#ERREUR : Expression inconnue : %d!\n", tree->op);
 			break;
 		}
 }
@@ -407,7 +406,7 @@ void codeExpr(TreeP tree)
  */
 void codeLInstr(TreeP tree)
 {
-	if(tree->op == 11)
+	if(tree->op == 11)	/*si tree est une liste d'instruction*/
 	{
 		if(tree->nbChildren == 2)
 		{
@@ -418,6 +417,10 @@ void codeLInstr(TreeP tree)
 		{
 			codeInstr(tree);  
 		}
+	}
+	else if((tree->op == 23) | (tree->op == 12)) 
+	{
+		codeInstr(tree);
 	}
 	else
 	{
@@ -938,8 +941,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 		PUSHL(-(tailleParam+1)); 
 		SWAP(); 
 		STORE(0);
-
-		fprintf(output, "RETURN\n");    
+		CRETURN();
 	}
 
    
@@ -1003,7 +1005,7 @@ void codeTV()
 	int cptStore = 0;
 	if(verbose) printf(">Generation de la table virtuelle...\n");
 
-	fprintf(output, "--------Initialiser les tables virtuelles.--------\n\n");
+	fprintf(output, "--------Initialiser les tables virtuelles.--------\n");
 	/*Variable globale LClasse*/
 	LClasseP liste = lclasse;
 
@@ -1036,17 +1038,40 @@ void codeTV()
 	JUMP("main");
 	fprintf(output, "\n");
 
-	/*TODO : les méthodes call i*/
+	fprintf(output, "--------Initialisation des invocations.--------\n\n");
 
+	/*Variable globale LClasse*/
+	liste = lclasse;
 
-	/*-- invoquer 1ere methode du receveur
-call1:	PUSHL -1	-- le recepteur
-	DUPN 1
-	LOAD 0 -- charger TV
-	LOAD 0 -- charger @methode1
-	CALL
-	RETURN
-	*/
+	nbMethodes = 1;
+
+	/*Parcours l'environnement de classe*/
+	while(liste != NIL(LClasse))
+	{
+		/*on cherche le plus grand nombre de méthodes d'une classe*/
+		LMethodeP lmethodes = liste->classe->lmethodes;
+
+		if(getTailleListeMethode(lmethodes) > nbMethodes)
+		{
+			nbMethodes = getTailleListeMethode(lmethodes);
+		}	
+		liste = liste->next;
+	}
+
+	/*generation des methodes call*/
+
+	int cptCall = 1;
+	while (cptCall <= nbMethodes)
+	{
+		fprintf(output, "--invoquer methode numero %d du receveur\n", cptCall);
+		fprintf(output, "call%d: \tPUSHL -1\n", cptCall);
+		DUPN(1);
+		LOAD(0);
+		LOAD(cptCall-1);
+		CALL();
+		CRETURN();
+		cptCall++;
+	}
 
 
 	/*dans le main
