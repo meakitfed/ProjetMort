@@ -12,6 +12,10 @@ void listeSymboles();
 
 int adresse(char *id);
 
+InstanceP makeInstance(VarDeclP var);
+void addInstance(InstanceP ins);
+
+
 void codeLInstr(TreeP tree);
 void codeInstr(TreeP tree);
 void codeEnvoi(TreeP tree);

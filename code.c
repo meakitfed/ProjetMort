@@ -29,6 +29,7 @@ void PUSHI(int i) {fprintf(output, "PUSHI %d\n", i);}
 void PUSHS(char *c) {fprintf(output, "PUSHS %s\n", c);}
 void PUSHG(int a) {fprintf(output, "PUSHG %d\n", a);}
 void PUSHL(int a) {fprintf(output, "PUSHL %d\n", a);}
+void PUSHA(char* a) {fprintf(output, "PUSHA %s\n", a);}
 
 void STOREL(int x) {fprintf(output, "STOREL %d\n", x);}
 void STOREG(int x) {fprintf(output, "STOREG %d\n", x);}
@@ -40,7 +41,6 @@ void EQUAL() {fprintf(output, "EQUAL\n");}
 void NOT() {fprintf(output, "NOT\n");}
 void JUMP(char* label) {fprintf(output, "JUMP %s\n", label);}
 void JZ(char* label) {fprintf(output, "JZ %s\n", label);}
-void PUSHA(char* a) {fprintf(output, "PUSHA %s\n", a);}
 void CALL() {fprintf(output, "CALL\n");}
 void CRETURN() {fprintf(output, "RETURN\n");}
 void CADD() {fprintf(output, "ADD\n");}
@@ -70,11 +70,18 @@ void NEWLABEL(char* c) {
 int compteurAdresse = 0;
 LInstanceP linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
 
-/* Retourne l'adresse d'une variable contenue dans l'environnement
- * de variables. 
- * Sera utile pour faire PUSHG Id.adresse() par exemple.
- */
+bool in_method =FALSE; /*???*/
 
+
+InstanceP makeInstance(VarDeclP var)
+{
+	InstanceP instance = NEW(1, Instance);
+	instance->nom = var->nom;
+	instance ->type = var->type;
+	instance -> adresse = 0;
+	compteurAdresse++;
+	return instance;
+}
 
 
 InstanceP getInstFromName(char *name)
@@ -88,6 +95,30 @@ InstanceP getInstFromName(char *name)
 	}
 	return NIL(Instance);
 }
+
+void addInstance(InstanceP ins)
+{
+	LInstanceP cur = linstances;
+
+	LInstanceP new = NEW(1, LInstance);
+	new->instance = ins;
+	new->next = NULL;
+
+	if(cur == NULL)
+	{
+		linstances = new;
+	}
+	else
+	{
+		new->next = linstances;
+		linstances = new;
+	}
+}
+
+/* Retourne l'adresse d'une variable contenue dans l'environnement
+ * de variables. 
+ * Sera utile pour faire PUSHG Id.adresse() par exemple.
+ */
 
 int adresse(char *id) 
 {
@@ -199,7 +230,7 @@ void codeConstructeur(TreeP arbre)		/*Le constructeur permet d'instancier les va
 	for (i = 0;  i< taille; i++) {
 		if(tmp != NIL(Tree)){
 			DUPN(1);
-			codeExpr(getChild(tmp, 0));
+			codeExpr(getChild(tmp, 0));/*y a pas forcerment une expr par var et elles sont pas forcement dans l'ordre du coup ça marche pas je crois*/
 			STORE(i);
 			tmp = getChild(tmp,1);  
 			i++;
@@ -822,7 +853,7 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 			 STORE(offset);
 			 x = 0 si variable locale, x = ? offset du champ de classe à déterminer 
 		}
-	}
+	
 
 	else if (selectorid->op == EPOINT) { 
 		c'est notre SELEXPR
@@ -903,6 +934,8 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 	
 	/*ajouter la nouvelle instance à la liste*/
 	addVarEnv(tree->u.var, NIL(Classe));	/*TODO? Environnement de classe*/
+	addInstance(makeInstance(tree->u.var));
+
 
 	if(tree->u.var->exprOpt != NULL)
 	{
