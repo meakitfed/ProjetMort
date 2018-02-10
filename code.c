@@ -214,7 +214,6 @@ int getOffset(ClasseP classe, char *idNom)
 	return -1;
 }
 
-
 /*CodeConstructeur*/ 
 void codeConstructeur(TreeP arbre)		/*Le constructeur permet d'instancier les variables de la classe*/
 {
@@ -263,6 +262,34 @@ void CodeConstructeurVersionStructure(MethodeP methode)
 } 
 
 
+/* 
+ * Génère le code d'une Liste de déclarations
+ */
+void codeLDeclChampStructure(LVarDeclP lChamps)		
+{
+	LVarDeclP lchamps = lChamps;
+	while(lchamps != NULL) {
+		codeDeclChampStructure(lchamps->var);
+		lchamps = lchamps->next;
+	}
+}
+
+/*
+ * Génère le code des déclarations
+ */
+void codeDeclChampStructure(VarDeclP Champ)		   
+{                                           
+	if(verbose) fprintf(output,"--Var %s : ", Champ->nom);
+	if(verbose) printf("Ajout de la variable %s à l'environnement...\n", Champ->nom);
+	addVarEnv(Champ, NIL(Classe));	/*TODO? Environnement de classe*/
+	addInstance(makeInstance(Champ));
+
+	if(Champ->exprOpt != NULL)
+	{
+		codeExpr(Champ->exprOpt);  /*instanciation, affectation...*/
+
+	}
+}
 
 /*Génère le code d'une objet*/
 void codeObj(ClasseP classe)
@@ -279,9 +306,10 @@ void codeObj(ClasseP classe)
 			lmethodes = lmethodes->next; 
 		}
 		LVarDeclP lchamps = classe->lchamps;
-		codeDeclChamp(lchamps);  
+		codeLDeclChampStructure(lchamps);  
 	}
 }
+
 
 /*
  * Génère le code des expressions
