@@ -20,6 +20,7 @@ void codeLInstr(TreeP tree);
 void codeInstr(TreeP tree);
 void codeEnvoi(TreeP tree);
 void codeConstructeur(TreeP tree);
+void codeConstructeurVersionStructure(ClasseP classe);
 
 void codeExpr(TreeP tree);
 void codeSelec(TreeP tree);

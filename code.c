@@ -215,7 +215,19 @@ int getOffset(ClasseP classe, char *idNom)
 }
 
 /*CodeConstructeur*/ 
-void codeConstructeur(TreeP arbre)		/*Le constructeur permet d'instancier les variables de la classe*/
+void codeConstructeurVersionStructure(ClasseP classe)	
+{
+	int taille = getTailleListeVarDecl(classe->lchamps) + getTailleListeMethode(classe->lmethodes);
+	ALLOC(taille);     
+	codeLDeclChampStructure(classe->lchamps);
+	LMethodeP lmethodes = classe->lmethodes;
+	while(lmethodes != NULL) {
+		codeDeclMethode(lmethodes->methode);
+	}
+}  
+
+/*CodeConstructeur*/ 
+void codeConstructeur(TreeP arbre)
 {
 	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
 	ClasseP classe = getClassePointer(getChild(arbre, 0)->u.str); 
@@ -229,7 +241,7 @@ void codeConstructeur(TreeP arbre)		/*Le constructeur permet d'instancier les va
 	for (i = 0;  i< taille; i++) {
 		if(tmp != NIL(Tree)){
 			DUPN(1);
-			codeExpr(getChild(tmp, 0));/*y a pas forcerment une expr par var et elles sont pas forcement dans l'ordre du coup ça marche pas je crois*/
+			codeExpr(getChild(tmp, 0));
 			STORE(i);
 			tmp = getChild(tmp,1);  
 			i++;
