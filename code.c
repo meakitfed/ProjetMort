@@ -80,7 +80,7 @@ InstanceP makeInstance(VarDeclP var)
 	instance ->type = var->type;
 	instance -> adresse = 0;
 	compteurAdresse++;
-	return instance;
+	return instance; 	
 }
 
 
@@ -139,7 +139,7 @@ int adresse(char *id)
 
 	Nombre d'attributs dans une classe afin de faire ALLOC 3 par ex dans le cas d'un new, alloc de mémoire
 */
-  return 0;
+  return getInstFromName(id)->adresse; /*On va tester ça, c'est PPR*/
 }
 
 
