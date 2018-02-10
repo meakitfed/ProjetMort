@@ -268,18 +268,19 @@ void CodeConstructeurVersionStructure(MethodeP methode)
 void codeObj(ClasseP classe)
 {
 	/*printf(">Generation du code d'un objet : %s\n", classe->nom);*/
-
-	LMethodeP lmethodes = classe->lmethodes;
-
-	while(lmethodes != NULL)
-	{
-		codeDeclMethode(lmethodes->methode);
-		lmethodes = lmethodes->next; /*attention ça compilait pas ? */
+	if(classe->lparametres != NULL || classe->superClasse != NULL || classe->constructeur != NULL) {
+		printf("Erreur code Objet\n");
 	}
-
-
-	LVarDeclP lchamps = classe->lchamps;
-	codeDeclChamp(lchamps);  /*TODO */
+	else {
+		LMethodeP lmethodes = classe->lmethodes;
+		while(lmethodes != NULL)
+		{
+			codeDeclMethode(lmethodes->methode);
+			lmethodes = lmethodes->next; 
+		}
+		LVarDeclP lchamps = classe->lchamps;
+		codeDeclChamp(lchamps);  
+	}
 }
 
 /*
