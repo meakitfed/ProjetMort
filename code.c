@@ -67,20 +67,44 @@ void NEWLABEL(char* c) {
 	LABEL(c);
 	NOP();}
 
-int compteurAdresse = 0;
+int compteurAdresse = 0; /* se mefier de lui*/
 LInstanceP linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
 
 bool in_method =FALSE; /*???*/
+char *affected = NULL; /*garde en memoire le nom de la variable pour mettre les new dedans */
 
+void afficherListeInstances()
+{
+    LInstanceP cur = linstances;
+
+    puts("");
+    while (cur != NULL)
+    {
+        printf("addr : %d, %s : %s\n", cur->instance->adresse, cur->instance->nom, cur->instance->type->nom);
+
+        cur = cur->next;
+    }
+}
 
 InstanceP makeInstance(VarDeclP var)
 {
 	InstanceP instance = NEW(1, Instance);
 	instance->nom = var->nom;
 	instance ->type = var->type;
-	instance -> adresse = 0;
+	instance -> adresse = compteurAdresse;
 	compteurAdresse++;
 	return instance; 	
+}
+
+InstanceP makeInstance2(char *nom,ClasseP type)
+{
+    InstanceP instance = NEW(1, Instance);
+    instance->nom = nom;
+    instance ->type = type;
+    instance -> adresse = compteurAdresse;
+    compteurAdresse++;
+
+    return instance;
 }
 
 
@@ -224,6 +248,11 @@ void codeConstructeurVersionStructure(ClasseP classe)
 	while(lmethodes != NULL) {
 		codeDeclMethode(lmethodes->methode);
 	}
+
+    if (affected != NULL)
+    {
+        addInstance(makeInstance2(affected, classe));
+    }
 }  
 
 /*CodeConstructeur*/ 
@@ -814,6 +843,11 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 {
 	/*membre gauche de l'affectation gauche := droit*/
 	TreeP gauche = getChild(tree, 0);
+    affected = NULL;
+    if (gauche->nbChildren == 0) /* la selection est un id seul donc on va ajouter une nouvelle instance dans la pile*/
+    {
+        affected = gauche->u.str;
+    }
 
 	/*membre droit de l'affectation*/
 	TreeP droit = getChild(tree, 1);
@@ -1258,6 +1292,8 @@ void genCode(TreeP LClass, TreeP Bloc)
 		/*saut de ligne nécessaire à la fin du programme, 
 		sans quoi il y a une erreur*/
 		fprintf(output, "\n");
+
+        afficherListeInstances();
 
 		fclose(output);
 	}
