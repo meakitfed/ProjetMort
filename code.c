@@ -140,6 +140,14 @@ void addInstance(InstanceP ins)
 	}
 }
 
+
+void depilerInstance()
+{
+    /*LOL on fait pas de free() */
+
+    linstances = linstances->next;
+}
+
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
  * Sera utile pour faire PUSHG Id.adresse() par exemple.
@@ -325,6 +333,19 @@ void CodeConstructeurVersionStructure(MethodeP methode)
 	}
 } 
 
+int tailleListeArbre(TreeP t)
+{
+    TreeP cur = t;
+    int i =1;
+
+    while(cur->nbChildren == 2)
+    {
+        i++;
+        t = getChild(cur, 1);
+    }
+
+    return i;
+}
 
 /* 
  * Génère le code d'une Liste de déclarations
@@ -869,10 +890,10 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 	/*membre gauche de l'affectation gauche := droit*/
 	TreeP gauche = getChild(tree, 0);
     affected = NULL;
-    if (gauche->nbChildren == 0) /* la selection est un id seul donc on va ajouter une nouvelle instance dans la pile*/
+    /*if (gauche->nbChildren == 0)  la selection est un id seul donc on va ajouter une nouvelle instance dans la pile
     {
         affected = gauche->u.str;
-    }
+    }*/
 
 	/*membre droit de l'affectation*/
 	TreeP droit = getChild(tree, 1);
@@ -885,7 +906,7 @@ void codeAff(TreeP tree)    									/*TODO : il faudrait un boolean qui dise si
 		{
 			if(verbose) fprintf(output, "--#######DEBUG : Affectation : constante %d\n", droit->u.val);
 			codeExpr(droit);
-			/*STOREG(gauche.getAdresse());*/
+			STOREG(adresse(gauche->u.str));
 			fprintf(output,"STOREG %s.adresse()\n", gauche->u.str);
 		}
 
@@ -981,6 +1002,30 @@ void codeBlocObj(TreeP tree)        							/*BlocObj: '{' LDeclChampMethodeOpt '
 		}
 	}
 }
+
+
+
+/*
+* fait les instr du bloc puis retire les decls du bloc de la pile
+*/
+void codeBloc(TreeP bloc)
+{
+    bool destruuuction = FALSE;
+    int nbDecls;
+    if (bloc->nbChildren == 2) /* cas ou on peut trouver des decls dans le bloc */
+    {
+        destruuuction = TRUE;
+        nbDecls = tailleListeArbre(getChild(bloc, 0));
+    }
+    codeInstr(bloc);
+
+    if(destruuuction)
+    {
+        int i;
+        for (i=0 ; i<nbDecls ; i++) depilerInstance();
+    }
+}
+
 
 
 /*

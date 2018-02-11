@@ -16,6 +16,8 @@ InstanceP makeInstance(VarDeclP var);
 InstanceP makeInstance2(char *nom,ClasseP type);
 void addInstance(InstanceP ins);
 int positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(char *id);
+int tailleListeArbre(TreeP t);
+
 
 
 void codeLInstr(TreeP tree);
@@ -27,6 +29,8 @@ void codeConstructeurVersionStructure(ClasseP classe);
 void codeExpr(TreeP tree);
 void codeSelec(TreeP tree);
 void codeAff();
+void codeBloc(TreeP bloc);
+
 
 void codeBlocObj(TreeP tree);
 void codeDeclChampMethode(TreeP tree);
