@@ -75,16 +75,17 @@ char *affected = NULL; /*garde en memoire le nom de la variable pour mettre les 
 
 void afficherListeInstances()
 {
+    /* je sais que cet algo est inutilement compliqué mais au moins je suis sur que quand j'affiche je fais exactement la meme chose qui si je demande l'adresse d'une var*/
     LInstanceP cur = linstances;
 
     puts("");
     while (cur != NULL)
     {
-        printf("addr : %d, %s : %s\n", cur->instance->adresse, cur->instance->nom, cur->instance->type->nom);
-
+        printf("addr : %d, %s : %s\n", positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(cur->instance->nom), cur->instance->nom, cur->instance->type->nom);
         cur = cur->next;
     }
 }
+
 
 InstanceP makeInstance(VarDeclP var)
 {
@@ -163,9 +164,29 @@ int adresse(char *id)
 
 	Nombre d'attributs dans une classe afin de faire ALLOC 3 par ex dans le cas d'un new, alloc de mémoire
 */
-  return getInstFromName(id)->adresse; /*On va tester ça, c'est PPR*/
+  return positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(id); /*On va tester ça, c'est PPR*/
 }
 
+int positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(char *id)
+{
+    /*désolé j'ai fait du sale*/
+    bool trouve = FALSE;
+    int i,j;
+    i=j=0;
+    LInstanceP cur = linstances;
+    while (cur != NULL)
+    {
+        if(!trouve && !strcmp(cur->instance->nom, id))
+        {
+            trouve = TRUE;
+            i=j;
+        }
+        cur = cur->next;
+        j++;
+    }
+
+    return j-1-i;
+}
 
 /*retourne la méthode correspondant à un nom
  *à partir de l'environnement de sa classe
@@ -248,11 +269,13 @@ void codeConstructeurVersionStructure(ClasseP classe)
 	while(lmethodes != NULL) {
 		codeDeclMethode(lmethodes->methode);
 	}
-
+    /* en fait il faut pas faire ça je crois j'ai rien compris hahahahahahahahaha
     if (affected != NULL)
     {
+        puts("SALUTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT JE SUIS UN un constructeur");
+
         addInstance(makeInstance2(affected, classe));
-    }
+    } */
 }  
 
 /*CodeConstructeur*/ 
@@ -323,6 +346,8 @@ void codeDeclChampStructure(VarDeclP Champ)
 	if(verbose) fprintf(output,"--Var %s : ", Champ->nom);
 	if(verbose) printf("Ajout de la variable %s à l'environnement...\n", Champ->nom);
 	addVarEnv(Champ, NIL(Classe));	/*TODO? Environnement de classe*/
+    puts("SALUTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT JE SUIS UNe structure");
+
 	addInstance(makeInstance(Champ));
 
 	if(Champ->exprOpt != NULL)
@@ -1009,6 +1034,7 @@ void codeDeclChamp(TreeP tree)		        /*DeclChamp: VAR Id ':' TypeC ValVar ';'
 	
 	/*ajouter la nouvelle instance à la liste*/
 	addVarEnv(tree->u.var, NIL(Classe));	/*TODO? Environnement de classe*/
+    puts("SALUTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT JE SUIS UN ARBRE");
 	addInstance(makeInstance(tree->u.var));
 
 
@@ -1294,6 +1320,10 @@ void genCode(TreeP LClass, TreeP Bloc)
 		fprintf(output, "\n");
 
         afficherListeInstances();
+
+        puts("----------TESTS--------------");
+        printf("adresse de p1 : %d\n", adresse("p1"));
+        printf("adresse de p2 : %d\n", adresse("p2"));
 
 		fclose(output);
 	}

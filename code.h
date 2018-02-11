@@ -15,6 +15,7 @@ int adresse(char *id);
 InstanceP makeInstance(VarDeclP var);
 InstanceP makeInstance2(char *nom,ClasseP type);
 void addInstance(InstanceP ins);
+int positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(char *id);
 
 
 void codeLInstr(TreeP tree);
