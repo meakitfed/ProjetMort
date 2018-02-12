@@ -11,9 +11,19 @@ class Point(xc: Integer, yc: Integer) {
   var x: Integer;
   var y: Integer;
   is
+
+  "\n\nProgramme de comparaison de valeurs !".println();
+
   x := 9;
   y := 2;
   
+  "valeur de y : ".print();
+  y.toString().println();
+
+  "valeur de x : ".print();
+  x.toString().println();
+
+  "\nResultat de la comparaison :".println();
   if x < y then "x est inf a y".println();
   else "y est inf a x".println();
 
@@ -22,5 +32,7 @@ class Point(xc: Integer, yc: Integer) {
 
   "valeur de x : ".print();
   x.toString().println();
+
+  "Au revoir\n\n".print();
 
 }

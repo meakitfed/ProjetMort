@@ -238,7 +238,7 @@ MethodeP getMethodeFromName(ClasseP classe, char *nom)
 /* Retourne la variable correspondant à un nom
  * à partir de l'environnement de variables 
  */
-VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche pas, ScopeP env est vide*/
+VarDeclP getVarDeclFromName(char *nom)                     
 {
 	/*ScopeP env : env de variables*/
 	LVarDeclP temp = env->env;
@@ -261,7 +261,6 @@ VarDeclP getVarDeclFromName(char *nom)                      /*TODO : ne marche p
  */
 int getOffset(ClasseP classe, char *idNom)
 {
-	/*TODO : classe extends*/
 	int offset = 0;
 
 	LVarDeclP temp = classe->lchamps;
@@ -279,8 +278,8 @@ int getOffset(ClasseP classe, char *idNom)
 		}
 		else
 		{
-			offset += 1;		/* TODO bizarre : renvoie 0 pour la dernière variable déclarée.*/
-		}						/*ça veut dire que c'est la variable qui est à 0 du fond de pile. C'est pas le cas si ?*/
+			offset += 1;		
+		}						
 		temp = temp->next;	/*est égal à NULL s'il n'existe qu'un élément dans la liste*/
 	}	
 	printf("Erreur offset.\n");
@@ -410,10 +409,8 @@ void codeDeclChampStructure(VarDeclP Champ)
 {                                           
 	if(verbose) fprintf(output,"--Var %s : ", Champ->nom);
 	if(verbose) printf("Ajout de la variable %s à l'environnement...\n", Champ->nom);
-	addVarEnvSansNum(Champ, NIL(Classe));	/*TODO? Environnement de classe*/
+	addVarEnvSansNum(Champ, NIL(Classe));	
     
-    /*puts("SALUTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT JE SUIS UNe structure");*/
-
 	addInstance(makeInstance(Champ));
 
 	if(Champ->exprOpt != NULL)
@@ -1226,7 +1223,7 @@ void codeTV()
 void codeToString()
 {
 	fprintf(output, "\n\n--Methode toString\n");
-	fprintf(output, "toString:\t PUSHL -1\n");	/*MARCHE MAIS PAS LOGIQUE : TODO*/
+	fprintf(output, "toString:\t PUSHL -1\n");	
 	fprintf(output, "STR\n");
 	fprintf(output, "STOREL -1\n");
 	fprintf(output, "RETURN\n");

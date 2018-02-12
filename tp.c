@@ -897,7 +897,7 @@ void compile(TreeP arbreLClasse, TreeP main, bool verbose)
     
     if(verifContextProg(arbreLClasse, main))
     {
-        /*genCode(arbreLClasse, main);*/
+        genCode(arbreLClasse, main);
     } 
 }
 

@@ -9,6 +9,12 @@ JUMP init	 --initialiser la table virtuelle
 
 main: 	START
 --########DEBUG : Bloc de type LDeclChamp IS LInstr--
+
+--println affiche la chaine suivante :
+PUSHS "\n\nProgramme de comparaison de valeurs !"
+WRITES
+PUSHS "\n"
+WRITES
 --#######DEBUG : Affectation : constante 9
 PUSHI 9
 DUPN 1
@@ -17,6 +23,40 @@ STOREL 0
 PUSHI 2
 DUPN 1
 STOREL 1
+
+--print affiche la chaine suivante :
+PUSHS "valeur de y : "
+WRITES
+
+--println affiche la chaine suivante :
+
+--toString affiche l'id suivant : y
+PUSHL 1
+PUSHA toString
+CALL
+WRITES
+PUSHS "\n"
+WRITES
+
+--print affiche la chaine suivante :
+PUSHS "valeur de x : "
+WRITES
+
+--println affiche la chaine suivante :
+
+--toString affiche l'id suivant : x
+PUSHL 0
+PUSHA toString
+CALL
+WRITES
+PUSHS "\n"
+WRITES
+
+--println affiche la chaine suivante :
+PUSHS "\nResultat de la comparaison :"
+WRITES
+PUSHS "\n"
+WRITES
 PUSHL 0
 PUSHL 1
 INF
@@ -63,6 +103,10 @@ PUSHA toString
 CALL
 WRITES
 PUSHS "\n"
+WRITES
+
+--print affiche la chaine suivante :
+PUSHS "Au revoir\n\n"
 WRITES
 STOP
 
