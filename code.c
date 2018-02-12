@@ -445,16 +445,10 @@ void codeExpr(TreeP tree)
 			break;
 
 		case Id:
-			if(dansClasse)
-			{
-				DUPN(1);
-				PUSHL(adresse(tree->u.str));	/*PUSHL par rapport à fp*/
-			}
-			else
-			{
-				DUPN(1);
-				PUSHG(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
-			}
+		
+			DUPN(1);
+			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
+			
 			break;
 
 		/*instanciation/constructeur*/
@@ -636,7 +630,7 @@ void codeITE(TreeP tree)
 	TreeP childElse = getChild(tree, 2);
 	if(childElse)
 	{
-		codeInstr(getChild(tree, 2));
+		codeInstr(childElse);
 	}
 	else
 	{
@@ -850,14 +844,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 			char *type = temp->type->nom;
 			ClasseP classeType = getClassePointer(type);
 			
-			if(dansClasse)
-			{
-				PUSHL(adresse(tree->u.str));	/*PUSHL par rapport à fp*/
-			}
-			else
-			{
-				PUSHG(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
-			}	
+			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
 
 			int offset = getOffset(classeType,Ident->u.str);
 			LOAD(offset);
@@ -898,14 +885,14 @@ void codeAff(TreeP tree)
 			if(verbose) fprintf(output, "--#######DEBUG : Affectation : constante %d\n", droit->u.val);
 			codeExpr(droit);
 			DUPN(1);
-			STOREG(adresse(gauche->u.str));
+			STOREL(adresse(gauche->u.str));
 		}
 		else
 		{
 			if(verbose) fprintf(output, "--#######DEBUG : Affectation : ident %s\n", droit->u.str);
 			codeExpr(droit);
 			DUPN(1);
-			STOREG(adresse(gauche->u.str));
+			STOREL(adresse(gauche->u.str));
 		}
 
 	}
@@ -915,16 +902,9 @@ void codeAff(TreeP tree)
 		/*TreeP Ident = getChild(gauche, 1);*/
 
 		if (Expr->op == SELEXPR) {
-			
-			if(dansClasse)
-			{
-				PUSHL(adresse(tree->u.str));	/*PUSHL par rapport à fp*/
-			}
-			else
-			{
-				PUSHG(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
-			}
 
+			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
+		
 			codeExpr(Expr);
 			ClasseP classe = getClassePointer(Expr->u.str); 
 
@@ -1247,6 +1227,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 	if (output != NULL) {
 
 		dansClasse = TRUE;
+
 		/*Jump vers la table virtuelle*/
 		fprintf(output, "JUMP init\t --initialiser la table virtuelle\n\n");
 
