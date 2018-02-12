@@ -447,7 +447,7 @@ void codeExpr(TreeP tree)
 		case Id:
 		
 			DUPN(1);
-			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
+			PUSHL(adresse(tree->u.str));	
 			
 			break;
 
@@ -607,6 +607,7 @@ char *makeLabel(char *type)
  */
 void codeITE(TreeP tree)
 {
+
 	/*Création des étiquettes*/
 	char *labelElse = makeLabel("else");
 	char *labelEndIf = makeLabel("endif");
@@ -844,7 +845,7 @@ void codeSelec(TreeP tree)		                 /*Selection: Expr '.' Id*/		/*Pb du
 			char *type = temp->type->nom;
 			ClasseP classeType = getClassePointer(type);
 			
-			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
+			PUSHL(adresse(tree->u.str));	
 
 			int offset = getOffset(classeType,Ident->u.str);
 			LOAD(offset);
@@ -903,7 +904,7 @@ void codeAff(TreeP tree)
 
 		if (Expr->op == SELEXPR) {
 
-			PUSHL(adresse(tree->u.str));	/*PUSHG par rapport à gp*/
+			PUSHL(adresse(tree->u.str));	
 		
 			codeExpr(Expr);
 			ClasseP classe = getClassePointer(Expr->u.str); 
