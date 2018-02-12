@@ -1,0 +1,95 @@
+JUMP init	 --initialiser la table virtuelle
+
+--Generation du code d'une classe : Integer
+--Generation du code d'une classe : String
+--Generation du code d'une classe : Void
+--Generation du code d'une classe : Point
+--------------BLOC PRINCIPAL--------------
+
+
+main: 	START
+--########DEBUG : Bloc de type LDeclChamp IS LInstr--
+--#######DEBUG : Affectation : constante 9
+PUSHI 9
+DUPN 1
+STOREG 0
+--#######DEBUG : Affectation : constante 2
+PUSHI 2
+DUPN 1
+STOREG 1
+DUPN 1
+PUSHG 0
+DUPN 1
+PUSHG 1
+INF
+JZ else0
+
+--println affiche la chaine suivante :
+PUSHS "x est inf a y"
+WRITES
+PUSHS "\n"
+WRITES
+POPN 1
+JUMP endif1
+else0:	 NOP
+
+--println affiche la chaine suivante :
+PUSHS "y est inf a x"
+WRITES
+PUSHS "\n"
+WRITES
+POPN 1
+endif1:	 NOP
+
+--print affiche la chaine suivante :
+PUSHS "valeur de y : "
+WRITES
+POPN 1
+
+--println affiche la chaine suivante :
+
+--toString affiche l'id suivant : y
+PUSHL 1
+PUSHA toString
+CALL
+WRITES
+PUSHS "\n"
+WRITES
+POPN 1
+STOP
+
+
+--------------FIN DU BLOC PRINCIPAL--------------
+
+--------Initialisation des tables virtuelles.--------
+init:	 NOP
+
+--Classe Point
+ALLOC 0
+JUMP main
+
+--------Initialisation des invocations.--------
+
+--invoquer methode numero 1 du receveur
+call1: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 0
+CALL
+RETURN
+--invoquer methode numero 2 du receveur
+call2: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 1
+CALL
+RETURN
+
+
+--Methode toString
+toString:	 PUSHL -2
+STR
+STOREL -1
+POPN 1
+RETURN
+

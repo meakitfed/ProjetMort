@@ -86,11 +86,13 @@ typedef struct _LInstance
 	struct _LInstance *next;
 }LInstance, *LInstanceP;
 
+
 /* Adapt as needed. Currently it is simply a list of names ! */
 typedef struct _varDecl {
   char *nom;
   struct _Classe *type;
   struct _Tree *exprOpt;
+  bool *isDefini;
 } Param, Champ, VarDecl, *ParamP, *ChampP, *VarDeclP;
 
 typedef struct _LVarDecl
@@ -164,7 +166,9 @@ typedef union
 } YYSTYPE; 
 
 
-/*------------------protype------------------*/
+
+
+/*------------------prototypes------------------*/
 
 void setError(int code);
 
@@ -177,16 +181,17 @@ TreeP getChild(TreeP tree, int rank);
 void setChild(TreeP tree, int rank, TreeP arg);
 
 
-/*------------------protype tp.c------------------*/
+/*------------------prototypes tp.c------------------*/
 
 VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt);
 ClasseP makeClasse(char* nom);
 ClasseP makeObjet(char *nom);
 MethodeP makeMethode(TreeP declMethode, ClasseP classe);
-LVarDeclP makeLParam(TreeP arbreLParam, int *i);
+LVarDeclP makeLParam(TreeP arbreLParam);
 LVarDeclP makeLParamIsVar(TreeP arbreLParam);
 LChampP makeChampsBlocObj(TreeP blocObj);
 LMethodeP makeMethodeBlocObj(TreeP blocObj, ClasseP classe);
+LVarDeclP dansLeBonOrdre(LVarDeclP liste);
 
 ClasseP getClassePointer(char *nom);
 MethodeP getMethodePointer(ClasseP classe, char* nom);
@@ -219,41 +224,49 @@ bool verifContextMain(TreeP main);
 bool verifContextLClasse(TreeP arbreLClasse);
 
 
-/*------------------protype verif.c------------------*/
+/*------------------prototypes verif.c------------------*/
 
 bool checkDoublonClasse(LClasseP lclasse);
 bool checkBoucleHeritage(LClasseP lclasse);
 
 bool checkClassDefine(char* nom);
 bool checkPortee(LVarDeclP lvar, char* nom);
-bool checkBlocMain(TreeP bloc, ClasseP classe);
+bool checkBlocMain(TreeP bloc, ClasseP classe, MethodeP methode);
 
-bool checkExpr(TreeP tree, ClasseP classe);
-bool checkSelection(TreeP selection);
+bool checkExpr(TreeP tree, ClasseP classe, MethodeP methode);
+bool checkSelection(TreeP selection, ClasseP classe, MethodeP methode);
 
-ClasseP getType(TreeP expr, ClasseP classe);
+ClasseP getType(TreeP expr, ClasseP classe, MethodeP methode);
 ClasseP getTypeId(char* nom);
+ClasseP getTypeMethode(char* nom, ClasseP classe);
 
-bool setEnvironnementType(LVarDeclP var, ClasseP classe);
-bool checkBlocClasse(TreeP tree, ClasseP classe);
+bool setEnvironnementType(LVarDeclP var, ClasseP classe, MethodeP methode);
+bool checkBlocClasse(TreeP tree, ClasseP classe, MethodeP methode);
 
 LVarDeclP envHerite(ClasseP classeMere);
-bool addEnv(LVarDeclP var, ClasseP classe);
-bool addVarEnv(VarDeclP var, ClasseP classe);
+bool addEnv(LVarDeclP var, ClasseP classe, int* i);
+bool addVarEnv(VarDeclP var, ClasseP classe, int* i);
 void removeEnv(int n);
 
-bool checkAff(VarDeclP var, TreeP expr, ClasseP classe);
+bool checkAff(VarDeclP var, TreeP expr, ClasseP classe, MethodeP methode);
 int getTailleListeVarDecl(LVarDeclP liste);
+VarDeclP getVarSelection(TreeP Selection, ClasseP classe, MethodeP methode);
+bool verifLParam(LVarDeclP lparam);
+bool verifVarDeclDefinition(TreeP expr, ClasseP classe, MethodeP methode);
 
-bool checkArguments(LParamP larg1, LParamP larg2);
-bool checkOverrideMethode(ClasseP classe, char* nom, LParamP larg, bool isOverride);
+bool checkArguments(LParamP larg, LParamP largbis);
+bool CheckArgumentOverride(LParamP nvlarg, LParamP larg);
+bool checkOverrideMethode(ClasseP classe, char* nom, LParamP larg, bool isOverride, ClasseP typeDeRetour);
 bool checkOverrideLClasse(LClasseP lclasse);
 bool checkDoublonClasse(LClasseP lclasse);
 bool checkBoucleHeritage(LClasseP lclasse);
-bool checkCast(ClasseP classeCast, char* nom, ClasseP classe);
-bool checkMethodes(ClasseP classe, char* nom);
+bool checkCast(ClasseP classeCast, ClasseP typeId, ClasseP classe);
+bool checkMethodes(ClasseP classe, char* nom, TreeP lparam, ClasseP dansclasse, MethodeP dansmethode);
+bool checkHeritageClasse(ClasseP classe, char* nom);
+bool checkDoublonMethodes(LMethodeP lmethode, char* nomClasse);
+bool checkDoublonMethodesLClasse(LClasseP lclasse);
 
-
+bool addVarEnvSansNum(VarDeclP var, ClasseP classe);
 
 #define YYSTYPE YYSTYPE
 #define YYERROR_VERBOSE 1

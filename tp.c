@@ -14,7 +14,7 @@ extern int yylineno;
 /* Peut servir a controloer le niveau de 'verbosite'.
  * Par defaut, n'imprime que le resultat et les messages d'erreur
  */
-bool verbose = TRUE;
+bool verbose = FALSE;
 
 /* Peut servir a controler la generation de code. Par defaut, on produit le code
  * On pourrait avoir un flag similaire pour s'arreter avant les verifications
@@ -37,8 +37,7 @@ LClasseP lclasse = NIL(LClasse);
 
 ScopeP env = NIL(Scope);
 int nbErreur = 0;
-
-
+int* envDispo = NIL(int);
 
 int main(int argc, char **argv) {
   int fi;
@@ -225,6 +224,9 @@ VarDeclP makeVarDecl(char *nom, char *type, TreeP exprOpt)
         newVar->type = classeType;
     }
 
+    newVar->isDefini = NEW(1, bool);
+    *(newVar->isDefini) = FALSE;
+
     return newVar;
 }
 
@@ -290,13 +292,11 @@ ClasseP makeObjet(char *nom)
 /* Creer une methode a partir d'un arbre */
 MethodeP makeMethode(TreeP declMethode, ClasseP classe)
 {
-    int *i = NEW(1, int);
-    *i = 0;
     MethodeP newMethode = NEW(1, Methode);
 
     /* liste de parametres */
     TreeP arbreParamMeth = getChild(declMethode, 2);
-    LParamP lparametres = makeLParam(arbreParamMeth, i);
+    LParamP lparametres = makeLParam(arbreParamMeth);
     newMethode->lparametres = lparametres;
 
     /* pointeur vers le type de retour */
@@ -340,17 +340,15 @@ MethodeP makeMethode(TreeP declMethode, ClasseP classe)
 
 
 /* retourne une liste de parametres a partir d'un arbre */
-LVarDeclP makeLParam(TreeP arbreLParam, int *i)
+LVarDeclP makeLParam(TreeP arbreLParam)
 {
   LParamP lparam = NIL(LVarDecl);
-
   if(arbreLParam != NIL(Tree))
   {
-
       while(arbreLParam->op == YLPARAM || arbreLParam->op == LDECLC)
       {
-          *i = *i + 1; 
           ParamP tmp = getChild(arbreLParam, 0)->u.var;
+          *(tmp->isDefini) = FALSE;
 
           LParamP tmpListe = NEW(1, LParam);
           tmpListe->var = tmp;
@@ -360,9 +358,9 @@ LVarDeclP makeLParam(TreeP arbreLParam, int *i)
 
           arbreLParam = getChild(arbreLParam, 1);
       }
-
-      *i = *i + 1;           
+          
       ParamP tmp = arbreLParam->u.var;
+      *(tmp->isDefini) = FALSE;
 
       LParamP tmpListe = NEW(1,LParam);
       tmpListe->var = tmp;
@@ -410,6 +408,8 @@ LChampP makeChampsBlocObj(TreeP blocObj)
         }
     }
 
+    lChamps = dansLeBonOrdre(lChamps);
+
     return lChamps;
 }
 
@@ -448,6 +448,39 @@ LMethodeP makeMethodeBlocObj(TreeP blocObj, ClasseP classe)
 }
 
 
+/*  fct qui inverse l'ordre d'une liste : utile a cause de la grammaire sur la declaration des champs */
+LVarDeclP dansLeBonOrdre(LVarDeclP liste)
+{
+    LVarDeclP bonOrdre = NIL(LVarDecl);
+
+    if(liste != NIL(LVarDecl))
+    {
+        LVarDeclP tmpListe = liste;
+        while(tmpListe != NIL(LVarDecl))
+        {
+            LVarDeclP tmp = NEW(1, LVarDecl);
+            tmp->var = tmpListe->var;
+            tmp->next = NIL(LVarDecl);
+
+            if(bonOrdre == NIL(LVarDecl))
+            {
+                bonOrdre = tmp;
+            }
+            else
+            {
+                tmp->next = bonOrdre;
+                bonOrdre = tmp;
+            }
+
+            tmpListe = tmpListe->next;
+        }
+    }
+
+    return bonOrdre;
+}
+
+
+
 /*--------------------------GET POINTEUR---------------------------*/
 
 
@@ -464,6 +497,7 @@ ClasseP getClassePointer(char *nom)
 
     cur = cur->next;
   }
+
   return NIL(Classe);
 }
 
@@ -492,6 +526,8 @@ MethodeP getMethodePointer(ClasseP classe, char* nom)
         return NIL(Methode);
     }
 }
+
+
 
 /*--------------------------ADD TO---------------------------*/
 
@@ -566,12 +602,13 @@ void addConstructeur(TreeP blocOpt, ClasseP classe)
       MethodeP constr = NEW(1, Methode);
       constr->override = FALSE;
       constr->nom = classe->nom;
-      constr->lparametres = classe->lparametres;    /* TODO : OK OU KO */
+      constr->lparametres = classe->lparametres;
       constr->typeDeRetour = classe;
       constr->classeAppartenance = classe;
       constr->bloc = blocOpt;
       
       classe->constructeur = constr;
+      classe->lmethodes = addMethode(constr,classe->lmethodes);
   }
 }
 
@@ -588,6 +625,13 @@ void makeClassesPrimitives()
 
   TreeP exprOpt = NIL(Tree);
 
+  /*Initialisation de Void*/
+  ChampP  champVoid = makeVarDecl("void", "Void", exprOpt);
+  LChampP champListeVoid = NEW(1, LChamp);
+  champListeVoid->var = champVoid;
+  champListeVoid->next = NIL(LChamp);
+  voidC->lchamps = champListeVoid;
+
   /*Initialisation d'Integer*/
   ParamP paramInt = makeVarDecl("val", "Integer", exprOpt);
   LParamP paramListeInt = NEW(1, LParam);
@@ -595,8 +639,8 @@ void makeClassesPrimitives()
   paramListeInt->next = NIL(LParam);
   integer->lparametres = paramListeInt;
 
-  /*Constructeur du type Integer*/
-  addConstructeur(exprOpt, integer);
+  /*Constructeur du type Integer (interdit) */
+  /* addConstructeur(exprOpt, integer); */
 
   /*methode toString*/
   MethodeP toString = NEW(1, Methode);
@@ -610,7 +654,7 @@ void makeClassesPrimitives()
 
 
   integer->superClasse = NIL(Classe);
-  integer->lchamps = NIL(LVarDecl);
+  integer->lchamps = paramListeInt;
   
   
   /*Initialisation de String*/
@@ -620,8 +664,8 @@ void makeClassesPrimitives()
   paramListeStr->next = NIL(LParam);
   string->lparametres = paramListeStr;
 
-  /*Constructeur du type String*/
-  addConstructeur(exprOpt, string);
+  /*Constructeur du type String (interdit) */
+  /* addConstructeur(exprOpt, string); */
 
   /*methode print*/
   MethodeP print = NEW(1, Methode);
@@ -642,15 +686,20 @@ void makeClassesPrimitives()
   string->lmethodes = addMethode(print, string->lmethodes);
   string->lmethodes = addMethode(println, string->lmethodes);
   string->superClasse = NIL(Classe);
-  string->lchamps = NIL(LVarDecl);
+  string->lchamps = paramListeStr;
+
+   envDispo = NEW(1, int);
+  *envDispo = 0;
 
   addClasse(integer);
   /* permet de mettre a jour le type du parametre, pour qu'il pointe vers la structure ajouter dans lclasse */ 
-  setEnvironnementType(paramListeInt, integer);
+  setEnvironnementType(paramListeInt, integer, NIL(Methode));
   addClasse(string);
   /* idem pour le parametre d'un string */
-  setEnvironnementType(paramListeStr, string);
+  setEnvironnementType(paramListeStr, string, NIL(Methode));
   addClasse(voidC);
+
+  free(envDispo);
 }
 
 
@@ -660,8 +709,6 @@ void initClasse(TreeP arbreLClasse)
     ClasseP bufferClasse = NIL(Classe);
     ClasseP bufferObj = NIL(Classe);
     TreeP arbreCourant = arbreLClasse;
-    int *i = NEW(1, int);
-    *i = 0;
 
     while(arbreCourant != NIL(Tree))
     {
@@ -677,26 +724,11 @@ void initClasse(TreeP arbreLClasse)
             {
                 ClasseP tmp = getClassePointer(getChild(arbreExtendOpt, 0)->u.str);
                 bufferClasse->superClasse = tmp;
-
-                /* TODO : regrouper checkBlocClasse et init classe ? */
-                /* cette verif est faite dans checkBlocClasse */
-                /*
-                if(tmp != NIL(Classe))
-                {
-                    bufferClasse->superClasse = tmp;
-                }
-                else
-                {
-                    fprintf(stderr, "Erreur d'extends\n");
-                    fprintf(stderr, "\t> la classe %s n'existe pas\n\n", getChild(arbreExtendOpt, 0)->u.str);
-                    nbErreur++;
-                }
-                */
             }
         
             /* stockage des parametres de la classe */
             TreeP arbreLParam = getChild(arbreClasse, 1);
-            bufferClasse->lparametres = makeLParam(arbreLParam,i);
+            bufferClasse->lparametres = makeLParam(arbreLParam);
 
             /* stockage des champs de la classe */
             TreeP arbreBlocObj = getChild(arbreClasse, 4); 
@@ -710,12 +742,12 @@ void initClasse(TreeP arbreLClasse)
               {
                 if(getChild(arbreLParam,0)->op == VYPARAM)
                 {
-                  LParamP tmpListe = NEW(1,LParam);
-                  tmpListe->var = getChild(arbreLParam,0)->u.var;
+                  LParamP tmpListe = NEW(1, LParam);
+                  tmpListe->var = getChild(arbreLParam, 0)->u.var;
                   tmpListe->next = NIL(LParam);
                   bufferClasse->lchamps = addVarDecl(tmpListe, bufferClasse->lchamps);  
                 }
-                arbreLParam = getChild(arbreLParam,1);
+                arbreLParam = getChild(arbreLParam, 1);
               }
               if(arbreLParam->op == VYPARAM)
               {
@@ -807,9 +839,12 @@ void initEnv()
 /* verification contextuelle du programme */
 bool verifContextProg(TreeP arbreLClasse, TreeP main)
 {
+    envDispo = NEW(1, int);
+    *envDispo = 0;
     bool check = TRUE;
-
+    check = checkBoucleHeritage(lclasse);
     check = verifContextLClasse(arbreLClasse) && check;
+    *envDispo = 0;
     check = verifContextMain(main) && check;
 
     if(nbErreur > 0)
@@ -817,16 +852,16 @@ bool verifContextProg(TreeP arbreLClasse, TreeP main)
     else
         printf("\nC'est good\n\n");
 
+    free(envDispo);
     return check;
 }
 
 
 /* verification contextuelle du main */
 bool verifContextMain(TreeP main)
-{
+{ 
     bool check = TRUE;
-
-    check = checkBlocMain(main, NIL(Classe)) && check;
+    check = checkBlocMain(main, NIL(Classe), NIL(Methode)) && check;
 
     return check;
 }
@@ -836,11 +871,11 @@ bool verifContextMain(TreeP main)
 bool verifContextLClasse(TreeP arbreLClasse)
 {
     bool check = TRUE;
+    check = checkDoublonClasse(lclasse) && check;
+    check = checkDoublonMethodesLClasse(lclasse) && check; 
 
-    /* check = checkBoucleHeritage(lclasse) && check;
-    check = checkDoublonClasse(lclasse) && check; */
-
-    check = checkBlocClasse(arbreLClasse, NIL(Classe)) && check;
+    check = checkBlocClasse(arbreLClasse, NIL(Classe), NIL(Methode)) && check;
+    check = checkOverrideLClasse(lclasse) && check;
 
     return check;
 }
@@ -858,7 +893,7 @@ void compile(TreeP arbreLClasse, TreeP main, bool verbose)
     {
         stockerClasse(arbreLClasse, verbose);
     }
-
+    
     verifContextProg(arbreLClasse, main); 
 
     /* genCode($1, $2); */
@@ -911,7 +946,7 @@ void printClasse(ClasseP classe)
         printLMethode(classe->lmethodes);
         printf("\n");
     }
-    else
+    else if(strcmp(classe->nom, "Void") != 0)
     {
         printf("#####################################\n");
         printf("Objet : %s\n", classe->nom);
@@ -923,7 +958,32 @@ void printClasse(ClasseP classe)
         printLMethode(classe->lmethodes);
         printf("\n");
     }
-    
+    else
+    {
+        printf("#####################################\n");
+        printf("Classe : %s\n", classe->nom);
+        if(classe->superClasse != NIL(Classe))
+        {
+            printf("\nSuperClasse : %s\n", classe->superClasse->nom);
+        }
+        else
+        {
+            printf("\nSuperClasse : NIL\n");
+        }
+        printf("\n");
+        printf("Parametres :\n");
+        printVarDecl(classe->lparametres); 
+        printf("\n");
+        printf("Constructeur :\n");
+        printMethode(classe->constructeur); 
+        printf("\n");
+        printf("Champs :\n");
+        printVarDecl(classe->lchamps);
+        printf("\n");
+        printf("Methodes :\n\n");
+        printLMethode(classe->lmethodes);
+        printf("\n");
+    }
 }
 
 

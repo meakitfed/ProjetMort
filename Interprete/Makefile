@@ -8,7 +8,7 @@
 OBJ=gram.o lex.o interp.o
 CC=gcc
 CFLAGS= -Wall -Wno-unused-but-set-variable -Wno-unused-function -Wno-unknown-warning-option -c -I./ -g 
-LDFLAGS= -g -lfl -ly
+LDFLAGS= -g -ll -ly
 interp : $(OBJ)
 	$(CC) -o interp $(OBJ) $(LDFLAGS)
 

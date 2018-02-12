@@ -1,5 +1,4 @@
 class Point() {
-     w2 := -25;
 } 
 is
 {
@@ -11,11 +10,11 @@ is
   is
   x := 9;
   y := 2;
-  if x < 9 then "x est inf a 9".println();
-  else "y est inf a x";
+  
+  if x < y then "x est inf a y".println();
+  else "y est inf a x".println();
 
-  "valeur de x : ".print();
-  x.print();
   "valeur de y : ".print();
-  y.print();
+  y.toString().println();
+
 }
