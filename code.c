@@ -70,7 +70,6 @@ void NEWLABEL(char* c) {
 int compteurAdresse = 0; /* se mefier de lui*/
 LInstanceP linstances = NIL(LInstance); /* a mettre a jour au moment des declarations dans code.c ah bah nan ça se fait pas dans l'oredre  ??!?N?*/
 
-bool dansClasse =FALSE;
 char *affected = NULL; /*garde en memoire le nom de la variable pour mettre les new dedans */
 
 void afficherListeInstances()
@@ -142,14 +141,13 @@ void addInstance(InstanceP ins)
 
 void depilerInstance()
 {
-    /*LOL on fait pas de free() */
-
     linstances = linstances->next;
 }
 
+
 /* Retourne l'adresse d'une variable contenue dans l'environnement
  * de variables. 
- * Sera utile pour faire PUSHG Id.adresse() par exemple.
+ * Sera utile pour faire PUSHG adresse(Id) par exemple.
  */
 int adresse(char *id)
 {
@@ -312,20 +310,20 @@ void codeConstructeur(TreeP arbre)
     /*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
     if(arbre != NIL(Tree)){
         ClasseP classe = NULL;
-        if(getClassePointer(getChild(arbre, 0)->u.str) != NULL)
-            classe = getClassePointer(getChild(arbre, 0)->u.str);
-        TreeP lexpressions = NULL;
+        if(getClassePointer(getChild(arbre, 0)->u.str) != NULL) classe = getClassePointer(getChild(arbre, 0)->u.str);
+        TreeP lparametres = NULL;
         if(getChild(arbre, 1) != NULL)
-            lexpressions = getChild(arbre, 1);
+            lparametres = getChild(arbre, 1);
    
-        int taille = getTailleListeVarDecl(classe->lparametres) + getTailleListeMethode(classe->lmethodes);        
+        int tailleVarDecl = getTailleListeVarDecl(classe->lparametres);
+        int tailleObj = tailleVarDecl + getTailleListeMethode(classe->lmethodes);        
  
-        TreeP tmp = lexpressions;
+        TreeP tmp = lparametres;
  
-        ALLOC(taille);
+        ALLOC(tailleObj);
         int i = 0;      
        
-        while(tmp != NIL(Tree) && i < taille){
+        while(tmp != NIL(Tree) && i < tailleVarDecl){
             if(tmp->nbChildren == 2) {
                 DUPN(1);
                 codeExpr(getChild(tmp, 0));                          
@@ -355,8 +353,8 @@ void codeConstructeur(TreeP arbre)
 void CodeConstructeurVersionStructure(MethodeP methode)
 {
 	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
-	LVarDeclP lexpressions = methode->lparametres;
-	int taille = getTailleListeVarDecl(lexpressions);
+	LVarDeclP lparametres = methode->lparametres;
+	int taille = getTailleListeVarDecl(lparametres);
 
 	TreeP tmp = methode->bloc;
 
@@ -796,7 +794,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 					tailleParam = 0; 
 					while(tempParam != NULL) 
 					{
-						PUSHG(tailleParam);  								
+						PUSHL(tailleParam);  								
 						tailleParam++;
 						tempParam = tempParam->next;
 					}
@@ -1161,6 +1159,7 @@ void codeTV()
 			nbMethodes = getTailleListeMethode(lmethodes);
 
 			ALLOC(nbMethodes);
+			DUPN(1);
 
 			while(lmethodes != NIL(LMethode))
 			{
@@ -1240,8 +1239,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 
 	if (output != NULL) {
 
-		dansClasse = TRUE;
-
+		 
 		/*Jump vers la table virtuelle*/
 		fprintf(output, "JUMP init\t --initialiser la table virtuelle\n\n");
 
@@ -1250,7 +1248,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 		codeLClasse();
 
 		/*Generation de code du bloc principal*/
-		dansClasse = FALSE;
+		 
 
 		fprintf(output, "--------------BLOC PRINCIPAL--------------");
 		fprintf(output, "\n\n\nmain: \tSTART\n");
@@ -1258,8 +1256,7 @@ void genCode(TreeP LClass, TreeP Bloc)
 		fprintf(output, "STOP\n\n\n");
 		fprintf(output, "--------------FIN DU BLOC PRINCIPAL--------------\n\n");
 
-		dansClasse = TRUE;
-		/*Generation de la table virtuelle*/
+		 		/*Generation de la table virtuelle*/
 		codeTV();
 
 		/*Generation de la methode toString*/

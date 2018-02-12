@@ -118,6 +118,7 @@ init:	 NOP
 
 --Classe Point
 ALLOC 1
+DUPN 1
 JUMP main
 
 --------Initialisation des invocations.--------
