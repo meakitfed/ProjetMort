@@ -468,7 +468,6 @@ void codeExpr(TreeP tree)
 			break;
 
 		case Id:
-
 			PUSHL(adresse(tree->u.str));	
 			break;
 
@@ -795,7 +794,7 @@ void codeEnvoi(TreeP tree)					/*Envoi: Expr '.' MethodeC */
 				if(tempMethode)
 				{
 					LVarDeclP tempParam = tempMethode->lparametres;
-					if(verbose) fprintf(output, "--Envoi : méthode %s de la classe %s\n", tempMethode->nom, classeEnvoi->nom);
+					if(verbose) fprintf(output, "--Envoi : methode %s de la classe %s\n", tempMethode->nom, classeEnvoi->nom);
 
 					tailleParam = 0; 
 					while(tempParam != NULL) 
@@ -920,22 +919,21 @@ void codeAff(TreeP tree)
 	else if (gauche->op == SELEXPR) {
 
 		TreeP Expr = getChild(gauche, 0);
-		/*TreeP Ident = getChild(gauche, 1);*/
+		TreeP Ident = getChild(gauche, 1);
 
 		if (Expr->op == SELEXPR) {
 
 			PUSHL(adresse(tree->u.str));	
 		
 			codeExpr(Expr);
-			ClasseP classe = getClassePointer(Expr->u.str); 
+			ClasseP classeExpr = getClassePointer(Expr->u.str); 
+			int offset = getOffset(classeExpr,Ident->u.str);
 
-			/*char* t = getSymbole(Expr->u.str)->Expr->type;		TODO
 
-			ClassP class = figureClass(t); cimer 			TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-
+			/*
 			offset = getOffset(class,Ident->u.str);
-		   
-			STORE(offset);*/
+		   */
+			STORE(offset);
 		}
 
 	}
@@ -1049,7 +1047,7 @@ void codeDeclMethode(MethodeP methode)	/*voir l'exemple du subint/addint*/
 	if(tree != NULL)
 	{   
 		if(verbose) fprintf(output,"\n\n--Declaration de la methode %s de type de retour %s.\n", methode->nom, methode->typeDeRetour->nom);
-		fprintf(output, "%s: \t", methode->nom);
+		fprintf(output, "%s: \tNOP\n", methode->nom);
 
 		/*Empilement des paramètres de la méthode*/
 		tailleParam = getTailleListeVarDecl(methode->lparametres);
