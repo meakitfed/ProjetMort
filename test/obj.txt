@@ -1,6 +1,6 @@
 object Test is {
 var x: Integer := 57;
-def theX() : Integer := x
+def theX() : Integer := this.x
 }
 {
 Test.theX().toString().println();

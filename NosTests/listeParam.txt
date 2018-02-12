@@ -1,0 +1,24 @@
+/* Doit afficher 3 erreurs */
+
+class Point(xc: Integer, yc: Integer, test: Integer := 1) is {
+  var x: Integer := 5;
+  var y : Integer := 5;
+
+  def getx(xc: Integer, var yc: Integer := 1, var test: Integer := 1) : Integer := this.x
+  /* incorrect */
+  def gety(var xc: Integer := 1, yc: Integer, var test: Integer := 1) : Integer := this.y
+}
+
+/* incorrect */
+class Pointbis(var xc: Integer := 1, yc: Integer, var test: Integer := 1) is {
+  var x: Integer := 5;
+  var y : Integer := 5;
+
+  def getx(xc: Integer, var yc: Integer := 1, var test: Integer := 1) : Integer := this.x
+  /* incorrect */
+  def gety(var xc: Integer := 1, yc: Integer, var test: Integer := 1) : Integer := this.y
+}
+
+{ 
+
+}

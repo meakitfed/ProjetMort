@@ -1,0 +1,90 @@
+
+/* Doit afficher 15 erreurs */
+
+
+class Point(var xc: Integer ,zc: Integer, yc: Integer:= 0, nom: String:= "nouveau point") { } is 
+{
+  def egal(p: Point, p1:PointBis) : Integer is 
+  {
+
+  }
+  /* Erreur doublon methode */
+  def egal(p: Point, p1:PointBis) : Integer is 
+  {
+
+  }
+  def egal2(p: Point := new Point(2,3), p1:PointBis) : Integer is 
+  {
+
+  }
+  def egal3(p: Point, p1:PointBis) : Integer is 
+  {
+
+  }
+  def print(verbose : Integer) is
+  {
+  
+  }
+}
+
+class PointBis(var xc: Integer ,zc: Integer) extends Point(xc,zc) {} is 
+{
+  override def print(verbose : Integer) is
+  {
+
+  }
+  override def egal2(p: Point, p1:PointBis) : Integer is 
+  {
+
+  }
+  /* Erreur rajouter override egal3 */
+  def egal3(p: Point, p1:PointBis) : Integer is 
+  {
+
+  }
+}
+class TestConstructeurHeritage(var point1 : Point, var point2 : PointBis) {} is
+{
+  
+}
+
+{ 
+  /*sans erreur*/
+  
+  var p1: Point := new Point(0,1,"premier");
+  var p2: Point := new Point(0,1,2,"deuxieme");
+  var p3: Point := new Point(0,1);  
+  var p4: Point := new Point(0,1,2);
+  var p11: Point := new PointBis(0,1);      
+  var p14: PointBis := new PointBis(0,1); 
+  var p13: TestConstructeurHeritage := new TestConstructeurHeritage(new Point(2,3),new PointBis(2,3));
+  var p15: TestConstructeurHeritage := new TestConstructeurHeritage(new PointBis(2,3),new PointBis(2,3));
+  
+
+  /*avec erreur*/
+
+  var p5: Point := new Point();
+  var p6: Point := new Point(0);  
+  var p7: Point := new Point("erreur ici", "erreur là");  
+  var p8: Point := new Point(0,1,2,3);  
+  var p9: Point := new Point(0,1,"erreur ici", 2);  
+  var p10: Point := new Point(0,1,2,"nom",3);  
+  var p12: PointBis := new Point(0,1);   
+  var p16: TestConstructeurHeritage := new TestConstructeurHeritage(new PointBis(2,3),new Point(2,3));
+  var p16: TestConstructeurHeritage := new TestConstructeurHeritage(new Point(2,3),new Point(2,3));
+
+is
+  /* sans erreur */ 
+  p1.egal(p2, p14);
+  p1.egal(p14, p14);
+  p1.egal2(p2, p14);
+  p1.egal2(p2);
+  p1.egal2(p14);
+  p14.egal2(p2);
+  p14.egal2(p14);
+
+
+  /* avec erreur */
+  p1.egal(p2, p2);
+  p1.egal(p14, p2);
+}

@@ -1,4 +1,4 @@
-class A() { result := unA; } is {
+class A() { result := this.unA; } is {
    var unA : A := new A();
    var result : Integer := 0;
    def f(result: Integer) is { }

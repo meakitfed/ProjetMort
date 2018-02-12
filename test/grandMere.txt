@@ -1,21 +1,21 @@
 class A() { "A::()".println();
-            va := -12;
+            this.va := -12;
           } is
-   { var va: Integer := 1; /* va etre ecrasee */ 
-     def sValeur() : Integer := va
-   }
-class B() extends A() { "B::()".println(); vb := va + 2; } is 
+{ var va: Integer := 1; /* va etre ecrasee */ 
+  def sValeur() : Integer := this.va
+}
+class B() extends A() { "B::()".println(); this.vb := this.va + 2; } is 
    { var vb: Integer; }
 class C(v : Integer) extends B() { "C::()".println(); } is 
-   { var vc: Integer := 3 + va + vb; }
+   { var vc: Integer := 3 + this.va + this.vb; }
 class D(v : Integer) extends C(12) { "D::()".println(); } is
-  {  var vd: Integer := vc + 4;
+  {  var vd: Integer := this.vc + 4;
      def valeur() : Integer is {
-        va.toString().println();
-        vb.toString().println();
-        vc.toString().println();
-        vd.toString().println();
-        result := va + vb + vc + vd;
+        this.va.toString().println();
+        this.vb.toString().println();
+        this.vc.toString().println();
+        this.vd.toString().println();
+        result := this.va + this.vb + this.vc + this.vd;
      }
   }
 {

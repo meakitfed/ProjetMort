@@ -1,0 +1,32 @@
+/* Doit afficher 4 erreurs */
+
+class Point() is {
+	var x : Integer := 4;
+	var y: Integer := 3;
+	var w: Integer;
+	def getX() : Integer := this.x
+}
+
+class Point2() extends Point() is {
+	var x : String := "ok";
+	/* pas de this ici : correct pour note code */
+	var z: Integer := y;
+	/* la definition de w est conserve : erreur d'affectation ici */
+	var v: Integer := w;
+	/* erreur d'affectation : impossible d'affecter un string a un integer */
+	override def getX() : Integer := this.x
+}
+
+class Other() is {
+	var x : Integer := 5;
+	def meth() : Integer is {
+		var p : Point;
+		is
+		{
+			/* p.x est incorrect, il faudrait faire p.getX() */
+			this.x := p.x ;
+		}
+	}
+}
+
+{}

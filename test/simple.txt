@@ -1,37 +1,36 @@
 class Point(xc: Integer, yc: Integer) {
-     x:= xc; z := y; /* OK: valeur de y deja definie */
-     w2 := -25;
+     this.x:= xc; this.z := this.y; /* OK: valeur de y deja definie */
+     this.w2 := -25;
   } is {
   var x: Integer;
   /* var y := yc; */         /* erreur contextuelle: yc inconnu */
-  /* var y: Integer := x; */ /* valeur de x encore indefinie */
+  /* var y: Integer := this.x; */ /* valeur de x encore indefinie */
   var y : Integer := 5;
   var z: Integer;
-  var w: Integer := y + 1;  /* OK : valeur de y deja definie */
-  var w2: Integer := w+1;   /* va etre ecrasee dans le constructeur */
-  var w3: Integer := w2+1;  /* mais a servi a initialiser w3  */
+  var w: Integer := this.y + 1;  /* OK : valeur de y deja definie */
+  var w2: Integer := this.w+1;   /* va etre ecrasee dans le constructeur */
+  var w3: Integer := this.w2+1;  /* mais a servi a initialiser w3  */
   var name: String := "?";
 
 
-  def getx() : Integer := x
+  def getx() : Integer := this.x
   def gety() : Integer := this.y
-  def getz() : Integer is { result := z; }
+  def getz() : Integer is { result := this.z; }
 
-  def setName(s: String) is { name := s; }
+  def setName(s: String) is { this.name := s; }
 
-  def print() is { name.println(); }
+  def print() is { this.name.println(); }
 
   def printAll() is {
       this.getx().toString().print(); " ".print();
       this.gety().toString().print(); " ".print();
       this.getz().toString().print(); " ".print();
-      w.toString().print(); " ".print();
-      w2.toString().print(); " ".print();
-      w3.toString().print(); " ".print();
+      this.w.toString().print(); " ".print();
+      this.w2.toString().print(); " ".print();
+      this.w3.toString().print(); " ".print();
       
       this.print();
   }
-  def methodeTest() is { 3; 4;}
 }
 { 
   var p1: Point := new Point(1, 5);

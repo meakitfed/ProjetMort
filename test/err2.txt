@@ -1,4 +1,4 @@
-class Point(xc: Integer, yc: Integer) { x := xc; y := yc; } is {
+class Point(xc: Integer, yc: Integer) { this.x := xc; this.y := yc; } is {
   var x: Integer;
   var y: Integer;
   var name: String := "?";
@@ -8,7 +8,7 @@ class Point(xc: Integer, yc: Integer) { x := xc; y := yc; } is {
   def setName2(s: String) is {}
   def setName3(s: String) is {}
   def setName4(s: String) is {}
-  def print() : Point is { result := this; name.println(); }
+  def print() : Point is { result := this; this.name.println(); }
 
 }
 

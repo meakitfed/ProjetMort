@@ -1,12 +1,17 @@
-class A() is {
+class A() is 
+{
+
 }
+
 class A1() extends A() is {
 }
 
 class A2() extends A() is {
 }
 
-class A11() extends A1() is {
+class A11() extends A1() is 
+{
+
 }
 
 class A21() extends A2() is {

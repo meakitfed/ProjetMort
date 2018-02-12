@@ -90,7 +90,7 @@ class Couleur(var coul: Integer := 0)
       if this.coul = 0 then result:= "Blanc";
       else { var dummy : String; is
              if this.coul = 1 then aux := "Noir"; else aux := "Gris";
-       result := aux;
+	     result := aux;
            }
   }
 

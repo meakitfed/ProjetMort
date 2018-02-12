@@ -1,16 +1,20 @@
 class A() is {
 
- var x: Integer;
- var y: Integer;
+ var x: Integer := 57;
+ var y: Integer := 26;
 
  def f(s: String, x: String, z: String) is {
    s & s;
-   y + y;
-   x & x /* y */;
-   /* x */ + y;
+   (this.y + this.y).toString().println();
+   x & x;
+   (x & (this.x.toString())).println();
  }
 
  def g(k: String /* Integer */) is { this.f(k /* x*/, "coucou", k); }
 }
 {
+var a: A := new A();
+is
+a.f("s", "x", "z");
+a.g("k");
 }

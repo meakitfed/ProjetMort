@@ -1,10 +1,10 @@
-class A0(ic: Integer) { i := ic; } is {
+class A0(ic: Integer) { this.i := ic; } is {
   var i: Integer;
 }
-class A(xc: Integer) extends A0(2*xc) { x := xc; } is {
+class A(xc: Integer) extends A0(2*xc) { this.x := xc; } is {
   var x: Integer;
   var y: Integer := 12;
-  def f() : Integer := x + y + i
+  def f() : Integer := this.x + this.y + this.i
 }
 {
  var a : A := new A(5);

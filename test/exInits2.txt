@@ -1,12 +1,12 @@
-class A0(ic: Integer) { i := ic; "AO::A0".println(); } is {
+class A0(ic: Integer) { this.i := ic; "AO::A0".println(); } is {
   var i: Integer;
   var s: String :=  "A0-initialisation".println();
 }
-class A(xc: Integer) extends A0(2*xc) { x := xc; "A::A".println(); } is {
+class A(xc: Integer) extends A0(2*xc) { this.x := xc; "A::A".println(); } is {
   var x: Integer;
   var y: Integer := 12;
   var s: String := "A-initialisation".println();
-  def f() : Integer := x + y + i
+  def f() : Integer := this.x + this.y + this.i
 }
 {
  var a : A := new A(5);

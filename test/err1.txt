@@ -1,17 +1,17 @@
-class Point(xc: Integer, yc: Integer) { x := xc; y := yc; } is {
+class Point(xc: Integer, yc: Integer) { this.x := xc; this.y := yc; } is {
   var x: Integer;
   var y: Integer;
   var name: String := "?";
   var super : Integer := 15; /* interdit */
 
   def setName(s: String) : Point is {
-      name := s; 
+      this.name := s; 
       super := s; /* interdit */
   }
 
   def print() is { 
-      name.println();
-      this = name;   /* interdit */
+      this.name.println();
+      this := this.name;   /* interdit */
       this.x := super.x; /* incorrect */
       result := this;	 /* interdit car pas de type de retour. */
   }
