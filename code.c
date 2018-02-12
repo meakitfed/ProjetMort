@@ -1168,11 +1168,15 @@ void codeTV()
 
 			while(lmethodes != NIL(LMethode))
 			{
-				PUSHA(lmethodes->methode->nom);
-				STORE(cptStore);
-				DUPN(1);
+				if(strcmp(lmethodes->methode->nom, liste->classe->nom) != 0)
+				{
+					PUSHA(lmethodes->methode->nom);
+					STORE(cptStore);
+					DUPN(1);
+					cptStore++;
 
-				cptStore++;
+				}
+
 				lmethodes = lmethodes->next;
 			}
 		}

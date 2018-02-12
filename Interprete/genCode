@@ -1,9 +1,5 @@
 JUMP init	 --initialiser la table virtuelle
 
---Generation du code d'une classe : Integer
---Generation du code d'une classe : String
---Generation du code d'une classe : Void
---Generation du code d'une classe : Point
 --------------BLOC PRINCIPAL--------------
 
 
@@ -63,9 +59,6 @@ STOP
 
 --------Initialisation des tables virtuelles.--------
 init:	 NOP
-
---Classe Point
-ALLOC 0
 JUMP main
 
 --------Initialisation des invocations.--------
@@ -75,13 +68,6 @@ call1: 	PUSHL -1
 DUPN 1
 LOAD 0
 LOAD 0
-CALL
-RETURN
---invoquer methode numero 2 du receveur
-call2: 	PUSHL -1
-DUPN 1
-LOAD 0
-LOAD 1
 CALL
 RETURN
 

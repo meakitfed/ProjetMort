@@ -1,7 +1,10 @@
-class Point() {
-} 
-is
-{
+class Point(xc: Integer, yc: Integer) {
+     
+  } is {
+  var z: Integer;
+ 
+
+
 }
 
 { 
