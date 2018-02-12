@@ -10,12 +10,11 @@
 /*void generateur(TreeP tree);*/
 void listeSymboles();
 
-int adresse(char *id);
 
 InstanceP makeInstance(VarDeclP var);
 InstanceP makeInstance2(char *nom,ClasseP type);
 void addInstance(InstanceP ins);
-int positionDansLaListeDInstanceCeNomEstBeaucoupTropLong(char *id);
+int adresse(char *id);
 int tailleListeArbre(TreeP t);
 
 

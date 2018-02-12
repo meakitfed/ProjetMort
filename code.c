@@ -311,7 +311,7 @@ void codeConstructeur(TreeP arbre)
 	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
 	ClasseP classe = getClassePointer(getChild(arbre, 0)->u.str); 
 	TreeP lexpressions = getChild(arbre, 1);
-	int taille = getTailleListeVarDecl(classe->lparametres); /*TODO : getTailleChamps*/
+	int taille = getTailleListeVarDecl(classe->lparametres); 		/*TODO : getTailleChamps*/
 
 	TreeP tmp = lexpressions;
 
@@ -320,7 +320,7 @@ void codeConstructeur(TreeP arbre)
 	for (i = 0;  i< taille; i++) {
 		if(tmp != NIL(Tree)){
 			DUPN(1);
-			codeExpr(getChild(tmp, 0));
+			codeExpr(getChild(tmp, 0));								/*TODO : segfault*/
 			STORE(i);
 			tmp = getChild(tmp,1);  
 			i++;

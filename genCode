@@ -1,0 +1,278 @@
+JUMP init	 --initialiser la table virtuelle
+
+Point: 	PUSHL -2
+LOAD 0
+PUSHL -1
+LOAD 0
+DUPN 1
+PUSHL -1
+DUPN 1
+STOREG -1
+DUPN 1
+PUSHL -1
+DUPN 1
+STOREG -1
+PUSHI 0
+PUSHI -1
+SUB
+DUPN 1
+STOREG -1
+PUSHL -3
+SWAP
+STORE 0
+RETURN
+getx: 	DUPN 1
+PUSHL -1
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+gety: 	PUSHL -1
+SWAP
+STORE 0
+RETURN
+getz: 	DUPN 1
+PUSHL -1
+DUPN 1
+STOREG -1
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+setName: 	PUSHL -1
+LOAD 0
+DUPN 1
+PUSHL -1
+DUPN 1
+STOREG -1
+PUSHL -2
+SWAP
+STORE 0
+RETURN
+print: 	DUPN 1
+PUSHL -1
+WRITES
+PUSHS "\n"
+WRITES
+POPN 1
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+printAll: 	DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+DUPN 1
+PUSHL -1
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+PUSHL -1
+PUSHA toString
+CALL
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+PUSHL -1
+PUSHA toString
+CALL
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+PUSHL -1
+PUSHA toString
+CALL
+WRITES
+POPN 1
+PUSHS " "
+WRITES
+POPN 1
+DUPN 1
+PUSHL -1
+WRITES
+POPN 1
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+methodeTest: 	PUSHI 3
+POPN 1
+PUSHI 4
+POPN 1
+PUSHL -1
+SWAP
+STORE 0
+RETURN
+--------------BLOC PRINCIPAL--------------
+
+
+main: 	START
+ALLOC 2
+DUPN 1
+PUSHI 1
+STORE 0
+ALLOC 2
+DUPN 1
+PUSHI 2
+STORE 0
+DUPN 1
+PUSHG 1
+DUPN 1
+PUSHG 1
+PUSHG 0
+PUSHA call5
+CALL
+POPN 1
+POPN 1
+DUPN 1
+PUSHG 0
+DUPN 1
+PUSHG 0
+PUSHA call7
+CALL
+POPN 0
+POPN 1
+DUPN 1
+PUSHG 1
+DUPN 1
+PUSHG 1
+PUSHA call7
+CALL
+POPN 0
+POPN 1
+STOP
+
+
+--------------FIN DU BLOC PRINCIPAL--------------
+
+--------Initialisation des tables virtuelles.--------
+init:	 NOP
+ALLOC 8
+PUSHA Point
+STORE 0
+DUPN 1
+PUSHA getx
+STORE 1
+DUPN 1
+PUSHA gety
+STORE 2
+DUPN 1
+PUSHA getz
+STORE 3
+DUPN 1
+PUSHA setName
+STORE 4
+DUPN 1
+PUSHA print
+STORE 5
+DUPN 1
+PUSHA printAll
+STORE 6
+DUPN 1
+PUSHA methodeTest
+STORE 7
+DUPN 1
+JUMP main
+
+--------Initialisation des invocations.--------
+
+--invoquer methode numero 1 du receveur
+call1: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 0
+CALL
+RETURN
+--invoquer methode numero 2 du receveur
+call2: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 1
+CALL
+RETURN
+--invoquer methode numero 3 du receveur
+call3: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 2
+CALL
+RETURN
+--invoquer methode numero 4 du receveur
+call4: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 3
+CALL
+RETURN
+--invoquer methode numero 5 du receveur
+call5: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 4
+CALL
+RETURN
+--invoquer methode numero 6 du receveur
+call6: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 5
+CALL
+RETURN
+--invoquer methode numero 7 du receveur
+call7: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 6
+CALL
+RETURN
+--invoquer methode numero 8 du receveur
+call8: 	PUSHL -1
+DUPN 1
+LOAD 0
+LOAD 7
+CALL
+RETURN
+
+
+--Methode toString
+toString:	 PUSHL -2
+STR
+STOREL -1
+POPN 1
+RETURN
+
