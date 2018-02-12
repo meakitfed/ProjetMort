@@ -50,7 +50,6 @@ class TestConstructeurHeritage(var point1 : Point, var point2 : PointBis) {} is
 
 { 
   /*sans erreur*/
-  
   var p1: Point := new Point(0,1,"premier");
   var p2: Point := new Point(0,1,2,"deuxieme");
   var p3: Point := new Point(0,1);  
@@ -63,14 +62,31 @@ class TestConstructeurHeritage(var point1 : Point, var point2 : PointBis) {} is
 
   /*avec erreur*/
 
-  var p5: Point := new Point();
+  /*manque de param*/
+  var p5: Point := new Point(); 
+
+  /*manque de param*/
   var p6: Point := new Point(0);  
+
+  /*mauvais type de param*/
   var p7: Point := new Point("erreur ici", "erreur là");  
+
+  /*mauvais type param en dernier*/
   var p8: Point := new Point(0,1,2,3);  
+
+  /*mauvais ordre param*/
   var p9: Point := new Point(0,1,"erreur ici", 2);  
+
+  /*un parametre en trop*/
   var p10: Point := new Point(0,1,2,"nom",3);  
+
+  /*un pointBis ne peut pas contenir un Point*/
   var p12: PointBis := new Point(0,1);   
+
+  /*type des paramètres faux en fonction de l'héritage*/
   var p16: TestConstructeurHeritage := new TestConstructeurHeritage(new PointBis(2,3),new Point(2,3));
+
+  /*type des paramètres faux en fonction de l'héritage*/
   var p16: TestConstructeurHeritage := new TestConstructeurHeritage(new Point(2,3),new Point(2,3));
 
 is
@@ -83,8 +99,9 @@ is
   p14.egal2(p2);
   p14.egal2(p14);
 
-
   /* avec erreur */
+
+  /*traité de façon semblable que les constructeurs*/
   p1.egal(p2, p2);
   p1.egal(p14, p2);
 }
