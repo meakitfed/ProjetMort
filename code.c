@@ -214,6 +214,7 @@ bool addVarEnvSansNum(VarDeclP var, ClasseP classe)
     return check;
 }
 
+
 /*
  * Retourne la méthode correspondant à un nom
  * à partir de l'environnement de sa classe
@@ -293,7 +294,8 @@ void codeConstructeurVersionStructure(ClasseP classe)
 	ALLOC(taille);     
 	codeLDeclChampStructure(classe->lchamps);
 	LMethodeP lmethodes = classe->lmethodes;
-	while(lmethodes != NULL) {
+	while(lmethodes != NULL) 
+	{
 		codeDeclMethode(lmethodes->methode);
 	}
     /* en fait il faut pas faire ça je crois j'ai rien compris hahahahahahahahaha
@@ -924,12 +926,13 @@ void codeAff(TreeP tree)
 			}
 
 			codeExpr(Expr);
+			ClasseP classe = getClassePointer(Expr->u.str); 
 
 			/*char* t = getSymbole(Expr->u.str)->Expr->type;		TODO
 
 			ClassP class = figureClass(t); cimer 			TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
-			offset = getOffset(class,Id->u.str);
+			offset = getOffset(class,Ident->u.str);
 		   
 			STORE(offset);*/
 		}
@@ -1221,7 +1224,7 @@ void codeToString()
 {
 	fprintf(output, "\n\n--Methode toString\n");
 
-	fprintf(output, "toString:\t PUSHL -2\n");
+	fprintf(output, "toString:\t PUSHL -2\n");	/*MARCHE MAIS PAS LOGIQUE : TODO*/
 	fprintf(output, "STR\n");
 	fprintf(output, "STOREL -1\n");
 	fprintf(output, "POPN 1\n");

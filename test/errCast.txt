@@ -1,15 +1,15 @@
 class A() is {
   var v: Integer := 1;
-  def f() : Integer := v
+  def f() : Integer := this.v
 }
 class A2() extends A() is {
   var v: String := "coucou";
   var w: Integer := 5;
-  def g() : String := v
+  def g() : String := this.v
 }
 class A3() extends A2() is {
   var v: Integer := 5;
-  override def f() : Integer := v
+  override def f() : Integer := this.v
   def h() : Integer := (A this).v /* OK */
   def h2(): String := (A2 this).v /* OK */
   def k() : Integer := (A this).w /* Incorrect */

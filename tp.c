@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "tp.h"
+#include "code.h"
 #include "tp_y.h"
 #include <assert.h>
 
@@ -848,7 +849,7 @@ bool verifContextProg(TreeP arbreLClasse, TreeP main)
     check = verifContextMain(main) && check;
 
     if(nbErreur > 0)
-        fprintf(stderr, "Votre programme a %d erreur(s)\n\n", nbErreur);
+        fprintf(stderr, "Votre programme a %d erreur(s).\n\n", nbErreur);
     else
         printf("\nC'est good\n\n");
 
@@ -894,9 +895,10 @@ void compile(TreeP arbreLClasse, TreeP main, bool verbose)
         stockerClasse(arbreLClasse, verbose);
     }
     
-    verifContextProg(arbreLClasse, main); 
-
-    /* genCode($1, $2); */
+    if(verifContextProg(arbreLClasse, main))
+    {
+        genCode(arbreLClasse, main);
+    } 
 }
 
 
