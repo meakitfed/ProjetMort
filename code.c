@@ -307,28 +307,49 @@ void codeConstructeurVersionStructure(ClasseP classe)
     } */
 }  
 
-/*CodeConstructeur*/ 
+/*CodeConstructeur*/
 void codeConstructeur(TreeP arbre)
 {
-	/*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
-	ClasseP classe = getClassePointer(getChild(arbre, 0)->u.str); 
-	TreeP lexpressions = getChild(arbre, 1);
-	int taille = getTailleListeVarDecl(classe->lparametres); 		/*TODO : getTailleChamps*/
-
-	TreeP tmp = lexpressions;
-
-	ALLOC(taille);  
-	int i = 0;      
-	for (i = 0;  i< taille; i++) {
-		if(tmp != NIL(Tree)){
-			DUPN(1);
-			codeExpr(getChild(tmp, 0));								/*TODO : segfault*/
-			STORE(i);
-			tmp = getChild(tmp,1);  
-			i++;
-		}   
-	}
-}   
+    /*fprintf(output, "Instanciation de la classe %s :\n", getChild(arbre, 0)->u.str);*/
+    if(arbre != NIL(Tree)){
+        ClasseP classe = NULL;
+        if(getClassePointer(getChild(arbre, 0)->u.str) != NULL)
+            classe = getClassePointer(getChild(arbre, 0)->u.str);
+        TreeP lexpressions = NULL;
+        if(getChild(arbre, 1) != NULL)
+            lexpressions = getChild(arbre, 1);
+   
+        int taille = getTailleListeVarDecl(classe->lparametres) + getTailleListeMethode(classe->lmethodes);        
+ 
+        TreeP tmp = lexpressions;
+ 
+        ALLOC(taille);
+        int i = 0;      
+       
+        while(tmp != NIL(Tree) && i < taille){
+            if(tmp->nbChildren == 2) {
+                DUPN(1);
+                codeExpr(getChild(tmp, 0));                          
+                STORE(i);
+                tmp = getChild(tmp,1);
+                i++;
+            }
+            else if(tmp->nbChildren == 1) {
+                DUPN(1);
+                codeExpr(getChild(tmp, 0));                          
+                STORE(i);
+                tmp = getChild(tmp,0);
+                i++;
+            }  
+            else {
+                DUPN(1);
+                codeExpr(tmp);                          
+                STORE(i);
+                i++;
+            }  
+        }
+    }
+}
 
 
 /*CodeConstructeurVersionStructure*/ 
@@ -368,6 +389,7 @@ int tailleListeArbre(TreeP t)
     return i;
 }
 
+
 /* 
  * Génère le code d'une Liste de déclarations
  */
@@ -379,6 +401,7 @@ void codeLDeclChampStructure(LVarDeclP lChamps)
 		lchamps = lchamps->next;
 	}
 }
+
 
 /*
  * Génère le code des déclarations
@@ -445,10 +468,8 @@ void codeExpr(TreeP tree)
 			break;
 
 		case Id:
-		
-			DUPN(1);
+
 			PUSHL(adresse(tree->u.str));	
-			
 			break;
 
 		/*instanciation/constructeur*/
@@ -652,7 +673,6 @@ void codeInstr(TreeP tree)
 	switch (tree->op) {
 	case YEXPR:                     		/* Expr;*/
 		codeExpr(getChild(tree, 0));   
-	   	POPN(1);							/*POPN car on ne garde pas l'expression en mémoire*/	
 	   	printf("YEXPR\n");
 		break;
 
@@ -1208,11 +1228,9 @@ void codeTV()
 void codeToString()
 {
 	fprintf(output, "\n\n--Methode toString\n");
-
-	fprintf(output, "toString:\t PUSHL -2\n");	/*MARCHE MAIS PAS LOGIQUE : TODO*/
+	fprintf(output, "toString:\t PUSHL -1\n");	/*MARCHE MAIS PAS LOGIQUE : TODO*/
 	fprintf(output, "STR\n");
 	fprintf(output, "STOREL -1\n");
-	fprintf(output, "POPN 1\n");
 	fprintf(output, "RETURN\n");
 }
 
