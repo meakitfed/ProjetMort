@@ -9,9 +9,13 @@ JUMP init	 --initialiser la table virtuelle
 
 main: 	START
 --########DEBUG : Bloc de type LDeclChamp IS LInstr--
+--#######DEBUG : Affectation : ident "\n\nProgramme de comparaison de valeurs !"
+PUSHS "\n\nProgramme de comparaison de valeurs !"
+DUPN 1
+STOREL 2
 
 --println affiche la chaine suivante :
-PUSHS "\n\nProgramme de comparaison de valeurs !"
+PUSHL 2
 WRITES
 PUSHS "\n"
 WRITES

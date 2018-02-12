@@ -10,9 +10,13 @@ class Point(xc: Integer, yc: Integer) {
 { 
   var x: Integer;
   var y: Integer;
+
+  var message: String;
   is
 
-  "\n\nProgramme de comparaison de valeurs !".println();
+  message := "\n\nProgramme de comparaison de valeurs !";
+
+  message.println();
 
   x := 9;
   y := 2;
